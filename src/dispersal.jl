@@ -94,14 +94,15 @@ function checkviability!(community::Array{Individual, 1})
     while idx <= size(community,1)
         reason = ""
         dead = false
+        itraits = community[idx].traits
         community[idx].size <= 0 && (dead = true) && (reason *= "size ")
-        any(collect(values(community[idx].traits)) .< 0) && (dead = true) && (reason *= "traitvalues ")
-        community[idx].traits["repsize"] <= community[idx].traits["seedsize"] && (dead = true) && (reason *= "seed/rep ")
+        any(collect(values(itraits)) .< 0) && (dead = true) && (reason *= "traitvalues ")
+        itraits["repsize"] < itraits["seedsize"] && (dead = true) && (reason *= "seed/rep ")
         community[idx].tempadaptation < 0 && (dead = true) && (reason *= "fitness ")
         community[idx].precadaptation < 0 && (dead = true) && (reason *= "fitness ")
-        community[idx].traits["selfing"] > 1 && (dead = true) && (reason *= "selfing ")
-        community[idx].traits["seqsimilarity"] > 1 && (dead = true) && (reason *= "seqsimilarity ")
-        !traitsexist(community[idx].traits) && (dead = true) && (reason *= "missingtrait ")
+        in("selfing", keys(itraits)) && itraits["selfing"] > 1 && (dead = true) && (reason *= "selfing ")
+        itraits["seqsimilarity"] > 1 && (dead = true) && (reason *= "seqsimilarity ")
+        !traitsexist(itraits) && (dead = true) && (reason *= "missingtrait ")
         if dead
             simlog("Individual not viable: $reason. Being killed.", 'w')
             splice!(community,idx)

@@ -113,22 +113,21 @@ function getseqsimilarity(indgene::AbstractString, mategene::AbstractString)
 end
 
 """
-    getseq(genome, traitidx)
+    getseqs(genome, traitname)
 
-Find and return the sequence of one gene that codes for the given trait `traitidx`.
+Find and return the sequences of genes that code for the given trait.
 """
-function getseq(genome::Array{Chromosome, 1}, traitidx::Integer, compressgenes::Bool)
-    seq = ""
+function getseqs(genome::Array{Chromosome, 1}, traitname::String)
+    seqs = String[]
+    traitidx = findfirst(x -> x == traitname, setting("traitnames"))
     for chrm in genome
         for gene in chrm.genes
-            # use one compatibility gene randomly #XXX what's that comment supposed to mean?
-            #TODO have another look at this
             if any(x -> x.nameindex == traitidx, gene.codes)
-                compressgenes ? seq = num2seq(gene.sequence) : seq = gene.sequence
+                setting("compressgenes") ? push!(seqs, num2seq(gene.sequence)) : push!(seqs, gene.sequence)
             end
         end
     end
-    seq
+    seqs
 end
 
 """
@@ -139,21 +138,33 @@ comparing gene sequences (which sequence depends on setting("speciation")).
 """
 function iscompatible(mate::Individual, ind::Individual)
     mate.lineage != ind.lineage && return false
+    indgenes, mategenes = "", ""
     if setting("speciation") == "off"
-        return true # no speciation can happen
+        return true # all conspecifics are compatible, no speciation can happen
     elseif setting("speciation") == "neutral"
         # default, use a non-coding sequence for mutation-order speciation
-        comparegene = "compat"
+        indgenes = join(getseqs(ind.genome, "compat"))
+        mategenes = join(getseqs(mate.genome, "compat"))
     elseif setting("speciation") == "ecological"
-        # use a coding sequence for ecological speciation
-        #XXX is `prectol` a sensible choice?
-        comparegene = "prectol"
+        # use all coding sequences for ecological speciation
+        for tr in setting("traitnames")
+            (tr == "compat") && continue
+            indgenes *= join(getseqs(ind.genome, tr))
+            mategenes *= join(getseqs(mate.genome, tr))
+        end
     end
-    compatidx = findfirst(x -> x == comparegene, setting("traitnames"))
-    indgene = getseq(ind.genome, compatidx, setting("compressgenes"))
-    mategene = getseq(mate.genome, compatidx, setting("compressgenes"))
-    seqidentity = getseqsimilarity(indgene, mategene)
+    seqidentity = getseqsimilarity(indgenes, mategenes)
     seqidentity >= ind.traits["seqsimilarity"]
+end
+
+"""
+    concatgenes(individual)
+
+Concatenate the sequences of all coding (i.e. non-compatibility) genes of this individual.
+"""
+function codinggenes(ind::Individual)
+    #TODO
+    
 end
 
 """

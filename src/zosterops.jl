@@ -42,7 +42,7 @@ let zosterops = Individual[] #holds the species archetypes
             for gene in chromosome.genes
                 isempty(gene.codes) && continue
                 genetrait = setting("traitnames")[gene.codes[1].nameindex]
-                if in(keys(spectraits), genetrait)
+                if in(genetrait, keys(spectraits))
                     gene.codes[1].value = spectraits[genetrait]
                 end
             end

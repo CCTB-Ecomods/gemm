@@ -73,6 +73,10 @@
 
 - [X] rethink species trait definition in config
 
+- [X] concatenate functional genes when calculating compatibility with ecological speciation
+
+- [X] disable `selfing` gene for Zosterops studies (how about `seedsize`?)
+
 - [ ] test dispersal and reproduction functions
 
 - [ ] adjust body sizes and dispersal distances
