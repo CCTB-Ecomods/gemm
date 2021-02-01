@@ -329,29 +329,37 @@ end
 
 Dispersal of individuals within the world.
 """
-function disperse!(world::Array{Patch,1}, static::Bool = true) # TODO: additional border conditions, refactorize
+function disperse!(world::Array{Patch,1}, static::Bool = true)
+    # TODO: additional border conditions, refactor
     for patch in world
         idx = 1
-        while idx <= size(patch.seedbank,1)
+        while idx <= length(patch.seedbank) # disperse each juvenile
             dispmean = patch.seedbank[idx].traits["dispmean"]
             dispshape = patch.seedbank[idx].traits["dispshape"]
-            xdir = rand([-1,1]) * rand(Logistic(dispmean,dispshape))/sqrt(2) # scaling so that geometric mean...
-            ydir = rand([-1,1]) * rand(Logistic(dispmean,dispshape))/sqrt(2) # ...follows original distribution
+            # scaling so that geometric mean follows original distribution (?!)
+            xdir = rand([-1,1]) * rand(Logistic(dispmean,dispshape))/sqrt(2) 
+            ydir = rand([-1,1]) * rand(Logistic(dispmean,dispshape))/sqrt(2)
             xdest = patch.location[1] + Int(round(xdir))
             ydest = patch.location[2] + Int(round(ydir))
             !patch.isisland ? target = checkborderconditions(world, xdest, ydest) : target = (xdest, ydest)
-            possdest = findall(x -> in(x.location, [target]), world)
-            static && filter!(x -> world[x].isisland, possdest) # disperse only to islands
+            possdest = findfirst(x -> x.location==target, world)
+            # Note: the following section allows for a mainland/island scenario in which the
+            # mainland is static (i.e. mainland individuals are treated as archetypes from
+            # an infinitely large source population).
+            if static && !world[possdest].isisland
+                idx += 1 # disperse only to islands
+                continue
+            end
             if !static || patch.isisland
-                indleft = splice!(patch.seedbank,idx) # only remove individuals from islands!
+                # only remove individuals from islands / non-static mainland
+                indleft = splice!(patch.seedbank,idx) 
                 idx -= 1
             end
-            if length(possdest) > 0 # if no viable target patch, individual dies
+            if !isnothing(possdest) # if no viable target patch, individual dies
                 if static && !patch.isisland
-                    indleft = patch.seedbank[idx]
+                    indleft = deepcopy(patch.seedbank[idx])
                 end
-                destination = rand(possdest) # currently there is only one possible destination
-                push!(world[destination].community, indleft)
+                push!(world[possdest].community, indleft)
             end
             idx += 1
         end
