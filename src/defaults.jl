@@ -8,6 +8,7 @@ function defaultSettings()
     # Return the default settings. All parameters must be registered here.
     Dict(
         "biggenelength" => 200,
+        "borders" => "absorbing", # border behaviour: absorbing/reflecting/mainland
         "burn-in" => 1000, # timesteps before invasion starts
         "cellsize" => 20e6, # maximum biomass per hectare in gramm (based on Clark et al. 2001)
         "config" => "", # configuration file name
@@ -53,7 +54,7 @@ function defaultSettings()
         "sdtemp" => 0.0, # SD of temperature change per time step
         "seed" => 0, # for the RNG, seed = 0 -> random seed
         "smallgenelength" => 20,
-        "static" => false, # whether mainland sites undergo eco-evolutionary processes
+        "static" => false, # whether mainland sites undergo eco-evolutionary processes (implies "mainland" borders)
         "stats" => true, # record population statistics
         "tolerance" => 0.8, # sequence similarity threshold for reproduction
         "traitnames" => ["compat",
