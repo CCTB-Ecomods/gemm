@@ -342,7 +342,7 @@ function disperse!(world::Array{Patch,1}, borders::String, static::Bool)
             xdest = patch.location[1] + Int(round(xdir))
             ydest = patch.location[2] + Int(round(ydir))
             target = (xdest, ydest)
-            (borders != "absorbing") && (target = checkborderconditions(world, xdest, ydest))
+            (borders != "absorbing") && (target = checkborderconditions(world, xdest, ydest, borders))
             possdest = findfirst(x -> x.location==target, world)
             # Note: the following section allows for a mainland/island scenario in which the
             # mainland is static (i.e. mainland individuals are treated as archetypes from
