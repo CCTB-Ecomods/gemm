@@ -24,7 +24,7 @@ function simulate!(world::Array{Patch,1}, settings::Dict{String, Any}, timesteps
             disturb!(world, settings)
             invade!(world, settings)
         end
-        disperse!(world, settings["static"])
+        disperse!(world, settings["borders"], settings["static"])
         checkviability!(world, settings)
         changehabitat!(world, settings) # model output
         # map(p -> simlog("Patch $(p.id): $(length(p.community)) individuals.", settings, 'd'), world) # disabled - performance concerns

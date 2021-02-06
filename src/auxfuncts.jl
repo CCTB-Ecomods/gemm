@@ -199,13 +199,15 @@ end
 """
     findisland(w)
 
-within world `w`, find out in which direction from the continent the island(s) lie(s).
+Within world `w`, find out in which direction from the continent the island lies.
 """
 function findisland(world::Array{Patch,1})
-    xmin = minimum(map(x->x.location[1],world))
-    xmax = maximum(map(x->x.location[1],world))
-    ymin = minimum(map(x->x.location[2],world))
-    ymax = maximum(map(x->x.location[2],world))
+    # Context: this function is one of the oldest pieces of code in the model.
+    # It was created when GeMM was still targeted at island/mainland studies,
+    # and assumes a lot of things that we do differently now. It has been kept
+    # for backward compatibility, but is only used when settings["borders"] == "mainland".
+    xmin, xmax = extrema(map(x->x.location[1],world))
+    ymin, ymax = extrema(map(x->x.location[2],world))
     westernborder = filter(x->x.location[1]==xmin,world)
     northernborder = filter(x->x.location[2]==ymax,world)
     easternborder = filter(x->x.location[1]==xmax,world)
@@ -224,18 +226,18 @@ function findisland(world::Array{Patch,1})
 end
 
 """
-    checkborderconditions!(w, x, y)
+    checkborderconditions!(w, x, y, b)
 
-check if coordinates `x` and `y` lie within world `w` and correct if not,
-considering defined border conditions.
+Check if the coordinates `x` and `y` lie within world `w` and correct if not,
+considering defined border conditions `b`.
 """
-function checkborderconditions(world::Array{Patch,1}, xdest::Int, ydest::Int)
-    xmin = minimum(map(x->x.location[1],world))
-    xmax = maximum(map(x->x.location[1],world))
-    ymin = minimum(map(x->x.location[2],world))
-    ymax = maximum(map(x->x.location[2],world))
-    xrange = xmax - xmin + 1 # we're counting cells!
-    yrange = ymax - ymin + 1 # we're counting cells!
+function checkborderconditions(world::Array{Patch,1}, xdest::Int, ydest::Int, borders::String)
+    # First, figure out whether and by how much a destination coordinate overshoots
+    # the world borders
+    xmin, xmax = extrema(map(x->x.location[1],world))
+    ymin, ymax = extrema(map(x->x.location[2],world))
+    xrange = xmax  - xmin + 1 # we're counting cells!
+    yrange = ymax  - ymin + 1 # we're counting cells!
     xshift = xdest - xmin + 1 # 1-based count of cells
     yshift = ydest - ymin + 1 # 1-based count of cells
     xshift > 0 ? outofx = abs(xshift) : outofx = abs(xshift) + 1
@@ -248,28 +250,38 @@ function checkborderconditions(world::Array{Patch,1}, xdest::Int, ydest::Int)
         outofy -= yrange
     end
     outofy -= 1
-    islanddirection = findisland(world::Array{Patch,1})
-    if islanddirection == "west"
+    # If a coordinate lies outside the world, correct it depending on the border conditions
+    if borders == "mainland"
+        # Ye who come after: see the comment at `findisland()` to
+        # understand the history of this dark place...
+        islanddirection = findisland(world::Array{Patch,1})
+        if islanddirection == "west"
+            xdest > xmax && (xdest = xmax - outofx) # east: reflective
+            ydest < ymin && (ydest = ymax - outofy) # south: periodic
+            ydest > ymax && (ydest = ymin + outofy) # north: periodic
+        elseif islanddirection == "north"
+            ydest < ymin && (ydest = ymin + outofy) # south: reflective
+            xdest < xmin && (xdest = xmax - outofx) # west: periodic
+            xdest > xmax && (xdest = xmin + outofx) # east: periodic
+        elseif islanddirection == "east"
+            xdest < xmin && (xdest = xmin + outofx) # west: reflective
+            ydest < ymin && (ydest = ymax - outofy) # south: periodic
+            ydest > ymax && (ydest = ymin + outofy) # north: periodic
+        elseif islanddirection == "south"
+            ydest > ymax && (ydest = ymax - outofy) # north: reflective
+            xdest < xmin && (xdest = xmax - outofx) # west: periodic
+            xdest > xmax && (xdest = xmin + outofx) # east: periodic
+        else
+            ydest > ymax && (ydest = ymin + outofy) # north: periodic
+            xdest > xmax && (xdest = xmin + outofx) # east: periodic
+            ydest < ymin && (ydest = ymax - outofy) # south: periodic
+            xdest < xmin && (xdest = xmax - outofx) # west: periodic
+        end
+    elseif borders == "reflective"
+        ydest > ymax && (ydest = ymax - outofy) # north: reflective
         xdest > xmax && (xdest = xmax - outofx) # east: reflective
-        ydest < ymin && (ydest = ymax - outofy) # south: periodic
-        ydest > ymax && (ydest = ymin + outofy) # north: periodic
-    elseif islanddirection == "north"
         ydest < ymin && (ydest = ymin + outofy) # south: reflective
-        xdest < xmin && (xdest = xmax - outofx) # west: periodic
-        xdest > xmax && (xdest = xmin + outofx) # east: periodic
-    elseif islanddirection == "east"
         xdest < xmin && (xdest = xmin + outofx) # west: reflective
-        ydest < ymin && (ydest = ymax - outofy) # south: periodic
-        ydest > ymax && (ydest = ymin + outofy) # north: periodic
-    elseif islanddirection == "south"
-        ydest > ymax && (ydest = ymax + outofy) # north: reflective
-        xdest < xmin && (xdest = xmax - outofx) # west: periodic
-        xdest > xmax && (xdest = xmin + outofx) # east: periodic
-    else
-        ydest > ymax && (ydest = ymin + outofy) # north: periodic
-        xdest > xmax && (xdest = xmin + outofx) # east: periodic
-        ydest < ymin && (ydest = ymax - outofy) # south: periodic
-        xdest < xmin && (xdest = xmax - outofx) # west: periodic
     end
     xdest, ydest
 end
