@@ -2,6 +2,13 @@
 # A quick-and-dirty script to launch a simulation run
 # Daniel Vedder, 1/2/21
 
-sed -e "s/$1_small/$1_small_$2/" $1_small.conf > $1_small_$2.conf
+# Usage: `./runsim.sh <scenario> <setting> <replicate>`, where:
+#        scenario: "constant", "variable"
+#        setting: "small", "reflecting", "absorbing"
+#        replicate: an integer determining the random seed
 
-rungemm.jl -c $1_small_$2.conf
+sed -e "s/$1_$2/$1_$2_$3/" \
+	-e "s/seed 0/seed $3/" \
+	examples/gradient/$1_$2.conf > $1_$2_$3.conf
+
+#./rungemm.jl -c $1_$2_$3.conf
