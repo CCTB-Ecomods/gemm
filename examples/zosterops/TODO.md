@@ -80,12 +80,15 @@
 - [ ] test dispersal and reproduction functions
 		- [X] BUG: breeding pairs formed after dispersal don't mate (problem: excessive mortality)
 		- [X] BUG: dispshape sometimes not greater zero (required for logistic distribution)
+		- [ ] make sure hybridisation works as intended
 
 - [X] adjust body sizes and dispersal distances
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 
-- [ ] backport dispersal code changes from `globalmating`
+- [X] backport dispersal code changes from `globalmating`
+
+- [X] measure & record population heterozygosity
 
 - [ ] vary hybridization affinity for core experiment
 

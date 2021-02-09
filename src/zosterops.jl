@@ -39,6 +39,7 @@ let zosterops = Individual[] #holds the species archetypes
         archetype.lineage = spectraits["lineage"]
         # Find the genes that code for relevant traits and change their values
         for chromosome in archetype.genome
+            setting("heterozygosity") && (chromosome.lineage = archetype.lineage)
             for gene in chromosome.genes
                 isempty(gene.codes) && continue
                 genetrait = setting("traitnames")[gene.codes[1].nameindex]

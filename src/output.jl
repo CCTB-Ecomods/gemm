@@ -271,8 +271,9 @@ Print a list of property names to the given IO stream. This is a helper function
 for `printpopstats`.
 """
 function printpopheader(io::IO)
-    print(io, "time", "\tx", "\ty", "\ttemp", "\tprec", "\tcapacity", "\tisisland")
-    print(io, "\tlineage", "\tjuveniles", "\tadults", "\ttempadaptationmean", "\tprecadaptationmean")
+    print(io, "time", "\tx", "\ty", "\ttemp", "\tprec", "\tcapacity", "\tisisland",
+          "\tlineage", "\tjuveniles", "\tadults", "\ttempadaptationmean",
+          "\tprecadaptationmean", "\theterozygosity")
     traitnames =  ["compat", "compatsd", "dispmean", "dispmeansd", "dispshape", "dispshapesd",
                    "ngenes", "nlnkgunits", "precopt", "precoptsd", "prectol", "prectolsd",
                    "repsize", "repsizesd", "seqsimilarity", "seqsimilaritysd", "seedsize", "seedsizesd",
@@ -308,7 +309,8 @@ function printpopstats(io::IO, world::Array{Patch, 1}, timestep::Integer)
             adultidxs = findall(i -> i.size >= i.traits["repsize"], patch.community[popidxs])
             print(io, "\t", population[1].lineage, "\t", length(popidxs) - length(adultidxs), "\t", length(adultidxs),
                   "\t", mean(skipmissing(map(i -> i.tempadaptation, population))),
-                  "\t", mean(skipmissing(map(i -> i.precadaptation, population))))
+                  "\t", mean(skipmissing(map(i -> i.precadaptation, population))),
+                  "\t", heterozygosity(population))
             poptraitdict = Dict{String, Array{Float64, 1}}()
             for traitname in traitnames
                 poptrait = map(i -> i.traits[traitname], population)
@@ -362,6 +364,8 @@ function simlog(msg::String, category::Char='i', logfile::String="simulation.log
     end
 end
 
+#XXX perhaps the utility functions below should go elsewhere?
+
 """
     diversity(w)
 
@@ -390,6 +394,25 @@ function diversity(world::Array{Patch,1})
     gamma = shannon(globalindex)
     beta = gamma - alpha
     (alpha, beta, gamma)
+end
+
+"""
+    heterozygosity(population)
+
+Calculate the percentage of extraspecific chromosomes in a population's gene pool.
+"""
+function heterozygosity(population::Array{Individual,1})
+    (!(setting("heterozygosity") || isempty(population))) && return 0
+    lineage = population[1].lineage
+    chromosomes = 0
+    extraspecifics = 0
+    for ind in population
+        for c in ind.genome
+            chromosomes += 1
+            (c.lineage != lineage) && (extraspecifics += 1)
+        end
+    end
+    return (extraspecifics/chromosomes) * 100
 end
 
 """
