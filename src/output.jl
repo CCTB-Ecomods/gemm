@@ -333,7 +333,7 @@ If `logfile` is the empty string (default: "simulation.log"), the message will
 only be printed to the screen. If `onlylog` is true (default: false), the
 message is not printed to screen but only to the log.
 """
-function simlog(msg::String, category='i', logfile="simulation.log", onlylog=false)
+function simlog(msg::String, category::Char='i', logfile::String="simulation.log", onlylog::Bool=false)
     #TODO Julia now has inbuilt logging facilities: https://docs.julialang.org/en/v1/stdlib/Logging/
     # This function ought to be rewritten to make use of these (especially warning and error macros)
     (isa(category, String) && length(category) == 1) && (category = category[1])

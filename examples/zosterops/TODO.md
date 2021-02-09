@@ -78,8 +78,9 @@
 - [X] disable `selfing` gene for Zosterops studies (how about `seedsize`?)
 
 - [ ] test dispersal and reproduction functions
+		- [ ] BUG: breeding pairs formed after dispersal don't mate (problem: excessive mortality)
 
-- [ ] adjust body sizes and dispersal distances
+- [X] adjust body sizes and dispersal distances
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 
@@ -102,6 +103,8 @@
 
 - [ ] update documentation
 
+- [ ] running an experiment must be fully automated! (no manual setup)
+
 ## Notes
 
 - how should burn-in work?
@@ -118,3 +121,10 @@
   -> either in `mutate!` or in `checkviability!`
 
 - what determines brood density in lowland species? forest cover?
+
+- dispersal distance:
+  - "Based on 339 retraps, the max dispersal distance for Z. silvanus is 1.84 km. 
+	This is certainly an underestimation of the max natal dispersal distance 
+	because we have never ringed pulli in the nest for this species."
+  - "For adults, the mean dispersal distance of females is 0.38 km and for 
+	males is 0.21 km."
