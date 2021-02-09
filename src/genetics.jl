@@ -158,16 +158,6 @@ function iscompatible(mate::Individual, ind::Individual)
 end
 
 """
-    concatgenes(individual)
-
-Concatenate the sequences of all coding (i.e. non-compatibility) genes of this individual.
-"""
-function codinggenes(ind::Individual)
-    #TODO
-    
-end
-
-"""
     seq2num(sequence)
 
 Convert a DNA base sequence (a string) into binary and then into an integer.

@@ -135,6 +135,7 @@ function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int
     route = [location]
     #XXX disperse!() adds `/sqrt(2)`??
     #XXX sex-biased maximum dispersal?
+    !(bird.traits["dispshape"] > 0) && @goto failure # Logistics() requires θ > zero(θ)
     maxdist = rand(Logistic(bird.traits["dispmean"], bird.traits["dispshape"]))
     while maxdist > 0
         # calculate the best habitat patch in the surroundings (i.e. the closest to AGC optimum)
@@ -181,7 +182,7 @@ function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int
         push!(route, bestdest.location)
         maxdist -= 1
     end #if the max dispersal distance is reached, the individual simply dies
-    @label failure
+    @label failure #XXX this could be removed (and `@goto failure` replaced with a simple `return`)
     simlog("A Z.$(bird.lineage) died after failed dispersal.", 'd')
 end
 
@@ -208,24 +209,22 @@ end
 Reproduction of Zosterops breeding pairs in a patch.
 """
 function zreproduce!(patch::Patch)
-    #FIXME reproduction happens too seldom?
-    #hypothesis: new partners don't reproduce
-    #FIXME partner matching is not constant
     noffs = Integer(setting("fertility"))
     for bird in patch.community
-        if bird.sex == female && bird.partner != 0
+        simlog("$(idstring(bird)), $(bird.sex), partner: $(bird.partner)", 'd')
+        if bird.partner != 0
             pt = findfirst(b -> b.id == bird.partner, patch.community)
-            if isnothing(pt)
-                simlog("$(idstring(bird)) has no partner.", 'd')
-                continue
+            if isnothing(pt) # birds can find a new partner if one has died
+                simlog("$(idstring(bird)) no longer has a partner.", 'd')
+                bird.partner = 0
+            elseif bird.sex == female # only mate once per pair
+                partner = patch.community[pt]
+                simlog("$(idstring(bird)) mated with $(idstring(partner)).", 'd')
+                append!(patch.seedbank, createoffspring(noffs, bird, partner, true))
             end
-            partner = patch.community[pt]
-            simlog("$(idstring(bird)) mated with $(idstring(partner)).", 'd')
-            append!(patch.seedbank, createoffspring(noffs, bird, partner, true))
         end
     end
 end
-
 
 let width = 0, height = 0
     """

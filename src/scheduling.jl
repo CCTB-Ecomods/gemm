@@ -75,7 +75,6 @@ end
 The annual update procedure for the Zosterops experiments, this time for bird populations.
 """
 function zosteropsexperiment(world::Array{Patch,1})
-    #TODO
     establish!(world, setting("nniches"), setting("static"))
     survive!(world)
     reproduce!(world)
