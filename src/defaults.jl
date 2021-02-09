@@ -8,6 +8,7 @@ function defaultSettings()
     # Return the default settings. All parameters must be registered here.
     Dict(
         "biggenelength" => 200, # length of the compatibility gene's sequence (if `usebiggenes`)
+        "borders" => "absorbing", # border behaviour: absorbing/reflecting/mainland
         "burn-in" => 1000, # timesteps before invasion starts
         "capgrowth" => false, # strictly limit individuals' size to `repsize`
         "cellsize" => 20e6, # maximum biomass per hectare in gramm (based on Clark et al. 2001)
@@ -59,7 +60,7 @@ function defaultSettings()
         "smallgenelength" => 20, # standard gene sequence length (max. 21)
         "speciation" => "neutral", # allow lineage differentiation? off/neutral/ecological
         "species" => Dict{String,Any}[], # define trait values for each Zosterops species
-        "static" => false, # whether mainland sites undergo eco-evolutionary processes
+        "static" => false, # whether mainland sites undergo eco-evolutionary processes (implies "mainland" borders)
         "stats" => true, # record population statistics (medium detail output)
         "tolerance" => 0.8, # sequence similarity threshold for reproduction if `fixtol` == true
         "traitnames" => ["compat",
