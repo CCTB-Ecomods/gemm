@@ -14,8 +14,10 @@ library(MuMIn)
 library(reshape2)
 
 dday = 750 ## time step to analyse
-dispmode = "local" ## 'local' or 'global'
-mytworesults = Sys.glob(paste0("data/2020*", dispmode, "*/*tsv"))
+datadir = "data_boundaries"
+dispmode = "absorbing" ## 'local' or 'global'
+#mytworesults = Sys.glob(paste0(datadir, "/*/*tsv")) #if dispmode is not defined
+mytworesults = Sys.glob(paste0(datadir, "/*", dispmode, "*/*tsv"))
 
 ## read and pre-process data
 
@@ -23,6 +25,10 @@ rawresults = tibble()
 for (filepath in mytworesults) {
     rawresults = bind_rows(rawresults, read_tsv(filepath))
 }
+
+## the next line is needed when the simulations were launched with
+## `runsim.sh` rather than `rungemmparallel.jl`
+rawresults = rawresults %>% mutate(conf=substr(conf, 1, 14))
 
 repstable = rawresults %>% filter(time==dday) %>% select(replicate, conf) %>% group_by(conf) %>% unique %>% table
 doublereps = which(rowSums(repstable) == 2) %>% names %>% as.numeric
@@ -142,7 +148,7 @@ allgenes = all %>% ggplot(aes(x, y)) + geom_tile(aes(fill = `Number of genes`)) 
 spatgridall = plot_grid(allrich, allmass, allgenes, labels="auto", ncol=1, align="vh")
 ggsave(paste0("mapplots_all_", dispmode, ".pdf"), spatgridall, width=5, height=6)
 
-n = 18 #XXX Why replicate 18? -> arbitrary, just pick a number that works...
+n = 10 #XXX Why replicate 18? -> arbitrary, just pick a number that works...
 d = tworesults %>% rename(Environment = scenario) %>% filter(replicate == n, time == dday) %>% group_by(x, y, Environment) %>%
     summarize(`Richness (n.spp.)` = length(unique(lineage)), `Adult biomass (g)` = mean(adult_body_size), `Number of genes` = mean(number_of_genes)) %>%
     mutate(Environment = ifelse(Environment == "static", "Static environment", "Variable environment"))
