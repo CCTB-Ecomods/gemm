@@ -34,10 +34,12 @@ function defaultSettings()
         "maxloci" => 1, # maximum number of loci/copies per gene
         "maxrepsize" => 14.0, # maximal repsize in grams calculated as exp(maxrepsize) -> 1.2 t
         "maxseedsize" => 10.0, # maximal seedsize in grams calculated as exp(maxseedsize) -> 22 kg
-        "maxtemp" => 313.0, # max optimum temp in K
+        #"maxprec" => 10, # max optimum precipitation (TODO should replace precrange)
+        "maxtemp" => 313.0, # max optimum temp in K (40°C)
         "minrepsize" => 3.0, # minimal repsize in grams calculated as exp(minrepsize) -> 20 g
         "minseedsize" => -2.0, # minimal seedsize in grams calculated as exp(minseedsize) -> 0.14 g
-        "mintemp" => 273.0, # min optimum temp in K
+        "minprec" => 0, # min optimum precipitation
+        "mintemp" => 273.0, # min optimum temp in K (0°C)
         "mortality" => exp(22), # global base mortality from Brown et al. 2004 is 26.3, but competition and dispersal introduce add. mort.
         "mutate" => true, # mutations occur
         "mutationrate" => 3.6e10, # one mutation per generation/individual, corrected for metabolic function
@@ -46,7 +48,7 @@ function defaultSettings()
         "overfill" => 1.0, # how much to overfill grid cells beyond their capacity
         "phylconstr" => 0.1, # phylogenetic constraint during mutation and inter-loci variation. scales trait value as sd.
         "popsize" => "metabolic", # initialisation algorithm: metabolic/bodysize/minimal/single
-        "precrange" => 10.0, # range from 0 for precipitation optimum
+        "precrange" => 10, # max optimum precipitation (should be called maxprec!)
         "propagule-pressure" => 0, # number of non-native individuals introduced per invasion event
         "quiet" => false, # don't write output to screen
         "raw" => true, # record raw data

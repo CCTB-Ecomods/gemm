@@ -439,6 +439,7 @@ function createtraits(settings::Dict{String, Any}) #TODO: this is all very ugly.
     repoffset = settings["maxrepsize"] - settings["minrepsize"]
     seedoffset = settings["maxseedsize"] - settings["minseedsize"]
     tempoffset = settings["maxtemp"] - settings["mintemp"]
+    precoffset = settings["precrange"] - settings["minprec"]
     sizes = Vector{Float64}(undef, 2)
     while true
         sizes[1] = exp(settings["minrepsize"] + repoffset * rand())
@@ -452,7 +453,7 @@ function createtraits(settings::Dict{String, Any}) #TODO: this is all very ugly.
         elseif occursin("dispmean", traitnames[idx])
             push!(traits, Trait(idx, rand() * settings["dispmean"]))
         elseif occursin("precopt", traitnames[idx])
-            push!(traits, Trait(idx, rand() * settings["precrange"]))
+            push!(traits, Trait(idx, settings["minprec"] + rand() * precoffset))
         elseif occursin("prectol", traitnames[idx])
             push!(traits, Trait(idx, rand() * settings["maxbreadth"]))
         elseif occursin("repsize", traitnames[idx])
