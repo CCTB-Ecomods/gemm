@@ -45,7 +45,8 @@
 - [ ] performance issue (https://docs.julialang.org/en/v1/manual/performance-tips/):
   - [X] profile RAM/CPU trade-off with `compressgenes`
   - [X] circumvent `push!()` calls, preallocate memory instead - doesn't work?
-  - [ ] avoid intermediate allocations when compressing gene sequences
+  - [X] use immutable structs - doesn't work either?
+  - [X] avoid intermediate allocations when compressing gene sequences
   - [ ] avoid string interpolation in output
   - [ ] avoid `deepcopy()`?
   - [X] write a coordinate lookup function to speed up `zdisperse!()`
@@ -77,12 +78,11 @@
 
 - [X] disable `selfing` gene for Zosterops studies (how about `seedsize`?)
 
-- [ ] test dispersal and reproduction functions
+- [X] test dispersal and reproduction functions
 		- [X] BUG: breeding pairs formed after dispersal don't mate (problem: excessive mortality)
 		- [X] BUG: dispshape sometimes not greater zero (required for logistic distribution)
-		- [ ] make sure hybridisation works as intended
-
-- [X] adjust body sizes and dispersal distances
+		- [X] make sure hybridisation works as intended
+		- [ ] error when linkage != "none"?
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 
@@ -90,7 +90,7 @@
 
 - [X] measure & record population heterozygosity
 
-- [ ] vary hybridization affinity for core experiment
+- [X] automate experimental setup for hybridisation and habitat fragmentation studies
 
 - [ ] prepare map series for SLOSS experiment (constant habitat size, random configuration)
 		- single very large habitat (VL)
@@ -103,9 +103,11 @@
 		- population sizes
 
 - [ ] test parameterisation
-		- very large *Z. jubaensis* populations?
+		- [X] adjust body sizes and dispersal distances
+		- [X] temperature opt/tol must allow sufficient survival rates
+		- [ ] very large *Z. jubaensis* populations?
 
-- [ ] update data output
+- [ ] write/adapt data analysis script
 
 - [ ] update documentation
 

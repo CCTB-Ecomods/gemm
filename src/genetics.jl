@@ -163,12 +163,10 @@ end
 Convert a DNA base sequence (a string) into binary and then into an integer.
 This saves memory.
 """
-#XXX Actually, this hardly seems to make a difference :-( So using `compressgenes = false`
-# seems to be a pretty good choice right now. What we should really do is create gene
-# sequences as int right away and save ourselves the intermediate string allocation.
+#XXX Actually, this hardly seems to make a difference :-(
 function seq2num(sequence::String)
     # This function effectively uses the same technique as seq2bignum, but it skips the
-    # intermediate allocations and is therefore more efficient.
+    # intermediate allocations and should therefore be more efficient.
     num::Int64 = 0  # Int64 allows for max length of 21bp
     for b in eachindex(sequence)
         if sequence[end+1-b] == 'a'
@@ -359,9 +357,9 @@ function createchrms(nchrms::Int,genes::Array{AbstractGene,1},lineage::String)
         end
     else # only one chromosome
         if setting("heterozygosity")
-            chromosomes = [Chromosome(genes, true, lineage)]
+            chromosomes = [LineageChromosome(genes, true, lineage)]
         else
-            chromosomes = [Chromosome(genes, true)]
+            chromosomes = [DefaultChromosome(genes, true)]
         end
     end
     secondset = deepcopy(chromosomes)
