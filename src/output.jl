@@ -240,7 +240,7 @@ function recordstatistics(world::Array{Patch,1})
     div = round.(diversity(world), digits = 3)
     space = freespace(world)
     #XXX Doing a lot of string interpolation is expensive
-    simlog("Metacommunity size: $popsize, lineages: $(length(lineages))")
+    simlog("Metacommunity size: $popsize, lineages: $(length(lineages))") # to stdout
     simlog("$popsize,$space,$(length(lineages)),$(div[1]),$(div[2]),$(div[3])",
            'i', "diversity.log", true)
 end
@@ -255,13 +255,15 @@ function recordlineages(world::Array{Patch,1}, timestep::Int)
     if !isfile(joinpath(setting("dest"), "lineages.log"))
         simlog("t,X,Y,lineage,abundance,temp,prec", 'i', "lineages.log", true)
     end
+    datastring = ""
     for p in world
         for l in unique(map(x -> x.lineage, p.community))
             #XXX Doing a lot of string interpolation is expensive
-            simlog("$timestep,$(p.location[1]),$(p.location[2]),$l,$(length(findall(x -> x.lineage == l, p.community))),$(p.temp),$(p.prec)",
-                   'i', "lineages.log", true)
+            datastring *= "$timestep,$(p.location[1]),$(p.location[2]),$l,"*
+            "$(length(findall(x -> x.lineage == l, p.community))),$(p.temp),$(p.prec)"
         end
     end
+    simlog(datastring, 'i', "lineages.log", true)
 end
 
 """
@@ -345,6 +347,7 @@ function simlog(msg::String, category::Char='i', logfile::String="simulation.log
             println(iostr, msg)
         end
         if setting("logging") && length(logfile) > 0
+            #XXX always opening new connections is expensive -> should we buffer the output?
             open(joinpath(setting("dest"), logfile), "a") do f
                 println(f, msg)
             end

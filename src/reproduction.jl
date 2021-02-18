@@ -21,7 +21,7 @@ function reproduce!(patch::Patch) #TODO: refactor!
         end
         numpartners = Integer(round(ind.traits["numpollen"]))
         if numpartners == 0
-            #FIXME happens regularly!
+            #XXX happens really often?
             # `numpollen` not handled specifically in `createtraits()`?
             simlog("Individual cannot reproduce, `numpollen` too low.", 'd')
             continue
@@ -124,6 +124,7 @@ The main reproduction function. Take two organisms and create the given number
 of offspring individuals. Returns an array of individuals.
 """
 function createoffspring(noffs::Integer, ind::Individual, partner::Individual, dimorphism::Bool=false)
+    #TODO This is a very compute-intensive function - optimise?
     offspring = Individual[]
     for i in 1:noffs # pmap? this loop could be factorized!
         # offspring have different genomes due to recombination

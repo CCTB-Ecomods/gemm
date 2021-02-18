@@ -62,7 +62,7 @@ end
 Convert a genome (an array of chromosomes) into a dict of traits and their values.
 """
 function gettraitdict(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1})
-    #XXX can this be made more efficient? It's called really often...
+    #TODO can this be made more efficient? It's called really often...
     genes = AbstractGene[]
     nchrms = 0
     ngenes = 0

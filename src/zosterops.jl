@@ -143,31 +143,42 @@ function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int
         target = [(x-1, y-1), (x, y-1), (x+1, y-1),
                   (x-1, y),             (x+1, y),
                   (x-1, y+1), (x, y+1), (x+1, y+1)]
-        filter!(c -> !in(c, route), target)
-        possdest = map(p -> coordinate(p[1], p[2], world), target)
-        filter!(p->!isnothing(p), possdest)
-        iszero(length(possdest)) && @goto failure
-        bestdest = possdest[1]
-        bestfit = abs(bestdest.prec - bird.traits["precopt"])
-        for patch in possdest[2:end]
-            patchfit = abs(patch.prec - bird.traits["precopt"])
-            if patchfit < bestfit
-                bestdest, bestfit = patch, patchfit
+        bestdest = nothing
+        bestfit = nothing
+        for t in target
+            (t in route) && continue
+            possdest = coordinate(t[1], t[2], world)
+            isnothing(possdest) && continue
+            patchfit = abs(possdest.prec - bird.traits["precopt"])
+            if isnothing(bestdest) || patchfit < bestfit
+                bestdest, bestfit = possdest, patchfit
             end
         end
+        (isnothing(bestdest)) && @goto failure
         x, y = bestdest.location
         # check if the patch is within the bird's AGC range and has free space
         if (bestfit <= bird.traits["prectol"] && length(bestdest.community) < setting("cellsize"))
             # look for an available mate, starting with conspecifics
-            conspecifics = findall(b -> b.lineage == bird.lineage, bestdest.community)
-            partner = findfirst(b -> ziscompatible(bird, b), bestdest.community[conspecifics])
-            if isnothing(partner) && setting("speciation") == "off"
-                congenerics = setdiff(eachindex(bestdest.community), conspecifics)
-                partner = findfirst(b -> ziscompatible(bird, b), bestdest.community[congenerics])
+            partner = nothing
+            for b in bestdest.community
+                (b.lineage != bird.lineage) && continue
+                if ziscompatible(bird, b)
+                    partner = b
+                    break
+                end
             end
+            if isnothing(partner) && setting("speciation") == "off"
+                for b in bestdest.community
+                    (b.lineage == bird.lineage) && continue
+                    if ziscompatible(bird, b)
+                        partner = b
+                        break
+                    end
+                end                
+            end
+            # can we settle here?
             if !isnothing(partner)
                 # if we've found a partner
-                partner = bestdest.community[partner]
                 bird.partner = partner.id
                 partner.partner = bird.id
                 @goto success

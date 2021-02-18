@@ -50,7 +50,10 @@
   - [ ] avoid string interpolation in output
   - [ ] avoid `deepcopy()`?
   - [X] write a coordinate lookup function to speed up `zdisperse!()`
-  - [ ] do another profile after finishing Zosterops features
+  - [X] further optimise `zdisperse()` if possible
+  - [ ] buffer more output for better I/O performance (`open()` is expensive)
+  - [ ] improve performance of zreproduce/createoffspring/gettraitdict
+  - [X] do another profile after finishing Zosterops features
 
 - [X] turn off mutation except at initialisation
 
@@ -92,10 +95,10 @@
 
 - [X] automate experimental setup for hybridisation and habitat fragmentation studies
 
-- [ ] prepare map series for SLOSS experiment (constant habitat size, random configuration)
-		- single very large habitat (VL)
-		- some large habitats (SL)
-		- several small habitats (SS)
+- [ ] prepare map series for habitat scenarios (cf. Githiru et al. 2011):
+		- [ ] converted exotic plantations
+		- [ ] random homestead tree planting
+		- [ ] reduced montane forest patches
 
 - [ ] measure & record:
 		- degree of heterozygosity
@@ -105,25 +108,12 @@
 - [ ] test parameterisation
 		- [X] adjust body sizes and dispersal distances
 		- [X] temperature opt/tol must allow sufficient survival rates
-		- [ ] very large *Z. jubaensis* populations?
 
-- [ ] write/adapt data analysis script
+- [ ] write data analysis script
 
 - [ ] update documentation
 
-- [ ] running an experiment must be fully automated! (no manual setup)
-
 ## Notes
-
-- how should burn-in work?
-
-- how do we design the SLOSS map series?
-  - idea: use USGS forest cover map as "recovery scenario" (all exotic forest transformed to montane)?
-  - or just shift species' AGC opt/tol to increase/decrease habitat suitability
-
-- measuring heterozygosity:
-  - number of hybrids in the population?
-  - tag each chromosome with its original lineage and keep track of each?
 
 - restrict mutations of max & min sizes?
   -> either in `mutate!` or in `checkviability!`
