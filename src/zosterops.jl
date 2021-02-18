@@ -158,25 +158,8 @@ function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int
         x, y = bestdest.location
         # check if the patch is within the bird's AGC range and has free space
         if (bestfit <= bird.traits["prectol"] && length(bestdest.community) < setting("cellsize"))
-            # look for an available mate, starting with conspecifics
-            partner = nothing
-            for b in bestdest.community
-                (b.lineage != bird.lineage) && continue
-                if ziscompatible(bird, b)
-                    partner = b
-                    break
-                end
-            end
-            if isnothing(partner) && setting("speciation") == "off"
-                for b in bestdest.community
-                    (b.lineage == bird.lineage) && continue
-                    if ziscompatible(bird, b)
-                        partner = b
-                        break
-                    end
-                end                
-            end
             # can we settle here?
+            partner = zfindmate(bestdest.community, bird)
             if !isnothing(partner)
                 # if we've found a partner
                 bird.partner = partner.id
@@ -196,6 +179,33 @@ function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int
     end #if the max dispersal distance is reached, the individual simply dies
     @label failure #XXX this could be removed (and `@goto failure` replaced with a simple `return`)
     simlog("A Z.$(bird.lineage) died after failed dispersal.", 'd')
+end
+
+"""
+    zfindmate(population, bird)
+
+Find an available breeding partner in the given population, preferring
+conspecifics. Returns the partner individual, or nothing.
+"""
+function zfindmate(population::AbstractArray{Individual, 1}, bird::Individual)
+    partner = nothing
+    for b in population
+        (b.lineage != bird.lineage) && continue
+        if ziscompatible(bird, b)
+            partner = b
+            break
+        end
+    end
+    if isnothing(partner) && setting("speciation") == "off"
+        for b in population
+            (b.lineage == bird.lineage) && continue
+            if ziscompatible(bird, b)
+                partner = b
+                break
+            end
+        end                
+    end
+    return partner
 end
 
 """
