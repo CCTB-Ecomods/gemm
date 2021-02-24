@@ -1,19 +1,19 @@
 # All functions related to reproduction.
 
 """
-    reproduce!(patch, settings)
+    reproduce!(patch)
 
 Reproduction of individuals in a patch (default function).
 """
-function reproduce!(patch::Patch, settings::Dict{String, Any}) #TODO: refactor!
+function reproduce!(patch::Patch) #TODO: refactor!
     #TODO This is one of the most compute-intensive functions in the model - optimise?
     for ind in patch.community
         ind.marked && continue # individual might not have established yet
         ind.size < ind.traits["repsize"] && continue
-        metaboffs = settings["fertility"] * ind.size^(-1/4) * exp(-act/(boltz*patch.temp))
+        metaboffs = setting("fertility") * ind.size^(-1/4) * exp(-act/(boltz*patch.temp))
         noffs = rand(Poisson(metaboffs))
         noffs < 1 && continue
-        partners = findmate(patch.community, ind, settings)
+        partners = findmate(patch.community, ind)
         if length(partners) < 1 && rand() < ind.traits["selfing"]
             partners = [ind]
         elseif length(partners) < 1
@@ -21,7 +21,7 @@ function reproduce!(patch::Patch, settings::Dict{String, Any}) #TODO: refactor!
         end
         numpartners = Integer(round(ind.traits["numpollen"]))
         if numpartners == 0
-            #FIXME happens regularly!
+            #XXX happens really often?
             # `numpollen` not handled specifically in `createtraits()`?
             simlog("Individual cannot reproduce, `numpollen` too low.", 'd')
             continue
@@ -35,25 +35,25 @@ function reproduce!(patch::Patch, settings::Dict{String, Any}) #TODO: refactor!
             else
                 ind.size = parentmass
             end
-            append!(patch.seedbank, createoffspring(noffs, ind, partner, settings["traitnames"]))
+            append!(patch.seedbank, createoffspring(noffs, ind, partner))
         end
     end
     simlog("Patch $(patch.id): $(length(patch.seedbank)) offspring", 'd')
 end
 
 """
-    greproduce!(patch, settings)
+    greproduce!(patch)
 
 Reproduction of individuals in a patch with global mating.
 """
-function greproduce!(patch::Patch, settings::Dict{String, Any})
+function greproduce!(patch::Patch)
     for ind in patch.community
         ind.marked && continue # individual might not have established yet
         ind.size < ind.traits["repsize"] && continue
-        metaboffs = settings["fertility"] * ind.size^(-1/4) * exp(-act/(boltz*patch.temp))
+        metaboffs = setting("fertility") * ind.size^(-1/4) * exp(-act/(boltz*patch.temp))
         noffs = rand(Poisson(metaboffs))
         noffs < 1 && continue
-        partners = findmate([(map(x -> x.community, world)...)...], ind, settings)
+        partners = findmate([(map(x -> x.community, world)...)...], ind)
         if length(partners) < 1 && rand() < ind.traits["selfing"]
             partners = [ind]
         elseif length(partners) < 1
@@ -68,35 +68,35 @@ function greproduce!(patch::Patch, settings::Dict{String, Any})
             else
                 ind.size = parentmass
             end
-            append!(patch.seedbank, createoffspring(noffs, ind, partner, settings["traitnames"]))
+            append!(patch.seedbank, createoffspring(noffs, ind, partner))
         end
     end
     simlog("Patch $(patch.id): $(length(patch.seedbank)) offspring", 'd')
 end
 
 """
-    reproduce!(world, settings)
+    reproduce!(world)
 
 Carry out reproduction on all patches.
 """
-function reproduce!(world::Array{Patch,1}, settings::Dict{String, Any})
+function reproduce!(world::Array{Patch,1})
     for patch in world
-        if settings["globalmating"]
-            greproduce!(patch, settings)
-        elseif settings["mode"] == "zosterops"
-            zreproduce!(patch, settings)
+        if setting("globalmating")
+            greproduce!(patch)
+        elseif setting("mode") == "zosterops"
+            zreproduce!(patch)
         else
-            (patch.isisland || !settings["static"]) && reproduce!(patch, settings) # pmap(!,patch) ???
+            (patch.isisland || !setting("static")) && reproduce!(patch) # pmap(!,patch) ???
         end
     end
 end
 
 """
-    findmate(population, individual, settings)
+    findmate(population, individual)
 
 Find a reproduction partner for the given individual in the given population.
 """
-function findmate(population::AbstractArray{Individual, 1}, ind::Individual, settings::Dict{String, Any})
+function findmate(population::AbstractArray{Individual, 1}, ind::Individual)
     #XXX This function is pretty expensive
     indstate = ind.marked
     ind.marked = true
@@ -105,7 +105,7 @@ function findmate(population::AbstractArray{Individual, 1}, ind::Individual, set
     mateidx = startidx
     while true
         mate = population[mateidx]
-        if !mate.marked && iscompatible(mate, ind, settings)
+        if !mate.marked && iscompatible(mate, ind)
             push!(mates, mate)
             break
         end
@@ -118,19 +118,21 @@ function findmate(population::AbstractArray{Individual, 1}, ind::Individual, set
 end
 
 """
-    createoffspring(noffs, individual, partner, traitnames, dimorphism)
+    createoffspring(noffs, individual, partner, dimorphism)
 
 The main reproduction function. Take two organisms and create the given number
 of offspring individuals. Returns an array of individuals.
 """
-function createoffspring(noffs::Integer, ind::Individual, partner::Individual, traitnames::Array{String, 1}, dimorphism::Bool=false)
+function createoffspring(noffs::Integer, ind::Individual, partner::Individual, dimorphism::Bool=false)
+    #TODO This is a very compute-intensive function - optimise?
     offspring = Individual[]
     for i in 1:noffs # pmap? this loop could be factorized!
-        partnergenome = meiosis(partner.genome, false) # offspring have different genome!
-        mothergenome = meiosis(ind.genome, true)
+        # offspring have different genomes due to recombination
+        partnergenome = meiosis(partner.genome, false, partner.lineage)
+        mothergenome = meiosis(ind.genome, true, ind.lineage)
         (isempty(partnergenome) || isempty(mothergenome)) && continue
         genome = vcat(partnergenome,mothergenome)
-        traits = gettraitdict(genome, traitnames)
+        traits = gettraitdict(genome, setting("traitnames"))
         marked = true
         fitness = 0.0
         newpartner = 0
@@ -140,7 +142,14 @@ function createoffspring(noffs::Integer, ind::Individual, partner::Individual, t
         if dimorphism
             rand(Bool) ? sex = male : sex = female
         end
-        push!(offspring, Individual(ind.lineage, genome, traits, marked, fitness,
+        lineage = ind.lineage
+        if lineage != partner.lineage
+            # hybrids are assigned the lineage of the parent they are phenotypically most similar to
+            idiff = sum(t -> abs(traits[t]-ind.traits[t]), keys(traits))
+            pdiff = sum(t -> abs(traits[t]-partner.traits[t]), keys(traits))
+            (pdiff < idiff) && (lineage = partner.lineage)
+        end
+        push!(offspring, Individual(lineage, genome, traits, marked, fitness,
                                     fitness, newsize, sex, newpartner, newid))
     end
     offspring

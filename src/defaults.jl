@@ -8,6 +8,7 @@ function defaultSettings()
     # Return the default settings. All parameters must be registered here.
     Dict(
         "biggenelength" => 200, # length of the compatibility gene's sequence (if `usebiggenes`)
+        "borders" => "absorbing", # border behaviour: absorbing/reflecting/mainland
         "burn-in" => 1000, # timesteps before invasion starts
         "capgrowth" => false, # strictly limit individuals' size to `repsize`
         "cellsize" => 20e6, # maximum biomass per hectare in gramm (based on Clark et al. 2001)
@@ -25,6 +26,7 @@ function defaultSettings()
         "global-species-pool" => 0, # size of the global species pool (invasion source)
         "globalmating" => false, # global pollen "dispersal"
         "growthrate" => exp(25.2), # global base growth/biomass production from Brown et al. 2004
+        "heterozygosity" => false, # keep track of heterozygosity when studying hybridisation
         "indsize" => "seed", # initialize organisms as seed, adult or mixed
         "isolationweight" => 3.0, # additional distance to be crossed when dispersing from or to isolated patches
         "lineages" => false, # record lineage and diversity data (low detail output)
@@ -33,9 +35,11 @@ function defaultSettings()
         "maps" => "", # comma-separated list of map files
         "maxbreadth" => 5.0, # maximum niche breadth
         "maxloci" => 1, # maximum number of loci/copies per gene
+        "maxprec" => 10.0, # max optimum precipitation
         "maxrepsize" => 14.0, # maximal repsize in grams calculated as exp(maxrepsize) -> 1.2 t
         "maxseedsize" => 10.0, # maximal seedsize in grams calculated as exp(maxseedsize) -> 22 kg
         "maxtemp" => 313.0, # max optimum temp in K
+        "minprec" => 0.0, # min optimum precipitation
         "minrepsize" => 3.0, # minimal repsize in grams calculated as exp(minrepsize) -> 20 g
         "minseedsize" => -2.0, # minimal seedsize in grams calculated as exp(minseedsize) -> 0.14 g
         "mintemp" => 273.0, # min optimum temp in K
@@ -48,7 +52,7 @@ function defaultSettings()
         "overfill" => 1.0, # how much to overfill grid cells beyond their capacity
         "phylconstr" => 0.1, # phylogenetic constraint during mutation and inter-loci variation. scales trait value as sd.
         "popsize" => "metabolic", # initialisation algorithm: metabolic/bodysize/minimal/single
-        "precrange" => 10.0, # range from 0 for precipitation optimum
+        "precrange" => 0, # max optimum precipitation - deprecated! (use `maxprec`)
         "propagule-pressure" => 0, # number of non-native individuals introduced per invasion event
         "quiet" => false, # don't write output to screen
         "raw" => true, # record raw data
@@ -56,8 +60,9 @@ function defaultSettings()
         "sdtemp" => 0.0, # SD of temperature change per time step
         "seed" => 0, # for the RNG, seed = 0 -> random seed
         "smallgenelength" => 20, # standard gene sequence length (max. 21)
-        "species" => Dict{String,Array{Number,1}}(), # define AGC opt/tol for each Zosterops species
-        "static" => false, # whether mainland sites undergo eco-evolutionary processes
+        "speciation" => "neutral", # allow lineage differentiation? off/neutral/ecological
+        "species" => Dict{String,Any}[], # define trait values for each Zosterops species
+        "static" => false, # whether mainland sites undergo eco-evolutionary processes (implies "mainland" borders)
         "stats" => true, # record population statistics (medium detail output)
         "tolerance" => 0.8, # sequence similarity threshold for reproduction if `fixtol` == true
         "traitnames" => ["compat",

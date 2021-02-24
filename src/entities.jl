@@ -4,6 +4,7 @@
 A simple struct to store organism trait names and values.
 """
 mutable struct Trait
+    #XXX This type should be replaced by pairs
     nameindex::UInt8
     value::Float64
 end
@@ -26,7 +27,7 @@ end
 A variation of the standard Gene struct that allows for longer base sequence
 lengths through its use of BigInt.
 
-Used for the compatibility gene when settings["usebiggenes"] == true.
+Used for the compatibility gene when setting("usebiggenes") == true.
 """
 mutable struct BigGene <: AbstractGene
     sequence::BigInt
@@ -38,7 +39,7 @@ This gene type cuts out the conversion of the sequence to an integer. (This
 conversion was introduced to save memory, but with low population sizes
 (as in Zosterops mode), saving computation cycles may be more important.)
 
-Used when settings["compressgenes"] == false.
+Used when setting("compressgenes") == false.
 """
 mutable struct StringGene <: AbstractGene
     sequence::String
@@ -46,13 +47,28 @@ mutable struct StringGene <: AbstractGene
 end
 
 """
+An abstraction layer to hide the implementation details of chromosomes.
+"""
+abstract type Chromosome end
+
+"""
 A struct that saves a collection of genes and a tag to denote whether they are
 maternal or not.
 """
-mutable struct Chromosome
+mutable struct DefaultChromosome <: Chromosome
     genes::Array{AbstractGene, 1}
     maternal::Bool # parental origin of chromosome
-    #TODO keep track of the lineage origin to measure heterozygosity?
+end
+
+"""
+A struct that saves a collection of genes and tags to denote whether they are
+maternal or not, as well as which lineage they originated from (to keep track
+of heterozygosity in hybridisation studies).
+"""
+mutable struct LineageChromosome <: Chromosome
+    genes::Array{AbstractGene, 1}
+    maternal::Bool # parental origin of chromosome
+    lineage::String
 end
 
 @enum Sex hermaphrodite male female

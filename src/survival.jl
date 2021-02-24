@@ -19,6 +19,8 @@ function survive!(patch::Patch, mortality::Float64)
             deathrate = mortality * mass^(-1/4) * exp(-act/(boltz*temp))
             dieprob = (1 - exp(-deathrate))
             if rand() * patch.community[idx].tempadaptation < dieprob
+                #XXX `idstring()` is zosterops-specific
+                simlog("$(idstring(patch.community[idx])) has died.", 'd')
                 splice!(patch.community, idx)
                 continue
             end
@@ -28,13 +30,13 @@ function survive!(patch::Patch, mortality::Float64)
 end
 
 """
-    survive!(world, settings)
+    survive!(world)
 
 World-wide mortality. Sounds apocalyptic, but is just a fact of life.
 """
-function survive!(world::Array{Patch,1}, settings::Dict{String, Any})
+function survive!(world::Array{Patch,1})
     for patch in world
-        (patch.isisland || !settings["static"]) && survive!(patch, settings["mortality"]) # pmap(!,patch) ???
+        (patch.isisland || !setting("static")) && survive!(patch, setting("mortality")) # pmap(!,patch) ???
     end
 end
 
@@ -70,15 +72,15 @@ function grow!(patch::Patch, growthrate::Float64, capgrowth::Bool)
 end
 
 """
-    grow!(world, settings)
+    grow!(world)
 
 Carry out growth for all patches.
 """
-function grow!(world::Array{Patch,1}, settings::Dict{String, Any})
+function grow!(world::Array{Patch,1})
     for patch in world
         # pmap(!,patch) ???
-        if patch.isisland || !settings["static"]
-            grow!(patch, settings["growthrate"], settings["capgrowth"])
+        if patch.isisland || !setting("static")
+            grow!(patch, setting("growthrate"), setting("capgrowth"))
         end
     end
 end

@@ -1,4 +1,4 @@
-seed	comp	push	ram	alloc	seconds population
+seed	compression	push	ram	alloc	seconds population
 3	TRUE	TRUE	4.0	84	197	383216
 3	FALSE	TRUE	3.8	80	186	383216
 2	TRUE	TRUE	0.31	1.35	12	6626

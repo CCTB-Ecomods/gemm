@@ -20,7 +20,7 @@ library(rayshader)
 
 ##XXX should we specify area (carrying capacity) in the map file?
 
-simlength = 200
+simlength = 500
 elevation_file = "taita_elevation.tif"
 forest_file = "taita_forest_cover.tif"
 habitat_file = "taita_habitats.tif"

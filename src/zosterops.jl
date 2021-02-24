@@ -10,59 +10,59 @@
 # 3. the `fertility` setting is the absolute number of offspring per breeding pair
 #    (instead of a metabolic coefficient)
 # 4. the `tolerance` setting now determines the probability that a mate of
-#    another species is accepted
+#    another species is accepted, if no conspecific mate is available
 # 5. `degpleiotropy` must be set to 0, otherwise the species initialisation will fail
+# 6. the world must be a rectangle with patch coordinates in row-major order,
+#    otherwise dispersal will show weird behaviour (see `coordinate()`)
 
-let zosterops = Individual[]
+let zosterops = Individual[] #holds the species archetypes
     """
-        initzosteropsspecies(settings)
+        initzosteropsspecies()
 
     Initialise the predefined Zosterops species archetypes (silvanus/highland, jubaensis/lowland).
     """
-    function initzosteropsspecies(settings::Dict{String, Any})
+    function initzosteropsspecies()
         # ensure that "one gene, one trait" is true and that we have species definitions
-        (settings["degpleiotropy"] != 0) && simlog("degpleiotropy must be 0", 'e')
-        (isnothing(settings["species"])) && simlog("no species defined", 'e')
-        # load per-species AGC optimum and tolerance values from settings
-        for (s, v) in pairs(settings["species"])
-            push!(zosterops, initzosteropsspecies(s, Float64(v[1]), Float64(v[2]), settings))
+        (setting("degpleiotropy") != 0) && simlog("degpleiotropy must be 0", 'e')
+        (isnothing(setting("species"))) && simlog("no species defined", 'e')
+        # load per-species trait values from settings (especially AGC optimum and tolerance)
+        for sp in setting("species")
+            push!(zosterops, initzosteropsspecies(sp))
         end
     end
 
     """
-        initzosteropsspecies(name, precopt, prectol, settings)
+        initzosteropsspecies(name, precopt, prectol)
 
     Create a new individual then modify its traits to create a Zosterops archetype.
     """
-    function initzosteropsspecies(name::String, precopt::Float64, prectol::Float64, settings::Dict{String, Any})
-        archetype = createind(settings)
-        archetype.lineage = name
-        # Find the gene that codes for the relevant trait and change that trait's value
+    function initzosteropsspecies(spectraits::Dict{String,Any})
+        archetype = createind()
+        archetype.lineage = spectraits["lineage"]
+        # Find the genes that code for relevant traits and change their values
         for chromosome in archetype.genome
+            setting("heterozygosity") && (chromosome.lineage = archetype.lineage)
             for gene in chromosome.genes
                 isempty(gene.codes) && continue
-                genetrait = settings["traitnames"][gene.codes[1].nameindex]
-                #XXX do we also need to set tempopt/temptol?
-                if genetrait == "precopt"
-                    gene.codes[1].value = precopt
-                elseif genetrait == "prectol"
-                    gene.codes[1].value = prectol
+                genetrait = setting("traitnames")[gene.codes[1].nameindex]
+                if in(genetrait, keys(spectraits))
+                    gene.codes[1].value = spectraits[genetrait]
                 end
             end
         end
         # then recalculate the individual's trait dict and return the finished archetype
-        archetype.traits = gettraitdict(archetype.genome, settings["traitnames"])
+        archetype.traits = gettraitdict(archetype.genome, setting("traitnames"))
         return archetype
     end
     
     """
-        getzosteropsspecies(name, sex, settings)
+        getzosteropsspecies(name, sex)
 
     Return a new individual of the named species
     """
-    global function getzosteropsspecies(name::String, sex::Sex, settings::Dict{String, Any})
+    global function getzosteropsspecies(name::String, sex::Sex)
         # This function has to be global to escape the let-block of the species list
-        isempty(zosterops) && initzosteropsspecies(settings)
+        isempty(zosterops) && initzosteropsspecies()
         bird = nothing
         for z in zosterops
             if z.lineage == name
@@ -72,181 +72,183 @@ let zosterops = Individual[]
         end
         (isnothing(bird)) && simlog("Unknown species name: $name", 'e')
         bird.id = rand(UInt32)
-        varyalleles!(bird.genome, settings, rand()) #XXX do we want mutations?
-        bird.traits = gettraitdict(bird.genome, settings["traitnames"])
-        bird.size = bird.traits["repsize"] #if we want mutations, we need to fix the size afterwards
+        varyalleles!(bird.genome, rand())
+        bird.traits = gettraitdict(bird.genome, setting("traitnames"))
+        bird.size = bird.traits["repsize"] # we need to fix the size after again after mutation
         bird.sex = sex
         return bird
-    end
-
-    """
-        getzosteropsnames(settings)
-
-    Return the names of all defined Zosterops species.
-    """
-    #XXX utility function - but do I need it?
-    global function getzosteropsnames(settings::Dict{String, Any})
-        isempty(zosterops) && initzosteropsspecies(settings)
-        return map(s->s.lineage, zosterops)
     end
 end
 
 """
-    zgenesis(patch, settings)
+    zgenesis(patch)
 
 Create a new community of Zosterops breeding pairs (possibly of multiple species).
 Returns an array of individuals.
 """
-function zgenesis(patch::Patch, settings::Dict{String, Any})
+function zgenesis(patch::Patch)
     community = Array{Individual, 1}()
-    (isnothing(settings["species"])) && simlog("no species defined", 'e')
+    (isnothing(setting("species"))) && simlog("no species defined", 'e')
     # check which species can inhabit this patch
     species = Array{String, 1}()
-    for s in settings["species"]
-        # s[1] = species name, s[2][1] = AGC opt, s[2][2] = AGC tol
-        if abs(s[2][1]-patch.prec) <= s[2][2]
-            push!(species, s[1])
+    for s in setting("species")
+        if abs(s["precopt"]-patch.prec) <= s["prectol"]
+            push!(species, s["lineage"])
         end
     end
     (isempty(species)) && return community
     # calculate the number of initial breeding pairs and add a male and a female for each
-    npairs = Integer(rand(0:round(settings["cellsize"]/2)))
+    npairs = Integer(rand(0:round(setting("cellsize")/2)))
     for i in 1:npairs
         sp = rand(species)
-        m = getzosteropsspecies(sp, male, settings)
-        f = getzosteropsspecies(sp, female, settings)
+        m = getzosteropsspecies(sp, male)
+        f = getzosteropsspecies(sp, female)
         f.partner = m.id
         m.partner = f.id
         push!(community, m)
         push!(community, f)
-        simlog("Adding a pair of Z. $sp", 'd')
+        simlog("Adding a pair of Z.$sp", 'd')
     end
     community
 end
     
 """
-    zdisperse!(world, settings)
+    zdisperse!(world)
 
-Dispersal of bird individuals within the world. Males disperse first, looking
-for suitable habitats within their dispersal range to establish territories.
-Females disperse second, looking for available mates. (Cf. Aben et al. 2016)
+Disperse all juvenile individuals within the world. 
 """
-function zdisperse!(world::Array{Patch,1}, settings::Dict{String, Any}, sex::Sex=male)
+function zdisperse!(world::Array{Patch,1})
     for patch in world
-        newseedbank = Array{Individual,1}()
-        while length(patch.seedbank) > 0
-            #XXX This is probably rather inefficient (creating a new list each time)
-            juvenile = pop!(patch.seedbank)
-            if juvenile.sex == sex
-                zdisperse!(juvenile, world, patch.location,
-                           Integer(settings["cellsize"]), settings["tolerance"])
-            else
-                push!(newseedbank, juvenile)
-            end
+        for ind in patch.seedbank
+            zdisperse!(ind, world, patch.location)
         end
-        patch.seedbank = newseedbank
+        patch.seedbank = Array{Individual,1}()
     end
-    (sex == male) && zdisperse!(world, settings, female)
 end
 
 """
-    zdisperse!(bird, world, location, cellsize)
+    zdisperse!(bird, world, location)
 
-Dispersal of a single bird.
+Dispersal of a single bird. Birds look patches with a suitable
+habitat and a free territory or available mate. (Cf. Aben et al. 2016)
 """
-function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int, Int},
-                    cellsize::Int, tolerance::Float64)
+function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int, Int})
     # keep track of where we've been and calculate the max dispersal distance
     x, y = location
     route = [location]
     #XXX disperse!() adds `/sqrt(2)`??
-    #FIXME we're probably going to need another distribution
+    #XXX sex-biased maximum dispersal?
+    !(bird.traits["dispshape"] > 0) && @goto failure # Logistics() requires θ > zero(θ)
     maxdist = rand(Logistic(bird.traits["dispmean"], bird.traits["dispshape"]))
     while maxdist > 0
         # calculate the best habitat patch in the surroundings (i.e. the closest to AGC optimum)
         target = [(x-1, y-1), (x, y-1), (x+1, y-1),
                   (x-1, y),             (x+1, y),
                   (x-1, y+1), (x, y+1), (x+1, y+1)]
-        filter!(c -> !in(c, route), target)
-        possdest = map(p -> coordinate(p[1], p[2], world), target)
-        filter!(p->!isnothing(p), possdest)
-        if iszero(length(possdest))
-            simlog("A Z.$(bird.lineage) died after failed dispersal.", 'd')
-            return
-        end
-        bestdest = possdest[1]
-        bestfit = abs(bestdest.prec - bird.traits["precopt"])
-        for patch in possdest[2:end]
-            patchfit = abs(patch.prec - bird.traits["precopt"])
-            if patchfit < bestfit
-                bestdest = patch
-                bestfit = patchfit
+        bestdest = nothing
+        bestfit = nothing
+        for t in target
+            (t in route) && continue
+            possdest = coordinate(t[1], t[2], world)
+            isnothing(possdest) && continue
+            patchfit = abs(possdest.prec - bird.traits["precopt"])
+            if isnothing(bestdest) || patchfit < bestfit
+                bestdest, bestfit = possdest, patchfit
             end
         end
-        # check if the patch is full, within the bird's AGC range, and (for females) has a mate
-        if bird.sex == female #XXX not ideal to do this here
-            partner = findfirst(b -> ziscompatible(bird, b, tolerance), bestdest.community)
-        end
-        if (bestfit <= bird.traits["prectol"] &&
-            length(bestdest.community) < cellsize &&
-            (bird.sex == male || !isnothing(partner)))
-            if bird.sex == female
-                partner = bestdest.community[partner]
+        (isnothing(bestdest)) && @goto failure
+        x, y = bestdest.location
+        # check if the patch is within the bird's AGC range and has free space
+        if (bestfit <= bird.traits["prectol"] && length(bestdest.community) < setting("cellsize"))
+            # can we settle here?
+            partner = zfindmate(bestdest.community, bird)
+            if !isnothing(partner)
+                # if we've found a partner
                 bird.partner = partner.id
                 partner.partner = bird.id
+                @goto success
+            elseif length(bestdest.community) <= (setting("cellsize")-2)
+                # if there's space for another breeding pair
+                @label success
+                bird.marked = true
+                push!(bestdest.community, bird)
+                simlog("$(idstring(bird)) moved to $x/$y.", 'd')
+                return #if we've found a spot, we're done
             end
-            bird.marked = true
-            push!(bestdest.community, bird)
-            simlog("A Z.$(bird.lineage) moved to $(bestdest.location[1])/$(bestdest.location[2]).", 'd')
-            return #if we've found a spot, we're done
         end
-        x, y = bestdest.location
         push!(route, bestdest.location)
         maxdist -= 1
     end #if the max dispersal distance is reached, the individual simply dies
+    @label failure #XXX this could be removed (and `@goto failure` replaced with a simple `return`)
     simlog("A Z.$(bird.lineage) died after failed dispersal.", 'd')
 end
 
 """
-    ziscompatible(female, male, tolerance)
+    zfindmate(population, bird)
+
+Find an available breeding partner in the given population, preferring
+conspecifics. Returns the partner individual, or nothing.
+"""
+function zfindmate(population::AbstractArray{Individual, 1}, bird::Individual)
+    partner = nothing
+    for b in population
+        (b.lineage != bird.lineage) && continue
+        if ziscompatible(bird, b)
+            partner = b
+            break
+        end
+    end
+    if isnothing(partner) && setting("speciation") == "off"
+        for b in population
+            (b.lineage == bird.lineage) && continue
+            if ziscompatible(bird, b)
+                partner = b
+                break
+            end
+        end                
+    end
+    return partner
+end
+
+"""
+    ziscompatible(individual1, individual2)
 
 Check to see whether two birds are reproductively compatible.
 """
-function ziscompatible(f::Individual, m::Individual, tolerance::Float64)
-    !(m.sex == male && f.sex == female) && return false
-    !(m.partner == 0 && f.partner == 0) && return false
-    #FIXME When birds are looking for a mate, they're still juvenile, but they only mate as adults
-    #!(m.size >= m.traits["repsize"] && f.size >= f.traits["repsize"]) && return false
-    (m.lineage != f.lineage && rand(Float64) > tolerance) && return false
-    #TODO how about seqsimilarity and genetic compatibility?
-    simlog("Found a partner: $(f.id) and $(m.id).", 'd')
+function ziscompatible(i1::Individual, i2::Individual)
+    (i1.sex == i2.sex) && return false
+    !(i1.partner == 0 && i2.partner == 0) && return false
+    if setting("speciation") == "off" #check for hybridisation
+        (i1.lineage != i2.lineage && rand(Float64) > setting("tolerance")) && return false
+    else #check for speciation
+        (!iscompatible(i1, i2)) && return false
+    end
+    simlog("Found a partner: $(idstring(i1)) and $(idstring(i2)).", 'd')
     return true
 end
     
 """
-    zreproduce!(patch, settings)
+    zreproduce!(patch)
 
 Reproduction of Zosterops breeding pairs in a patch.
 """
-function zreproduce!(patch::Patch, settings::Dict{String, Any})
-    #FIXME reproduction happens too seldom?
-    noffs = Integer(settings["fertility"])
+function zreproduce!(patch::Patch)
+    noffs = Integer(setting("fertility"))
     for bird in patch.community
-        if bird.sex == female && bird.partner != 0
+        simlog("$(idstring(bird)), $(bird.sex), partner: $(bird.partner)", 'd')
+        if bird.partner != 0
             pt = findfirst(b -> b.id == bird.partner, patch.community)
-            if isnothing(pt)
-                simlog("Z.$(bird.lineage) no. $(bird.id) has no partner.", 'd')
-                continue
+            if isnothing(pt) # birds can find a new partner if one has died
+                simlog("$(idstring(bird)) no longer has a partner.", 'd')
+                bird.partner = 0
+            elseif bird.sex == female # only mate once per pair
+                partner = patch.community[pt]
+                simlog("$(idstring(bird)) mated with $(idstring(partner)).", 'd')
+                append!(patch.seedbank, createoffspring(noffs, bird, partner, true))
             end
-            partner = patch.community[pt]
-            simlog("A Z.$(bird.lineage) mated with a Z.$(partner.lineage), $noffs offspring.", 'd')
-            #TODO Offspring are assigned the lineage of their mother. Is that what we want?
-            append!(patch.seedbank, createoffspring(noffs, bird, partner,
-                                                    settings["traitnames"], true))
         end
     end
 end
-
 
 let width = 0, height = 0
     """
@@ -265,3 +267,13 @@ let width = 0, height = 0
         return world[i]
     end
 end
+
+"""
+    idstring(individual)
+
+A small utility function that returns a string identifier for a given individual.
+"""
+function idstring(bird::Individual)
+    return "Z."*bird.lineage*" "*string(bird.id)
+end
+

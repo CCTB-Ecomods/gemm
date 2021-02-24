@@ -45,47 +45,86 @@
 - [ ] performance issue (https://docs.julialang.org/en/v1/manual/performance-tips/):
   - [X] profile RAM/CPU trade-off with `compressgenes`
   - [X] circumvent `push!()` calls, preallocate memory instead - doesn't work?
-  - [ ] avoid intermediate allocations when compressing gene sequences
-  - [ ] avoid string interpolation in output
+  - [X] use immutable structs - doesn't work either?
+  - [X] avoid intermediate allocations when compressing gene sequences
+  - [X] avoid string interpolation in output
   - [ ] avoid `deepcopy()`?
   - [X] write a coordinate lookup function to speed up `zdisperse!()`
+  - [X] further optimise `zdisperse()` if possible
+  - [ ] buffer more output for better I/O performance (`open()` is expensive)
+  - [ ] replace `gettraitdict()` with `trait()`?
+  - [X] do another profile after finishing Zosterops features
 
-- [ ] test dispersal and reproduction functions
+- [X] turn off mutation except at initialisation
 
-- [ ] vary hybridization affinity for core experiment
+- [X] make `settings` global
 
-- [ ] `createoffspring()` or `zreproduce()` have to deal with lineage labels
+- [X] rewrite dispersal function as discussed on 19/01/21
 
-- [ ] prepare map series for SLOSS experiment (constant habitat size, random configuration)
-		- single very large habitat (VL)
-		- some large habitats (SL)
-		- several small habitats (SS)
+- [X] implement lineage tagging for chromosomes
+
+- [X] juveniles are "born with" adult size
+
+- [X] hybridisation: only if no conspecific partner available
+
+- [X] hybridisation: assign offspring to lineage based on phenotypical similarity
+
+- [X] allow for ecological/neutral speciation in `ziscompatible()`
+
+- [X] throw an error if input files don't exist
+
+- [X] basicparser() should concatenate lines ending with a \
+
+- [X] rethink species trait definition in config
+
+- [X] concatenate functional genes when calculating compatibility with ecological speciation
+
+- [X] disable `selfing` gene for Zosterops studies (how about `seedsize`?)
+
+- [X] test dispersal and reproduction functions
+		- [X] BUG: breeding pairs formed after dispersal don't mate (problem: excessive mortality)
+		- [X] BUG: dispshape sometimes not greater zero (required for logistic distribution)
+		- [X] make sure hybridisation works as intended
+		- [ ] error when linkage != "none"?
+
+- [X] decrease world size for experiments? (currently ~10^5 patches)
+
+- [X] backport dispersal code changes from `globalmating`
+
+- [X] backport `minprec` setting from `globalmating`
+
+- [X] measure & record population heterozygosity
+
+- [X] automate experimental setup for hybridisation and habitat fragmentation studies
+
+- [ ] prepare map series for habitat scenarios (cf. Githiru et al. 2011):
+		- [ ] converted exotic plantations
+		- [ ] random homestead tree planting
+		- [ ] reduced montane forest patches
 
 - [ ] measure & record:
 		- degree of heterozygosity
 		- genetic diversity
 		- population sizes
 
-- [ ] test parameterisation
-		- very large *Z. jubaensis* populations?
+- [X] test parameterisation
+		- [X] adjust body sizes and dispersal distances
+		- [X] temperature opt/tol must allow sufficient survival rates
 
-- [ ] update data output
+- [ ] write data analysis script
 
 - [ ] update documentation
 
 ## Notes
 
-- how should burn-in work?
-
-- how do we design the SLOSS map series?
-  - idea: use USGS forest cover map as "recovery scenario" (all exotic forest transformed to montane)?
-  - or just shift species' AGC opt/tol to increase/decrease habitat suitability
-
-- measuring heterozygosity:
-  - number of hybrids in the population?
-  - tag each chromosome with its original lineage and keep track of each?
-
 - restrict mutations of max & min sizes?
   -> either in `mutate!` or in `checkviability!`
 
 - what determines brood density in lowland species? forest cover?
+
+- dispersal distance:
+  - "Based on 339 retraps, the max dispersal distance for Z. silvanus is 1.84 km. 
+	This is certainly an underestimation of the max natal dispersal distance 
+	because we have never ringed pulli in the nest for this species."
+  - "For adults, the mean dispersal distance of females is 0.38 km and for 
+	males is 0.21 km."

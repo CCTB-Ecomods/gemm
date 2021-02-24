@@ -1,12 +1,12 @@
 # Output functions for GeMM
 
 """
-    printheader(settings, io, sep)
+    printheader(io, sep)
 
 Print a list of property names to the given IO stream. This is a helper function
 for `dumpinds`.
 """
-function printheader(settings::Dict{String, Any}, io::IO = stdout, sep::String = "\t")
+function printheader(io::IO = stdout, sep::String = "\t")
     #XXX Transfer to a dynamic system? (As in createworld()?)
     print(io, "time", sep)
     print(io, "patch_no", sep)
@@ -14,8 +14,8 @@ function printheader(settings::Dict{String, Any}, io::IO = stdout, sep::String =
     print(io, "yloc", sep)
     print(io, "temp", sep)
     print(io, "capacity", sep)
-    settings["nniches"] > 1 && print(io, "prec", sep)
-    settings["nniches"] > 2 && print(io, "nicheb", sep)
+    setting("nniches") > 1 && print(io, "prec", sep)
+    setting("nniches") > 2 && print(io, "nicheb", sep)
     print(io, "island", sep)
     print(io, "isolation", sep)
     print(io, "invasible", sep)
@@ -28,7 +28,7 @@ function printheader(settings::Dict{String, Any}, io::IO = stdout, sep::String =
     print(io, "size", sep)
     print(io, "lnkgunits", sep)
     print(io, "ngenes", sep)
-    for key in settings["traitnames"]
+    for key in setting("traitnames")
         print(io, key, sep)
     end
     println(io)
@@ -40,14 +40,14 @@ end
 Output all data of individuals in `world` as table to `io`. Columns are separated by `sep`.
 WARNING: this produces *very* large files!
 """
-function dumpinds(world::Array{Patch, 1}, settings::Dict{String, Any}, timestep::Int, io::IO = stdout, sep::String = "\t")
-    timestep == 0 && printheader(settings, io, sep)
-    onlyisland = settings["static"] && timestep > 1
+function dumpinds(world::Array{Patch, 1}, timestep::Int, io::IO = stdout, sep::String = "\t")
+    timestep == 0 && printheader(io, sep)
+    onlyisland = setting("static") && timestep > 1
     for patch in world
         #XXX Sometimes, this only dumps three or four individuals, with a population of >10⁴!
         # (Should be fixed)
         (onlyisland && !patch.isisland) && continue
-        if !patch.isisland && settings["static"]
+        if !patch.isisland && setting("static")
             community = patch.seedbank
         else
             community = patch.community
@@ -59,8 +59,8 @@ function dumpinds(world::Array{Patch, 1}, settings::Dict{String, Any}, timestep:
             print(io, patch.location[2], sep)
             print(io, patch.temp, sep)
             print(io, patch.capacity, sep)
-            settings["nniches"] > 1 && print(io, patch.prec, sep)
-            settings["nniches"] > 2 && print(io, patch.nicheb, sep)
+            setting("nniches") > 1 && print(io, patch.prec, sep)
+            setting("nniches") > 2 && print(io, patch.nicheb, sep)
             patch.isisland ? print(io, 1, sep) : print(io, 0, sep)
             patch.isolated ? print(io, 1, sep) : print(io, 0, sep)
             patch.invasible ? print(io, 1, sep) : print(io, 0, sep)
@@ -73,7 +73,7 @@ function dumpinds(world::Array{Patch, 1}, settings::Dict{String, Any}, timestep:
             print(io, ind.size, sep)
             print(io, length(ind.genome), sep)
             print(io, sum(map(x -> length(x.genes), ind.genome)), sep)
-            for key in settings["traitnames"]
+            for key in setting("traitnames")
                 try
                     print(io, ind.traits[key], sep)
                 catch
@@ -86,22 +86,22 @@ function dumpinds(world::Array{Patch, 1}, settings::Dict{String, Any}, timestep:
 end
 
 """
-    makefasta(world, settings, io, onlyisland, sep)
+    makefasta(world, io, onlyisland, sep)
 
 Record the genome of every individual currently alive to the given IO stream.
 (High-detail data recording function.) WARNING: this produces *very* large files!
 """
-function makefasta(world::Array{Patch, 1}, settings::Dict{String, Any}, io::IO = stdout, onlyisland::Bool = false, sep::String = "_")
+function makefasta(world::Array{Patch, 1}, io::IO = stdout, onlyisland::Bool = false, sep::String = "_")
     for patch in world
         (onlyisland && !patch.isisland) && continue
-        if !patch.isisland && settings["static"]
+        if !patch.isisland && setting("static")
             community = patch.seedbank
         else
             community = patch.community
         end
         lineage = ""
         for ind in community
-            (!patch.isisland && settings["static"] && ind.lineage == lineage) && continue # only one individual per species on mainland
+            (!patch.isisland && setting("static") && ind.lineage == lineage) && continue # only one individual per species on mainland
             chrmno = 0
             for chrm in ind.genome
                 chrmno += 1
@@ -113,13 +113,13 @@ function makefasta(world::Array{Patch, 1}, settings::Dict{String, Any}, io::IO =
                         traits *= ","
                     else
                         for trait in gene.codes
-                            traits *= string(settings["traitnames"][trait.nameindex]) * ":" * string(trait.value) * ","
+                            traits *= string(setting("traitnames")[trait.nameindex]) * ":" * string(trait.value) * ","
                         end
                     end
                     header = ">" * ind.lineage * sep * string(ind.id) * sep * string(chrmno) * sep * string(geneno) * sep * traits
-                    if (settings["fasta"] == "compat" && occursin("compat", header)) || settings["fasta"] != "compat"
+                    if (setting("fasta") == "compat" && occursin("compat", header)) || setting("fasta") != "compat"
                         println(io, header)
-                        if settings["compressgenes"]
+                        if setting("compressgenes")
                             println(io, num2seq(gene.sequence))
                         else
                             println(io, gene.sequence)
@@ -137,42 +137,44 @@ end
 
 Creates the output directory and copies relevant files into it.
 """
-function setupdatadir(settings::Dict{String, Any})
-    if isdir(settings["dest"])
-        @warn "$(settings["dest"]) exists. Continuing anyway. Overwriting of files possible."
+function setupdatadir()
+    if isdir(setting("dest"))
+        #XXX a more useful solution might be to rename "dest" to avoid conflict
+        simlog(string(setting("dest"))*" exists. Aborting to avoid overwriting files.", 'e')
     else
-        mkpath(settings["dest"])
+        mkpath(setting("dest"))
     end
-    simlog("Setting up output directory $(settings["dest"])")
-    writesettings(settings)
-    if haskey(settings, "maps")
-        for m in settings["maps"]
+    simlog("Setting up output directory "*string(setting("dest")))
+    writesettings()
+    if in("maps", settingkeys())
+        for m in setting("maps")
             isempty(m) && continue
-            cp(m, joinpath(settings["dest"], basename(m)), force = true) # most likely replicates with same parameters
+            !(isfile(m)) && simlog("Map file "*string(m)*" doesn't exist!", 'e')
+            cp(m, joinpath(setting("dest"), basename(m)), force = true)
         end
     end
 end
 
 """
-    writesettings(settings)
+    writesettings()
 
 Record the settings actually used for a simulation run (cf. `getsettings`).
 Creates a config file that can be used for future replicate runs.
 Also records a time stamp and the current git commit.
 """
-function writesettings(settings::Dict{String, Any})
-    if isempty(basename(settings["config"]))
+function writesettings()
+    if isempty(basename(setting("config")))
         settingspath = "settings.conf"
     else
-        settingspath = basename(settings["config"])
+        settingspath = basename(setting("config"))
     end
-    open(joinpath(settings["dest"], settingspath), "w") do f
-        println(f, "#\n# --- Island speciation model settings ---")
+    open(joinpath(setting("dest"), settingspath), "w") do f
+        println(f, "#\n# --- GeMM configuration parameters ---")
         println(f, "# This file was generated automatically.")
-        println(f, "# Simulation run on $(Dates.format(Dates.now(), "d u Y HH:MM:SS"))")
-        println(f, "# $(split(read(pipeline(`git log`, `head -1`), String), "\n")[1])\n")
-        for k in keys(settings)
-            value = settings[k]
+        println(f, "# Simulation run on "*string(Dates.format(Dates.now(), "d u Y HH:MM:SS")))
+        println(f, "# "*string(split(read(pipeline(`git log`, `head -1`), String), "\n")[1])*"\n")
+        for k in settingkeys()
+            value = setting(k)
             if isa(value, String)
                 value = "\"" * value * "\""
             elseif isa(value, Array)
@@ -182,44 +184,44 @@ function writesettings(settings::Dict{String, Any})
                         end
                         value = vstr[1:end-1] * "\""
             end
-            println(f, "$k $value")
+            println(f, string(k), " ", string(value))
         end
     end
 end
 
 """
-    writedata(world, settings, timestep)
+    writedata(world, timestep)
 
 Writes simulation output from `world` to separate table and fasta files. (Which
 data is recorded depends on the settings.) `timestep` and `setting` information
 is used for file name creation.
 """
-function writedata(world::Array{Patch,1}, settings::Dict{String, Any}, timestep::Int)
-    if settings["raw"]
-        filename = "inds_s" * string(settings["seed"])
-        filename = joinpath(settings["dest"], filename)
+function writedata(world::Array{Patch,1}, timestep::Int)
+    if setting("raw")
+        filename = "inds_s" * string(setting("seed"))
+        filename = joinpath(setting("dest"), filename)
         filename = filename * ".tsv"
-        simlog("Writing data \"$filename\"")
+        simlog("Writing data \""*string(filename)*"\"")
         open(filename, "a") do file
-            dumpinds(world, settings, timestep, file)
+            dumpinds(world, timestep, file)
         end
     end
-    if settings["stats"]
-        filename = "pops_s" * string(settings["seed"])
-        filename = joinpath(settings["dest"], filename)
+    if setting("stats")
+        filename = "pops_s" * string(setting("seed"))
+        filename = joinpath(setting("dest"), filename)
         filename = filename * ".tsv"
-        simlog("Writing stats to \"$filename\"")
+        simlog("Writing stats to \""*string(filename)*"\"")
         open(filename, "a") do file
-            printpopstats(file, world, settings, timestep)
+            printpopstats(file, world, timestep)
         end
     end
-    if settings["fasta"] != "off"
-        filename = "seqs_s" * string(settings["seed"])
-        filename = joinpath(settings["dest"], filename)
+    if setting("fasta") != "off"
+        filename = "seqs_s" * string(setting("seed"))
+        filename = joinpath(setting("dest"), filename)
         filename = filename * ".fa"
-        simlog("Writing fasta \"$filename\"")
+        simlog("Writing fasta \""*string(filename)*"\"")
         open(filename, "a") do file
-            makefasta(world, settings, file, settings["static"] && timestep > 1)
+            makefasta(world, file, setting("static") && timestep > 1)
         end
     end
 end
@@ -229,17 +231,16 @@ end
 
 Write out world properties to the log file for later analysis.
 """
-function recordstatistics(world::Array{Patch,1}, settings::Dict{String, Any})
-    if !isfile(joinpath(settings["dest"], "diversity.log"))
+function recordstatistics(world::Array{Patch,1})
+    if !isfile(joinpath(setting("dest"), "diversity.log"))
         simlog("population,freespace,lineages,alpha,beta,gamma", 'i', "diversity.log", true)
     end
     popsize = sum(x -> length(x.community), world)
     lineages = unique(reduce(vcat, map(p -> map(x -> x.lineage, p.community), world)))
     div = round.(diversity(world), digits = 3)
     space = freespace(world)
-    #XXX Doing a lot of string interpolation is expensive
-    simlog("Metacommunity size: $popsize, lineages: $(length(lineages))")
-    simlog("$popsize,$space,$(length(lineages)),$(div[1]),$(div[2]),$(div[3])",
+    simlog("Metacommunity size: "*string(popsize)*", lineages: "*string(length(lineages))) # to stdout
+    simlog(string(popsize)*","*string(space)*","*string(length(lineages))*","*string(div[1])*","*string(div[2])*","*string(div[3]),
            'i', "diversity.log", true)
 end
 
@@ -248,18 +249,19 @@ end
 
 Save the abundance of each lineage per patch. (Low-detail data recording function.)
 """
-function recordlineages(world::Array{Patch,1}, settings::Dict{String, Any}, timestep::Int)
+function recordlineages(world::Array{Patch,1}, timestep::Int)
     #XXX despite being low-detail, calling this frequently still means a lot of I/O
-    if !isfile(joinpath(settings["dest"], "lineages.log"))
+    if !isfile(joinpath(setting("dest"), "lineages.log"))
         simlog("t,X,Y,lineage,abundance,temp,prec", 'i', "lineages.log", true)
     end
+    datastring = ""
     for p in world
         for l in unique(map(x -> x.lineage, p.community))
-            #XXX Doing a lot of string interpolation is expensive
-            simlog("$timestep,$(p.location[1]),$(p.location[2]),$l,$(length(findall(x -> x.lineage == l, p.community))),$(p.temp),$(p.prec)",
-                   'i', "lineages.log", true)
+            datastring *= string(timestep)*","*string(p.location[1])*","*string(p.location[2])*","*string(l)*","*
+            string(length(findall(x -> x.lineage == l, p.community)))*","*string(p.temp)*","*string(p.prec)
         end
     end
+    simlog(datastring, 'i', "lineages.log", true)
 end
 
 """
@@ -269,8 +271,9 @@ Print a list of property names to the given IO stream. This is a helper function
 for `printpopstats`.
 """
 function printpopheader(io::IO)
-    print(io, "time", "\tx", "\ty", "\ttemp", "\tprec", "\tcapacity", "\tisisland")
-    print(io, "\tlineage", "\tjuveniles", "\tadults", "\ttempadaptationmean", "\tprecadaptationmean")
+    print(io, "time", "\tx", "\ty", "\ttemp", "\tprec", "\tcapacity", "\tisisland",
+          "\tlineage", "\tjuveniles", "\tadults", "\ttempadaptationmean",
+          "\tprecadaptationmean", "\theterozygosity")
     traitnames =  ["compat", "compatsd", "dispmean", "dispmeansd", "dispshape", "dispshapesd",
                    "ngenes", "nlnkgunits", "precopt", "precoptsd", "prectol", "prectolsd",
                    "repsize", "repsizesd", "seqsimilarity", "seqsimilaritysd", "seedsize", "seedsizesd",
@@ -284,13 +287,13 @@ function printpopheader(io::IO)
 end
 
 """
-    printpopstats(io, world, settings, timestep)
+    printpopstats(io, world, timestep)
 
 Record statistical information (maximum, minimum, median, standard deviation)
 for a range of individual properties, as seen over the whole world population.
 (Medium-detail data recording function.)
 """
-function printpopstats(io::IO, world::Array{Patch, 1}, settings::Dict{String, Any}, timestep::Integer)
+function printpopstats(io::IO, world::Array{Patch, 1}, timestep::Integer)
     timestep == 0 && printpopheader(io)
     traitnames =  ["compat", "compatsd", "dispmean", "dispmeansd", "dispshape", "dispshapesd",
                    "ngenes", "nlnkgunits", "precopt", "precoptsd", "prectol", "prectolsd",
@@ -306,41 +309,17 @@ function printpopstats(io::IO, world::Array{Patch, 1}, settings::Dict{String, An
             adultidxs = findall(i -> i.size >= i.traits["repsize"], patch.community[popidxs])
             print(io, "\t", population[1].lineage, "\t", length(popidxs) - length(adultidxs), "\t", length(adultidxs),
                   "\t", mean(skipmissing(map(i -> i.tempadaptation, population))),
-                  "\t", mean(skipmissing(map(i -> i.precadaptation, population))))
+                  "\t", mean(skipmissing(map(i -> i.precadaptation, population))),
+                  "\t", heterozygosity(population))
             poptraitdict = Dict{String, Array{Float64, 1}}()
             for traitname in traitnames
                 poptrait = map(i -> i.traits[traitname], population)
                 print(io, "\t", mean(skipmissing(poptrait)))
                 print(io, "\t", std(skipmissing(poptrait))) # CAVEAT: this returns NaN if only one individual
             end
-            print(io, "\t", settings["seed"], "\t", settings["config"])
+            print(io, "\t", setting("seed"), "\t", setting("config"))
             println(io)
         end
-    end
-end
-
-let logsettings = Dict{String, Any}()
-    """
-        initlogsettings(settings)
-
-    Make a copy of the settings relevant to logging, so that `simlog()`
-    doesn't have to be called with `settings` every time. (This function
-    must be called as early as possible, see `runsim()`.)
-    """
-    global function initlogsettings(settings::Dict{String, Any})
-        keys = ["quiet", "logging", "dest", "debug"]
-        for k in keys
-            logsettings[k] = settings[k]
-        end
-    end
-
-    """
-        logparam(key)
-
-    Access one of the settings relevant to logging. Helper function for `simlog()`.
-    """
-    global function logparam(key)
-        logsettings[key]
     end
 end
 
@@ -356,17 +335,19 @@ If `logfile` is the empty string (default: "simulation.log"), the message will
 only be printed to the screen. If `onlylog` is true (default: false), the
 message is not printed to screen but only to the log.
 """
-function simlog(msg::String, category='i', logfile="simulation.log", onlylog=false)
+function simlog(msg::String, category::Char='i', logfile::String="simulation.log", onlylog::Bool=false)
     #TODO Julia now has inbuilt logging facilities: https://docs.julialang.org/en/v1/stdlib/Logging/
     # This function ought to be rewritten to make use of these (especially warning and error macros)
+    #XXX It may be worth turning this into a macro to reduce runtime?
     (isa(category, String) && length(category) == 1) && (category = category[1])
     function logprint(msg::String, tostderr=false)
-        if tostderr || !(logparam("quiet") || onlylog)
+        if tostderr || !(setting("quiet") || onlylog)
             tostderr ? iostr = stderr : iostr = stdout
             println(iostr, msg)
         end
-        if logparam("logging") && length(logfile) > 0
-            open(joinpath(logparam("dest"), logfile), "a") do f
+        if setting("logging") && length(logfile) > 0
+            #XXX always opening new connections is expensive -> should we buffer the output?
+            open(joinpath(setting("dest"), logfile), "a") do f
                 println(f, msg)
             end
         end
@@ -374,16 +355,18 @@ function simlog(msg::String, category='i', logfile="simulation.log", onlylog=fal
     if category == 'i'
         logprint(msg)
     elseif category == 'd'
-        logparam("debug") && logprint("DEBUG: "*string(msg))
+        setting("debug") && logprint("DEBUG: "*string(msg))
     elseif category == 'w'
         logprint("WARNING: "*string(msg), true)
     elseif category == 'e'
         logprint("ERROR: "*string(msg), true)
         exit(1)
     else
-        simlog("Invalid log category $category.", 'w')
+        simlog("Invalid log category "*string(category)*".", 'w')
     end
 end
+
+#XXX perhaps the utility functions below should go elsewhere?
 
 """
     diversity(w)
@@ -413,6 +396,25 @@ function diversity(world::Array{Patch,1})
     gamma = shannon(globalindex)
     beta = gamma - alpha
     (alpha, beta, gamma)
+end
+
+"""
+    heterozygosity(population)
+
+Calculate the percentage of extraspecific chromosomes in a population's gene pool.
+"""
+function heterozygosity(population::Array{Individual,1})
+    (!(setting("heterozygosity") || isempty(population))) && return 0
+    lineage = population[1].lineage
+    chromosomes = 0
+    extraspecifics = 0
+    for ind in population
+        for c in ind.genome
+            chromosomes += 1
+            (c.lineage != lineage) && (extraspecifics += 1)
+        end
+    end
+    return (extraspecifics/chromosomes) * 100
 end
 
 """
