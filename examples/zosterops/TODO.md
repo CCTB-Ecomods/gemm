@@ -91,6 +91,8 @@
 
 - [X] backport dispersal code changes from `globalmating`
 
+- [X] backport `minprec` setting from `globalmating`
+
 - [X] measure & record population heterozygosity
 
 - [X] automate experimental setup for hybridisation and habitat fragmentation studies
@@ -105,7 +107,7 @@
 		- genetic diversity
 		- population sizes
 
-- [ ] test parameterisation
+- [X] test parameterisation
 		- [X] adjust body sizes and dispersal distances
 		- [X] temperature opt/tol must allow sufficient survival rates
 

@@ -140,7 +140,7 @@ Creates the output directory and copies relevant files into it.
 function setupdatadir()
     if isdir(setting("dest"))
         #XXX a more useful solution might be to rename "dest" to avoid conflict
-        simlog(string(setting(dest))*" exists. Aborting to avoid overwriting files.", 'e')
+        simlog(string(setting("dest"))*" exists. Aborting to avoid overwriting files.", 'e')
     else
         mkpath(setting("dest"))
     end
@@ -184,7 +184,7 @@ function writesettings()
                         end
                         value = vstr[1:end-1] * "\""
             end
-            println(f, string(k)*" "*string(value))
+            println(f, string(k), " ", string(value))
         end
     end
 end

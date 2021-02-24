@@ -52,6 +52,10 @@ function correctmode!()
         end
         # XXX further modes?
     end
+    if setting("precrange") != 0
+        updatesetting("maxprec", setting("precrange"))
+        simlog("`precrange` is deprecated, use `maxprec` instead.", 'w')
+    end
 end
 
 let settings::Dict{String, Any}

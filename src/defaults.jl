@@ -35,9 +35,11 @@ function defaultSettings()
         "maps" => "", # comma-separated list of map files
         "maxbreadth" => 5.0, # maximum niche breadth
         "maxloci" => 1, # maximum number of loci/copies per gene
+        "maxprec" => 10.0, # max optimum precipitation
         "maxrepsize" => 14.0, # maximal repsize in grams calculated as exp(maxrepsize) -> 1.2 t
         "maxseedsize" => 10.0, # maximal seedsize in grams calculated as exp(maxseedsize) -> 22 kg
         "maxtemp" => 313.0, # max optimum temp in K
+        "minprec" => 0.0, # min optimum precipitation
         "minrepsize" => 3.0, # minimal repsize in grams calculated as exp(minrepsize) -> 20 g
         "minseedsize" => -2.0, # minimal seedsize in grams calculated as exp(minseedsize) -> 0.14 g
         "mintemp" => 273.0, # min optimum temp in K
@@ -50,7 +52,7 @@ function defaultSettings()
         "overfill" => 1.0, # how much to overfill grid cells beyond their capacity
         "phylconstr" => 0.1, # phylogenetic constraint during mutation and inter-loci variation. scales trait value as sd.
         "popsize" => "metabolic", # initialisation algorithm: metabolic/bodysize/minimal/single
-        "precrange" => 10.0, # range from 0 for precipitation optimum
+        "precrange" => 0, # max optimum precipitation - deprecated! (use `maxprec`)
         "propagule-pressure" => 0, # number of non-native individuals introduced per invasion event
         "quiet" => false, # don't write output to screen
         "raw" => true, # record raw data
