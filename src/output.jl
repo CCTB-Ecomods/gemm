@@ -340,6 +340,7 @@ message is not printed to screen but only to the log.
 function simlog(msg::String, category::Char='i', logfile::String="simulation.log", onlylog::Bool=false)
     #TODO Julia now has inbuilt logging facilities: https://docs.julialang.org/en/v1/stdlib/Logging/
     # This function ought to be rewritten to make use of these (especially warning and error macros)
+    #XXX It may be worth turning this into a macro to reduce runtime?
     (isa(category, String) && length(category) == 1) && (category = category[1])
     function logprint(msg::String, tostderr=false)
         if tostderr || !(setting("quiet") || onlylog)

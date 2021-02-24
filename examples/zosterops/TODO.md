@@ -52,7 +52,7 @@
   - [X] write a coordinate lookup function to speed up `zdisperse!()`
   - [X] further optimise `zdisperse()` if possible
   - [ ] buffer more output for better I/O performance (`open()` is expensive)
-  - [ ] improve performance of zreproduce/createoffspring/gettraitdict
+  - [ ] replace `gettraitdict()` with `trait()`
   - [X] do another profile after finishing Zosterops features
 
 - [X] turn off mutation except at initialisation

@@ -63,35 +63,24 @@ Convert a genome (an array of chromosomes) into a dict of traits and their value
 """
 function gettraitdict(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1})
     #TODO can this be made more efficient? It's called really often...
-    genes = AbstractGene[]
+    #XXX actually, could we delete it and replace it with a trait() look-up function?
+    traitdict = Dict{String, Float64}()
+    traits = Array{Trait,1}()
     nchrms = 0
     ngenes = 0
     for chrm in chrms
-        append!(genes, chrm.genes)
         nchrms += 1
-        ngenes += length(chrm.genes)
+        for gene in chrm.genes
+            ngenes += 1
+            append!(traits, gene.codes)
+        end
     end
-    traits = vcat(map(g -> g.codes, genes)...)
-    traitdict = Dict{String, Float64}()
     for traitidx in eachindex(traitnames)
         traitdict[traitnames[traitidx]] = getmeantraitvalue(traits, traitidx)
-        traitdict[string(traitnames[traitidx]) * "sd"] = getstdtraitvalue(traits, traitidx)
+        traitdict[traitnames[traitidx] * "sd"] = getstdtraitvalue(traits, traitidx)
     end
     traitdict["ngenes"] = ngenes
     traitdict["nlnkgunits"] = nchrms
-    traitdict
-end
-
-"""
-    gettraitdict(traits, traitnames)
-
-Construct a trait dict from a list of Trait objects.
-"""
-function gettraitdict(traits::Array{Trait, 1}, traitnames::Array{String, 1})
-    traitdict = Dict{String, Float64}()
-    for traitidx in unique(map(x -> x.nameindex, traits))
-        traitdict[traitnames[traitidx]] = getmeantraitvalue(traits, traitidx)
-    end
     traitdict
 end
 
@@ -102,7 +91,7 @@ Compare two strings and return similarity.
 """
 function getseqsimilarity(indgene::AbstractString, mategene::AbstractString)
     basediffs = 0
-    for i in eachindex(indgene) # this is actually faster than `sum(collect(indgene) .== collect(mategene))`
+    for i in eachindex(indgene)
         try
             indgene[i] != mategene[i] && (basediffs += 1) # alternatively use bioinformatics tools
         catch # e.g., in case of differently long genes
@@ -229,7 +218,7 @@ Create an array of trait objects generated from the default trait values (with a
 random offset).
 """
 function createtraits()
-    #TODO: this is all very ugly. (case/switch w/ v. 2.0+?)
+    #XXX this is all very ugly. (case/switch w/ v. 2.0+?)
     traitnames = setting("traitnames")
     traits = Trait[]
     # exponential distributions of body sizes:
@@ -237,7 +226,8 @@ function createtraits()
     seedoffset = setting("maxseedsize") - setting("minseedsize")
     tempoffset = setting("maxtemp") - setting("mintemp")
     sizes = Vector{Float64}(undef, 2)
-    while true
+    #FIXME this needs to be changed to account for allometric relationships
+    while true 
         sizes[1] = exp(setting("minrepsize") + repoffset * rand())
         sizes[2] = exp(setting("minseedsize") + seedoffset * rand())
         sizes[1] > sizes[2] && break
