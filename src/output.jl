@@ -140,16 +140,16 @@ Creates the output directory and copies relevant files into it.
 function setupdatadir()
     if isdir(setting("dest"))
         #XXX a more useful solution might be to rename "dest" to avoid conflict
-        simlog("$(setting("dest")) exists. Aborting to avoid overwriting files.", 'e')
+        simlog(string(setting(dest))*" exists. Aborting to avoid overwriting files.", 'e')
     else
         mkpath(setting("dest"))
     end
-    simlog("Setting up output directory $(setting("dest"))")
+    simlog("Setting up output directory "*string(setting("dest")))
     writesettings()
     if in("maps", settingkeys())
         for m in setting("maps")
             isempty(m) && continue
-            !(isfile(m)) && simlog("Map file $m doesn't exist!", 'e')
+            !(isfile(m)) && simlog("Map file "*string(m)*" doesn't exist!", 'e')
             cp(m, joinpath(setting("dest"), basename(m)), force = true)
         end
     end
@@ -171,8 +171,8 @@ function writesettings()
     open(joinpath(setting("dest"), settingspath), "w") do f
         println(f, "#\n# --- GeMM configuration parameters ---")
         println(f, "# This file was generated automatically.")
-        println(f, "# Simulation run on $(Dates.format(Dates.now(), "d u Y HH:MM:SS"))")
-        println(f, "# $(split(read(pipeline(`git log`, `head -1`), String), "\n")[1])\n")
+        println(f, "# Simulation run on "*string(Dates.format(Dates.now(), "d u Y HH:MM:SS")))
+        println(f, "# "*string(split(read(pipeline(`git log`, `head -1`), String), "\n")[1])*"\n")
         for k in settingkeys()
             value = setting(k)
             if isa(value, String)
@@ -184,7 +184,7 @@ function writesettings()
                         end
                         value = vstr[1:end-1] * "\""
             end
-            println(f, "$k $value")
+            println(f, string(k)*" "*string(value))
         end
     end
 end
@@ -201,7 +201,7 @@ function writedata(world::Array{Patch,1}, timestep::Int)
         filename = "inds_s" * string(setting("seed"))
         filename = joinpath(setting("dest"), filename)
         filename = filename * ".tsv"
-        simlog("Writing data \"$filename\"")
+        simlog("Writing data \""*string(filename)*"\"")
         open(filename, "a") do file
             dumpinds(world, timestep, file)
         end
@@ -210,7 +210,7 @@ function writedata(world::Array{Patch,1}, timestep::Int)
         filename = "pops_s" * string(setting("seed"))
         filename = joinpath(setting("dest"), filename)
         filename = filename * ".tsv"
-        simlog("Writing stats to \"$filename\"")
+        simlog("Writing stats to \""*string(filename)*"\"")
         open(filename, "a") do file
             printpopstats(file, world, timestep)
         end
@@ -219,7 +219,7 @@ function writedata(world::Array{Patch,1}, timestep::Int)
         filename = "seqs_s" * string(setting("seed"))
         filename = joinpath(setting("dest"), filename)
         filename = filename * ".fa"
-        simlog("Writing fasta \"$filename\"")
+        simlog("Writing fasta \""*string(filename)*"\"")
         open(filename, "a") do file
             makefasta(world, file, setting("static") && timestep > 1)
         end
@@ -239,9 +239,8 @@ function recordstatistics(world::Array{Patch,1})
     lineages = unique(reduce(vcat, map(p -> map(x -> x.lineage, p.community), world)))
     div = round.(diversity(world), digits = 3)
     space = freespace(world)
-    #XXX Doing a lot of string interpolation is expensive
-    simlog("Metacommunity size: $popsize, lineages: $(length(lineages))") # to stdout
-    simlog("$popsize,$space,$(length(lineages)),$(div[1]),$(div[2]),$(div[3])",
+    simlog("Metacommunity size: "*string(popsize)*", lineages: "*string(length(lineages))) # to stdout
+    simlog(string(popsize)*","*string(space)*","*string(length(lineages))*","*string(div[1])*","*string(div[2])*","*string(div[3]),
            'i', "diversity.log", true)
 end
 
@@ -258,9 +257,8 @@ function recordlineages(world::Array{Patch,1}, timestep::Int)
     datastring = ""
     for p in world
         for l in unique(map(x -> x.lineage, p.community))
-            #XXX Doing a lot of string interpolation is expensive
-            datastring *= "$timestep,$(p.location[1]),$(p.location[2]),$l,"*
-            "$(length(findall(x -> x.lineage == l, p.community))),$(p.temp),$(p.prec)"
+            datastring *= string(timestep)*","*string(p.location[1])*","*string(p.location[2])*","*string(l)*","*
+            string(length(findall(x -> x.lineage == l, p.community)))*","*string(p.temp)*","*string(p.prec)
         end
     end
     simlog(datastring, 'i', "lineages.log", true)
@@ -364,7 +362,7 @@ function simlog(msg::String, category::Char='i', logfile::String="simulation.log
         logprint("ERROR: "*string(msg), true)
         exit(1)
     else
-        simlog("Invalid log category $category.", 'w')
+        simlog("Invalid log category "*string(category)*".", 'w')
     end
 end
 
