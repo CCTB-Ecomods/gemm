@@ -47,12 +47,12 @@
   - [X] circumvent `push!()` calls, preallocate memory instead - doesn't work?
   - [X] use immutable structs - doesn't work either?
   - [X] avoid intermediate allocations when compressing gene sequences
-  - [ ] avoid string interpolation in output
+  - [X] avoid string interpolation in output
   - [ ] avoid `deepcopy()`?
   - [X] write a coordinate lookup function to speed up `zdisperse!()`
   - [X] further optimise `zdisperse()` if possible
   - [ ] buffer more output for better I/O performance (`open()` is expensive)
-  - [ ] replace `gettraitdict()` with `trait()`
+  - [ ] replace `gettraitdict()` with `trait()`?
   - [X] do another profile after finishing Zosterops features
 
 - [X] turn off mutation except at initialisation
