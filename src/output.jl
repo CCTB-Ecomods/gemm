@@ -141,7 +141,6 @@ function setupdatadir()
     if isdir(setting("dest"))
         #XXX a more useful solution might be to rename "dest" to avoid conflict
         simlog(string(setting(dest))*" exists. Aborting to avoid overwriting files.", 'e')
-        #simlog("$(setting("dest")) exists. Aborting to avoid overwriting files.", 'e')
     else
         mkpath(setting("dest"))
     end
