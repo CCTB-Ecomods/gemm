@@ -53,7 +53,7 @@ function createind(marked::Bool = false)
     lineage = randstring(6)
     ngenes = rand(1:setting("maxloci")) * length(setting("traitnames"))
     setting("degpleiotropy") == 0 && (ngenes = length(setting("traitnames")))
-    ngenes < 1 && (ngenes = 1)
+    ngenes < 1 && (simlog("0 genes would be created", 'e')) #shouldn't happen
     traits = createtraits()
     genes = creategenes(ngenes, traits)
     if setting("linkage") == "none"

@@ -85,7 +85,7 @@
 		- [X] BUG: breeding pairs formed after dispersal don't mate (problem: excessive mortality)
 		- [X] BUG: dispshape sometimes not greater zero (required for logistic distribution)
 		- [X] make sure hybridisation works as intended
-		- [ ] error when linkage != "none"?
+		- [X] error when linkage != "none"?
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 

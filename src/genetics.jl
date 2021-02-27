@@ -324,10 +324,10 @@ end
 """
     createchrms(nchrms, genes)
 
-Randomly distribute the passed genes into the given number of chromosomes.
-Returns an array of chromosome objects.
+Randomly distribute the passed genes into the given number of haploid chromosomes.
+Returns a diploid genome (array of chromosome objects).
 """
-function createchrms(nchrms::Int,genes::Array{AbstractGene,1},lineage::String)
+function createchrms(nchrms::Int,genes::Array{AbstractGene,1},lineage::String)::Array{Chromosome,1}
     ngenes=size(genes,1)
     if nchrms>1
         chrmsplits = sort(rand(1:ngenes,nchrms-1))
@@ -342,22 +342,21 @@ function createchrms(nchrms::Int,genes::Array{AbstractGene,1},lineage::String)
             end
             if setting("heterozygosity")
                 push!(chromosomes, LineageChromosome(cgenes, true, lineage))
+                push!(chromosomes, LineageChromosome(cgenes, false, lineage))
             else
                 push!(chromosomes, DefaultChromosome(cgenes, true))
+                push!(chromosomes, DefaultChromosome(cgenes, false))
             end
         end
-    else # only one chromosome
+    else # only one haploid chromosome
         if setting("heterozygosity")
-            chromosomes = [LineageChromosome(genes, true, lineage)]
+            chromosomes = [LineageChromosome(genes, true, lineage),
+                           LineageChromosome(genes, false, lineage)]
         else
-            chromosomes = [DefaultChromosome(genes, true)]
+            chromosomes = [DefaultChromosome(genes, true),
+                           DefaultChromosome(genes,false)]
         end
     end
-    secondset = deepcopy(chromosomes)
-    for chrm in secondset
-        chrm.maternal = !chrm.maternal
-    end
-    append!(chromosomes,secondset)
     chromosomes
 end
 
