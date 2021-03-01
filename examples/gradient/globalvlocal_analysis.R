@@ -16,12 +16,16 @@ library(MuMIn)
 
 dday = 750 ## time step to analyse
 dispmode = "both" ## 'local' or 'global'
-mytworesults = Sys.glob(paste0("data/*/*tsv"))
+mytworesults = Sys.glob(paste0("data_boundaries/*/*tsv"))
 
 rawresults = tibble()
 for (filepath in mytworesults) {
     rawresults = bind_rows(rawresults, read_tsv(filepath))
 }
+
+## the next line is needed when the simulations were launched with
+## `runsim.sh` rather than `rungemmparallel.jl`
+rawresults = rawresults %>% mutate(conf=substr(conf, 1, 18))
 
 ## only use replicates where all scenarios are finished
 repstable = rawresults %>% filter(time==dday) %>% select(replicate, conf) %>% group_by(conf) %>% unique %>% table
@@ -32,7 +36,7 @@ tworesults = filteredresults %>%
     select(-ngenesstd, -area, -contains("compat"), -contains("reptol"), -contains("adaption")) %>%
     mutate(linkage_degree=ngenesmean/nlnkgunitsmean,
            scenario=ifelse(grepl("constant", conf), "static", "variable"),
-           disptype=ifelse(grepl("global", conf), "b-global", "a-local"),
+           disptype=ifelse(grepl("absorbing", conf), "absorbing", "reflecting"),
            config=sub("constant", "static", sub("_", " ", sub(".conf", "", sub("examples/gradient/", "", conf))))) %>%
     select(-contains("lnkgunits"), -conf) %>%
     ##XXX This doesn't calculate the full range, but as the model doesn't output min/max values

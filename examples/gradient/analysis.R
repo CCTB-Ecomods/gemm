@@ -14,8 +14,8 @@ library(MuMIn)
 library(reshape2)
 
 dday = 750 ## time step to analyse
-datadir = "data_boundaries"
-dispmode = "absorbing" ## 'local' or 'global'
+datadir = "data_main"
+dispmode = "local" ## 'local' or 'global'
 #mytworesults = Sys.glob(paste0(datadir, "/*/*tsv")) #if dispmode is not defined
 mytworesults = Sys.glob(paste0(datadir, "/*", dispmode, "*/*tsv"))
 
@@ -28,7 +28,7 @@ for (filepath in mytworesults) {
 
 ## the next line is needed when the simulations were launched with
 ## `runsim.sh` rather than `rungemmparallel.jl`
-rawresults = rawresults %>% mutate(conf=substr(conf, 1, 14))
+rawresults = rawresults %>% mutate(conf=substr(conf, 1, 20))
 
 repstable = rawresults %>% filter(time==dday) %>% select(replicate, conf) %>% group_by(conf) %>% unique %>% table
 doublereps = which(rowSums(repstable) == 2) %>% names %>% as.numeric
@@ -171,16 +171,16 @@ ggsave(paste0("mapplots_both_", dispmode, ".pdf"), spatgridboth, width=10, heigh
 
 lclrich = tworesults %>% filter(time>=50) %>% group_by(time, x, y, scenario, replicate) %>% summarize(alpha_diversity = length(unique(lineage))) %>%
       ungroup %>% group_by(time, scenario, replicate) %>% summarize_at(vars(alpha_diversity), mean) %>%
-    ggplot(aes(time, alpha_diversity, group=scenario)) + stat_summary(aes(color=scenario), fun.y = mean, geom="line", size=1) +
+    ggplot(aes(time, alpha_diversity, group=scenario)) + stat_summary(aes(color=scenario), fun.y = mean, geom="line", size=1) + ylim(0, 15) +
     stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) + scale_color_viridis_d(name = "Environment") + theme_bw() + ylab(expression(paste(alpha, "-diversity", sep = ""))) + xlab("Year")
 ggsave(paste0("localrichness_over_time_", dispmode, ".pdf"), lclrich, width=6, height=4)
 
-beta =  mybeta %>% filter(time>=50) %>% ggplot(aes(time, beta_diversity, group=scenario)) + stat_summary(aes(color=scenario), fun.y = mean, geom="line", size=1) +
+beta =  mybeta %>% filter(time>=50) %>% ggplot(aes(time, beta_diversity, group=scenario)) + stat_summary(aes(color=scenario), fun.y = mean, geom="line", size=1) + ylim(0, 0.4) +
     stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) + scale_color_viridis_d() + theme_bw() + ylab(expression(paste(beta, "-diversity", sep = ""))) + xlab("Year")
 ggsave(paste0("betadiv_over_time_", dispmode, ".pdf"), beta, width=6, height=4)
 
 ttlrich = tworesults %>% filter(time>=50) %>% select(-x, -y) %>% group_by(time, scenario, replicate) %>% summarize(gamma_diversity = length(unique(lineage))) %>%
-    ggplot(aes(time, gamma_diversity, group=scenario)) + stat_summary(aes(color=scenario), fun.y = mean, geom="line", size=1) +
+    ggplot(aes(time, gamma_diversity, group=scenario)) + stat_summary(aes(color=scenario), fun.y = mean, geom="line", size=1) + ylim(0, 40) +
     stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) + scale_color_viridis_d() + theme_bw() + ylab(expression(paste(gamma, "-diversity", sep = ""))) + xlab("Year")
 ggsave(paste0("totalrichness_over_time_", dispmode, ".pdf"), ttlrich, width=6, height=4)
 
@@ -217,6 +217,32 @@ intravar = tworesults %>% filter(time>=50) %>% select(-x, -y) %>% group_by(time,
     stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) + scale_color_viridis_d() + theme_bw() + ylab("Mean intraspecific variation") + xlab("Year")
 ggsave(paste0("intraspecific_variation_over_time_", dispmode, ".pdf"), intravar, width=6, height=4)
 
+## trait variances
+traitvariance = tworesults %>% select(time, replicate, scenario, ends_with("_pop._var.")) %>%
+    melt(id=c("time", "replicate", "scenario"), variable.name="trait") %>%
+    ggplot(aes(time, value, group=trait)) + stat_summary(aes(color=trait), fun.y = mean, geom="smooth", size=1) +
+    scale_y_log10() + facet_grid(.~scenario) + stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) + 
+    scale_color_viridis_d() + ylab("Population trait variance (log-transformed)") + xlab("Year") + theme_bw()
+ggsave(paste0("trait_variance_over_time_", dispmode, ".pdf"), traitvariances, width=10, height=4)
+
+traitranges = tworesults %>% select(time, replicate, scenario, mean_dispersal_distance,
+                                    long_distance_dispersal, precipitation_optimum,
+                                    precipitation_tolerance, seed_size, adult_body_size,
+                                    temperature_optimum, temperature_tolerance) %>%
+    melt(id=c("time", "replicate", "scenario"), variable.name="trait") %>%
+    ggplot(aes(time, value, group=scenario)) + facet_wrap(~trait, scales="free") +
+    stat_summary(aes(color=scenario), fun.y = mean, geom="smooth", size=1) +
+    stat_summary(aes(color=scenario), fun.data=function(x) median_hilow(x, conf.int=0.9), geom="ribbon", alpha=0.1) + 
+    scale_color_viridis_d() + ylab("Population trait values") + xlab("Year") + theme_bw()
+ggsave(paste0("trait_values_over_time_", dispmode, "_raw.pdf"), traitranges, width=10, height=10)
+
+## seed size vs reproductive size
+pdf(file=paste0("seedsize_vs_repsize_",dispmode,".pdf"), width=5, height=5)
+worldend = tworesults %>% filter(time==dday)
+plot(worldend$seed_size/1000, worldend$adult_body_size/1000,
+     xlab="seed size (kg)", ylab="reproductive size (kg)", col="darkgreen")
+     ##ylim=c(0,6), xlim=c(0,0.2))
+dev.off()
 
 ## fig. 2
 ecogrid = plot_grid(lclrich + theme(legend.position=c(.6, .75)),
@@ -318,7 +344,7 @@ lme_table$names = factor(c("Mean dispersal distance", "Long distance dispersal",
                                         "Number of genes", "Mean genetic variation")))
 print(xtable(lme_table, digits = c(0, 0, 3, 3, 0, 3, 3)), floating = FALSE, booktabs = TRUE, include.rownames=FALSE)
 
-lme_table %>%
+traitresponses = lme_table %>%
     ggplot(aes(names, Estimate, fill = ifelse(Estimate > 0, "1", "-1"))) +
     geom_hline(yintercept = 0, linetype = "dashed", color = "grey", size = 1) +
     geom_bar(stat = "identity", width = 0.5, position = "dodge") +
