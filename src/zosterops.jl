@@ -120,22 +120,21 @@ Disperse all juvenile individuals within the world.
 function zdisperse!(world::Array{Patch,1})
     for patch in world
         for ind in patch.seedbank
-            zdisperse!(ind, world, patch.location)
+            zdisperse!(ind, patch, world)
         end
         patch.seedbank = Array{Individual,1}()
     end
 end
 
 """
-    zdisperse!(bird, world, location)
+    zdisperse!(bird, patch, world)
 
 Dispersal of a single bird. Birds look patches with a suitable
 habitat and a free territory or available mate. (Cf. Aben et al. 2016)
 """
-function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int, Int})
+function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
     # keep track of where we've been and calculate the max dispersal distance
-    x, y = location
-    route = [location]
+    route = [patch.location]
     #XXX disperse!() adds `/sqrt(2)`??
     #XXX sex-biased maximum dispersal?
     !(bird.traits["dispshape"] > 0) && @goto failure # Logistics() requires θ > zero(θ)
@@ -144,19 +143,15 @@ function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int
         # calculate the best habitat patch in the surroundings (i.e. the closest to AGC optimum)
         bestdest = nothing
         bestfit = nothing
-        for xnew in (x-1):(x+1)
-            for ynew in (y-1):(y+1)
-                ((xnew, ynew) in route) && continue
-                possdest = coordinate(xnew, ynew, world) #XXX expensive?
-                isnothing(possdest) && continue
-                patchfit = abs(possdest.prec - bird.traits["precopt"])
-                if isnothing(bestdest) || patchfit < bestfit
-                    bestdest, bestfit = possdest, patchfit
-                end
+        for pid in patch.neighbours
+            neighbour = world[pid]
+            (neighbour.location in route) && continue
+            neighbourfit = abs(neighbour.prec - bird.traits["precopt"])
+            if isnothing(bestdest) || neighbourfit < bestfit
+                bestdest, bestfit = neighbour, neighbourfit
             end
         end
         (isnothing(bestdest)) && @goto failure
-        x, y = bestdest.location
         # check if the patch is within the bird's AGC range and has free space
         if (bestfit <= bird.traits["prectol"] && length(bestdest.community) < setting("cellsize"))
             # can we settle here?
@@ -171,11 +166,12 @@ function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int
                 @label success
                 bird.marked = true
                 push!(bestdest.community, bird)
-                simlog("$(idstring(bird)) moved to $x/$y.", 'd')
+                simlog("$(idstring(bird)) moved to $(bestdest.location).", 'd')
                 return #if we've found a spot, we're done
             end
         end
         push!(route, bestdest.location)
+        patch = bestdest
         maxdist -= 1
     end #if the max dispersal distance is reached, the individual simply dies
     @label failure #XXX this could be removed (and `@goto failure` replaced with a simple `return`)
@@ -255,6 +251,7 @@ let width = 0, height = 0
 
     A utility function to perform a fast look-up for the patch at coordinate x/y.
     Important: this assumes a rectangular world with coordinates in row-major order!
+    Returns the index of the desired patch.
     """
     global function coordinate(x::Int, y::Int, world::Array{Patch,1})
         if iszero(width)
@@ -263,7 +260,26 @@ let width = 0, height = 0
         end
         (x <= 0 || y <= 0 || x > width || y > height) && return
         i = ((y-1) * width) + x
-        return world[i]
+        return i
+    end
+end
+
+"""
+    findneighbours(world)
+
+Construct a list of neighbours for each patch in the world, for faster lookup
+later on. (Must be called during initialisation.)
+"""
+function findneighbours!(world::Array{Patch,1})
+    for patch in world
+        for x in (patch.location[1]-1):(patch.location[1]+1)
+            for y in (patch.location[2]-1):(patch.location[2]+1)
+                ((x,y) == patch.location) && continue
+                neighbour = coordinate(x,y,world)
+                (isnothing(neighbour)) && continue
+                push!(patch.neighbours, neighbour)
+            end
+        end
     end
 end
 

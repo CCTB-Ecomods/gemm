@@ -99,8 +99,9 @@ mutable struct Patch
     temp::Float64   # temperature (physiologically important)
     prec::Float64   # precipitation (no physiological effect, just a generic niche)
     nicheb::Float64 # additional generic niche - currently not used
-    community::Array{Individual, 1}
-    seedbank::Array{Individual, 1}
+    neighbours::Array{Int,1} # indices of neighbouring patches
+    community::Array{Individual, 1} # collection of adult individuals
+    seedbank::Array{Individual, 1}  # collection of juvenile individuals
     isisland::Bool  # island? (if false -> mainland)  
     invasible::Bool # can exotics land here?
     isolated::Bool  # add a distance penalty when dispersing?
@@ -110,5 +111,5 @@ end
 # constructors:
 # XXX These default values should be defined elsewhere (defaults.jl, to be precise)
 Patch(id, location, capacity) =
-    Patch(id, location, capacity, 298, 5, 0, Individual[], Individual[],
+    Patch(id, location, capacity, 298, 5, 0, Int[], Individual[], Individual[],
           false, false, false, false)

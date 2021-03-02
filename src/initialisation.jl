@@ -190,6 +190,7 @@ function createworld(maptable::Array{Array{String,1},1})
         world[entry] = newpatch
     end
     global newpatch = nothing # remove variable used in `createpatch()`
+    (setting("mode") == "zosterops") && findneighbours!(world)
     world
 end
 
