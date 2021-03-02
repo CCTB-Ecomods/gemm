@@ -37,15 +37,15 @@ end
 The standard annual update procedure, designed primarily for plant communities.
 """
 function defaultexperiment(world::Array{Patch,1})
-    establish!(world, setting("nniches"), setting("static"))
+    establish!(world)
     survive!(world)
     grow!(world)
-    compete!(world, setting("static"))
+    compete!(world)
     reproduce!(world)
     if setting("mutate")
         mutate!(world)
     end
-    disperse!(world, setting("static"))
+    disperse!(world)
     changehabitat!(world) # model output
 end
 
@@ -55,16 +55,16 @@ end
 The annual update procedure for the invasion experiments.
 """
 function invasionexperiment(world::Array{Patch,1}, t::Int)
-    establish!(world, setting("nniches"), setting("static"))
+    establish!(world)
     survive!(world)
     grow!(world)
-    compete!(world, setting("static"))
+    compete!(world)
     reproduce!(world)
     if 0 < setting("burn-in") < t
         disturb!(world)
         invade!(world)
     end
-    disperse!(world, setting("static"))
+    disperse!(world)
 end
 
 """
@@ -73,14 +73,11 @@ end
 The annual update procedure for the Zosterops experiments, this time for bird populations.
 """
 function zosteropsexperiment(world::Array{Patch,1})
-    establish!(world, setting("nniches"), setting("static"))
+    establish!(world)
     survive!(world)
     reproduce!(world)
     if setting("mutate")
         mutate!(world)
     end
     zdisperse!(world)
-    #changehabitat!(world) # model output
 end
-
-# TODO add more modes for gradient/habitat change experiments?

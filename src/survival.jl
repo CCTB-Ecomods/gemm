@@ -115,8 +115,8 @@ end
 
 Carry out competition on all patches.
 """
-function compete!(world::Array{Patch,1}, static::Bool = true)
+function compete!(world::Array{Patch,1})
     for patch in world
-        (patch.isisland || !static) && compete!(patch) # pmap(!,patch) ???
+        (patch.isisland || !setting("static")) && compete!(patch) # pmap(!,patch) ???
     end
 end

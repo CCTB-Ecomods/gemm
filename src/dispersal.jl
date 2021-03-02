@@ -8,8 +8,8 @@
 
 Dispersal of individuals within the world.
 """
-function disperse!(world::Array{Patch,1}, static::Bool)
-    static && updatesetting("borders", "mainland") #backward compatibility
+function disperse!(world::Array{Patch,1})
+    setting("static") && updatesetting("borders", "mainland") #backward compatibility
     for patch in world
         idx = 1
         while idx <= length(patch.seedbank) # disperse each juvenile
@@ -26,7 +26,7 @@ function disperse!(world::Array{Patch,1}, static::Bool)
             # Note: the following section allows for a mainland/island scenario in which the
             # mainland is static (i.e. mainland individuals are treated as archetypes from
             # an infinitely large source population).
-            if static
+            if setting("static")
                 if !world[possdest].isisland
                     idx += 1 # disperse only to islands
                     continue
@@ -35,7 +35,7 @@ function disperse!(world::Array{Patch,1}, static::Bool)
                     indleft = deepcopy(patch.seedbank[idx])
                 end
             end
-            if !static || patch.isisland
+            if !setting("static") || patch.isisland
                 # only remove individuals from islands / non-static mainland
                 indleft = splice!(patch.seedbank,idx) 
                 idx -= 1
@@ -54,10 +54,8 @@ end
 Establishment of individuals in patch `p`: Sets the adaptation parameters (~fitness)
 according to an individual's adaptation to the niches of the surrounding environment.
 Also tests whether the individual is viable.
-
-A maximum of two niches (temperature and "precipitation") is currently supported.
 """
-function establish!(patch::Patch, nniches::Int=1)
+function establish!(patch::Patch)
     temp = patch.temp
     idx = 1
     while idx <= size(patch.community,1)
@@ -68,7 +66,7 @@ function establish!(patch::Patch, nniches::Int=1)
             fitness > 1 && (fitness = 1) # should be obsolete
             fitness < 0 && (fitness = 0) # should be obsolete
             patch.community[idx].tempadaptation = fitness
-            if nniches >= 2
+            if setting("nniches") >= 2
                 opt = patch.community[idx].traits["precopt"]
                 tol = patch.community[idx].traits["prectol"]
                 fitness = gausscurve(opt, tol, patch.prec, 0.0)
@@ -91,9 +89,9 @@ end
 
 Carry out establishment for each patch in the world.
 """
-function establish!(world::Array{Patch,1}, nniches::Int=1, static::Bool = true)
+function establish!(world::Array{Patch,1})
     for patch in world
-        (patch.isisland || !static) && establish!(patch, nniches) # pmap(!,patch) ???
+        (patch.isisland || !setting("static")) && establish!(patch) # pmap(!,patch) ???
     end
 end
 
