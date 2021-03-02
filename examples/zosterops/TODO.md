@@ -59,6 +59,7 @@
   - [ ] replace `gettraitdict()` with `trait()`?
   - [X] do another profile after finishing Zosterops features
   - [X] parallelise...
+  - [ ] add `neighbours` array to patches
 
 - [X] turn off mutation except at initialisation
 
@@ -91,6 +92,7 @@
 		- [X] BUG: dispshape sometimes not greater zero (required for logistic distribution)
 		- [X] make sure hybridisation works as intended
 		- [X] error when linkage != "none"?
+		- [ ] lots of "seed/rep" warnings
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 

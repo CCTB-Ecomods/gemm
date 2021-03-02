@@ -142,18 +142,17 @@ function zdisperse!(bird::Individual, world::Array{Patch,1}, location::Tuple{Int
     maxdist = rand(Logistic(bird.traits["dispmean"], bird.traits["dispshape"]))
     while maxdist > 0
         # calculate the best habitat patch in the surroundings (i.e. the closest to AGC optimum)
-        target = [(x-1, y-1), (x, y-1), (x+1, y-1),
-                  (x-1, y),             (x+1, y),
-                  (x-1, y+1), (x, y+1), (x+1, y+1)]
         bestdest = nothing
         bestfit = nothing
-        for t in target
-            (t in route) && continue
-            possdest = coordinate(t[1], t[2], world)
-            isnothing(possdest) && continue
-            patchfit = abs(possdest.prec - bird.traits["precopt"])
-            if isnothing(bestdest) || patchfit < bestfit
-                bestdest, bestfit = possdest, patchfit
+        for xnew in (x-1):(x+1)
+            for ynew in (y-1):(y+1)
+                ((xnew, ynew) in route) && continue
+                possdest = coordinate(xnew, ynew, world) #XXX expensive?
+                isnothing(possdest) && continue
+                patchfit = abs(possdest.prec - bird.traits["precopt"])
+                if isnothing(bestdest) || patchfit < bestfit
+                    bestdest, bestfit = possdest, patchfit
+                end
             end
         end
         (isnothing(bestdest)) && @goto failure
