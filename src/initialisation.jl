@@ -97,7 +97,7 @@ function genesis()
             # stop loop if cell is full
             if totalmass >= setting("cellsize") * 0.9 || occursin("single", setting("popsize"))
                 #make sure the cell is full enough
-                simlog("Cell is now $(round((totalmass/setting("cellsize"))*100))% full.", 'd') #DEBUG
+                @simlog("Cell is now $(round((totalmass/setting("cellsize"))*100))% full.", 'd')
                 break
             else
                 continue
@@ -107,7 +107,7 @@ function genesis()
         append!(community, population)
         occursin("single", setting("popsize")) && break
     end
-    simlog("Patch initialized with $(length(community)) individuals.", 'd') #DEBUG
+    @simlog("Patch initialized with $(length(community)) individuals.", 'd')
     community
 end
 
@@ -131,7 +131,7 @@ separated by a whitespace character (<ID> <x> <y>).", 'e')
     # XXX the 'global' here is a hack so that I can use eval() later on
     # (eval() always works on the global scope)
     global newpatch = Patch(id, (xcord, ycord), capacity)
-    simlog("Creating patch $id at $xcord/$ycord", 'd') #DEBUG
+    @simlog("Creating patch $id at $xcord/$ycord", 'd')
     # parse other parameter options
     for p in patchentry[4:end]
         varval = split(p, '=')

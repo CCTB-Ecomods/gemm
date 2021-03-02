@@ -339,14 +339,13 @@ message is not printed to screen but only to the log.
 function simlog(msg::String, category::Char='i', logfile::String="simulation.log", onlylog::Bool=false)
     #TODO Julia now has inbuilt logging facilities: https://docs.julialang.org/en/v1/stdlib/Logging/
     # This function ought to be rewritten to make use of these (especially warning and error macros)
-    #XXX It may be worth turning this into a macro to reduce runtime?
     (isa(category, String) && length(category) == 1) && (category = category[1])
     function logprint(msg::String, tostderr=false)
         if tostderr || !(setting("quiet") || onlylog)
             tostderr ? iostr = stderr : iostr = stdout
             println(iostr, msg)
         end
-        if setting("logging") && length(logfile) > 0
+        if setting("logging")
             #XXX always opening new connections is expensive -> should we buffer the output?
             open(joinpath(setting("dest"), logfile), "a") do f
                 println(f, msg)
@@ -365,6 +364,16 @@ function simlog(msg::String, category::Char='i', logfile::String="simulation.log
     else
         simlog("Invalid log category "*string(category)*".", 'w')
     end
+end
+
+"""
+    @simlog(message, category, args)
+
+A wrapper macro around the function `simlog()`. Use this for debug statements, as it
+prevents evaluation of the message string if debug mode is not on (a slight performance gain).
+"""
+macro simlog(msg::Union{String,Expr}, category::Char='i', args...)
+    return :(($category == 'd') && setting("debug") && simlog(:($$msg), $category, $(args...)))
 end
 
 #XXX perhaps the utility functions below should go elsewhere?

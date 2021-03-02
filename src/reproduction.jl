@@ -23,7 +23,7 @@ function reproduce!(patch::Patch) #TODO: refactor!
         if numpartners == 0
             #XXX happens really often?
             # `numpollen` not handled specifically in `createtraits()`?
-            simlog("Individual cannot reproduce, `numpollen` too low.", 'd')
+            @simlog("Individual cannot reproduce, `numpollen` too low.", 'd')
             continue
         end
         for ptn in 1:numpartners
@@ -38,7 +38,7 @@ function reproduce!(patch::Patch) #TODO: refactor!
             append!(patch.seedbank, createoffspring(noffs, ind, partner))
         end
     end
-    simlog("Patch $(patch.id): $(length(patch.seedbank)) offspring", 'd')
+    @simlog("Patch $(patch.id): $(length(patch.seedbank)) offspring", 'd')
 end
 
 """
@@ -71,7 +71,7 @@ function greproduce!(patch::Patch)
             append!(patch.seedbank, createoffspring(noffs, ind, partner))
         end
     end
-    simlog("Patch $(patch.id): $(length(patch.seedbank)) offspring", 'd')
+    @simlog("Patch $(patch.id): $(length(patch.seedbank)) offspring", 'd')
 end
 
 """
@@ -83,8 +83,6 @@ function reproduce!(world::Array{Patch,1})
     for patch in world
         if setting("globalmating")
             greproduce!(patch)
-        elseif setting("mode") == "zosterops"
-            zreproduce!(patch)
         else
             (patch.isisland || !setting("static")) && reproduce!(patch) # pmap(!,patch) ???
         end

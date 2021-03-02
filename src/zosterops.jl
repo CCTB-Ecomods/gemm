@@ -23,8 +23,8 @@ let zosterops = Individual[] #holds the species archetypes
     """
     function initzosteropsspecies()
         # ensure that "one gene, one trait" is true and that we have species definitions
-        (setting("degpleiotropy") != 0) && simlog("degpleiotropy must be 0", 'e')
-        (isnothing(setting("species"))) && simlog("no species defined", 'e')
+        (setting("degpleiotropy") != 0) && @simlog("degpleiotropy must be 0", 'e')
+        (isnothing(setting("species"))) && @simlog("no species defined", 'e')
         # load per-species trait values from settings (especially AGC optimum and tolerance)
         for sp in setting("species")
             push!(zosterops, initzosteropsspecies(sp))
@@ -70,7 +70,7 @@ let zosterops = Individual[] #holds the species archetypes
                 break
             end
         end
-        (isnothing(bird)) && simlog("Unknown species name: $name", 'e')
+        (isnothing(bird)) && @simlog("Unknown species name: "*name, 'e')
         bird.id = rand(UInt32)
         varyalleles!(bird.genome, rand())
         bird.traits = gettraitdict(bird.genome, setting("traitnames"))
@@ -88,7 +88,7 @@ Returns an array of individuals.
 """
 function zgenesis(patch::Patch)
     community = Array{Individual, 1}()
-    (isnothing(setting("species"))) && simlog("no species defined", 'e')
+    (isnothing(setting("species"))) && @simlog("no species defined", 'e')
     # check which species can inhabit this patch
     species = Array{String, 1}()
     for s in setting("species")
@@ -107,7 +107,7 @@ function zgenesis(patch::Patch)
         m.partner = f.id
         push!(community, m)
         push!(community, f)
-        simlog("Adding a pair of Z.$sp", 'd')
+        @simlog("Adding a pair of Z.$sp", 'd')
     end
     community
 end
@@ -166,7 +166,7 @@ function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
                 @label success
                 bird.marked = true
                 push!(bestdest.community, bird)
-                simlog("$(idstring(bird)) moved to $(bestdest.location).", 'd')
+                @simlog("$(idstring(bird)) moved to $(bestdest.location).", 'd')
                 return #if we've found a spot, we're done
             end
         end
@@ -175,7 +175,7 @@ function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
         maxdist -= 1
     end #if the max dispersal distance is reached, the individual simply dies
     @label failure #XXX this could be removed (and `@goto failure` replaced with a simple `return`)
-    simlog("A Z.$(bird.lineage) died after failed dispersal.", 'd')
+    @simlog("A Z.$(bird.lineage) died after failed dispersal.", 'd')
 end
 
 """
@@ -218,7 +218,7 @@ function ziscompatible(i1::Individual, i2::Individual)
     else #check for speciation
         (!iscompatible(i1, i2)) && return false
     end
-    simlog("Found a partner: $(idstring(i1)) and $(idstring(i2)).", 'd')
+    @simlog("Found a partner: $(idstring(i1)) and $(idstring(i2)).", 'd')
     return true
 end
     
@@ -230,15 +230,15 @@ Reproduction of Zosterops breeding pairs in a patch.
 function zreproduce!(patch::Patch)
     noffs = Integer(setting("fertility"))
     for bird in patch.community
-        simlog("$(idstring(bird)), $(bird.sex), partner: $(bird.partner)", 'd')
+        @simlog("$(idstring(bird)), $(bird.sex), partner: $(bird.partner)", 'd')
         if bird.partner != 0
             pt = findfirst(b -> b.id == bird.partner, patch.community)
             if isnothing(pt) # birds can find a new partner if one has died
-                simlog("$(idstring(bird)) no longer has a partner.", 'd')
+                @simlog("$(idstring(bird)) no longer has a partner.", 'd')
                 bird.partner = 0
             elseif bird.sex == female # only mate once per pair
                 partner = patch.community[pt]
-                simlog("$(idstring(bird)) mated with $(idstring(partner)).", 'd')
+                @simlog("$(idstring(bird)) mated with $(idstring(partner)).", 'd')
                 append!(patch.seedbank, createoffspring(noffs, bird, partner, true))
             end
         end

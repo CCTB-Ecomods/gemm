@@ -20,7 +20,7 @@ function survive!(patch::Patch)
             dieprob = (1 - exp(-deathrate))
             if rand() * patch.community[idx].tempadaptation < dieprob
                 #XXX `idstring()` is zosterops-specific
-                simlog("$(idstring(patch.community[idx])) has died.", 'd')
+                @simlog("$(idstring(patch.community[idx])) has died.", 'd')
                 splice!(patch.community, idx)
                 continue
             end
