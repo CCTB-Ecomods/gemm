@@ -46,7 +46,6 @@ function defaultexperiment(world::Array{Patch,1})
         mutate!(world)
     end
     disperse!(world, setting("static"))
-    checkviability!(world)
     changehabitat!(world) # model output
 end
 
@@ -66,7 +65,6 @@ function invasionexperiment(world::Array{Patch,1}, t::Int)
         invade!(world)
     end
     disperse!(world, setting("static"))
-    checkviability!(world)
 end
 
 """
@@ -82,7 +80,6 @@ function zosteropsexperiment(world::Array{Patch,1})
         mutate!(world)
     end
     zdisperse!(world)
-    checkviability!(world)
     #changehabitat!(world) # model output
 end
 

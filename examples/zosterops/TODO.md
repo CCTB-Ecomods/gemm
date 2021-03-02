@@ -51,6 +51,8 @@
   - [ ] avoid `deepcopy()`?
   - [X] write a coordinate lookup function to speed up `zdisperse!()`
   - [X] further optimise `zdisperse()` if possible
+  - [X] further optimise meiosis
+  - [X] don't check viability of all individuals every update
   - [ ] buffer more output for better I/O performance (`open()` is expensive)
   - [ ] replace `gettraitdict()` with `trait()`?
   - [X] do another profile after finishing Zosterops features

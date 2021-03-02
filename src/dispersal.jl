@@ -53,6 +53,7 @@ end
 
 Establishment of individuals in patch `p`: Sets the adaptation parameters (~fitness)
 according to an individual's adaptation to the niches of the surrounding environment.
+Also tests whether the individual is viable.
 
 A maximum of two niches (temperature and "precipitation") is currently supported.
 """
@@ -75,6 +76,10 @@ function establish!(patch::Patch, nniches::Int=1)
                 fitness < 0 && (fitness = 0) # should be obsolete
                 patch.community[idx].precadaptation = fitness
             end
+            if !isviable(patch.community[idx])
+                splice!(community,idx)
+                continue
+            end
             patch.community[idx].marked = false
         end
         idx += 1
@@ -93,47 +98,46 @@ function establish!(world::Array{Patch,1}, nniches::Int=1, static::Bool = true)
 end
 
 """
-    checkviability!(community)
+    isviable(individual)
 
-Check whether all individuals in the passed community conform to a basic set of
-constraints (i.e. all traits are present and certain properties are >= 0).
-Individuals that fail the test are removed from the community.
+Check whether this individual conforms to a basic set of constraints
+(i.e. all traits are present and certain properties are >= 0).
 """
-function checkviability!(community::Array{Individual, 1})
-    idx=1
-    while idx <= size(community,1)
-        reason = ""
-        dead = false
-        itraits = community[idx].traits
-        community[idx].size <= 0 && (dead = true) && (reason *= "size ")
-        any(collect(values(itraits)) .< 0) && (dead = true) && (reason *= "traitvalues ")
-        itraits["repsize"] < itraits["seedsize"] && (dead = true) && (reason *= "seed/rep ")
-        community[idx].tempadaptation < 0 && (dead = true) && (reason *= "fitness ")
-        community[idx].precadaptation < 0 && (dead = true) && (reason *= "fitness ")
-        in("selfing", keys(itraits)) && itraits["selfing"] > 1 && (dead = true) && (reason *= "selfing ")
-        itraits["seqsimilarity"] > 1 && (dead = true) && (reason *= "seqsimilarity ")
-        !traitsexist(itraits) && (dead = true) && (reason *= "missingtrait ")
-        if dead
-            simlog("Individual not viable: $reason. Being killed.", 'w')
-            splice!(community,idx)
-            continue
-        end
-        idx += 1
-    end
+function isviable(ind::Individual)
+    reason = ""
+    ind.size <= 0 && ((reason = "size "); @goto die)
+    any(collect(values(ind.traits)) .< 0) && ((reason = "traitvalues"); @goto die)
+    ind.traits["repsize"] < ind.traits["seedsize"] && ((reason = "seed/rep"); @goto die)
+    ind.tempadaptation < 0 && ((reason = "fitness"); @goto die)
+    ind.precadaptation < 0 && ((reason = "fitness"); @goto die)
+    in("selfing", keys(ind.traits)) && ind.traits["selfing"] > 1 && ((reason = "selfing"); @goto die)
+    ind.traits["seqsimilarity"] > 1 && ((reason = "seqsimilarity"); @goto die)
+    !traitsexist(ind.traits) && ((reason = "missingtrait"); @goto die)
+    return true
+    @label die
+    simlog("Individual not viable: $reason. Being killed.", 'w')
+    return false
 end
 
 """
     checkviability(world)
 
-Check the viability of all individuals.
+Check the viability of all individuals. (Note: this does not have to be called
+every update, because viability checking is already integrated into `establish!()`.
+However, it may be useful to call once after initialisation.)
 """
 function checkviability!(world::Array{Patch,1})
     for patch in world
-        #XXX pmap(checkviability!,patch) ???
-        checkviability!(patch.community)
+        idx = 1
+        while idx <= length(patch.community)
+            if !isviable(patch.community[idx])
+                splice!(patch.community,idx)
+                continue
+            end
+            idx += 1
+        end
     end
 end
-
 
 """
     traitsexist(traits)
@@ -146,23 +150,6 @@ function traitsexist(traits::Dict{String, Float64})
     if length(missingtraits) > 0
         simlog("Missing trait $missingtraits. Individual might be killed.", 'w')
         return false
-    end
-    true
-end
-
-"""
-    traitsexist(individual)
-
-Make sure an individual organism has the full set of traits required by the model
-(as defined in the settings).
-"""
-function traitsexist(ind::Individual)
-    traitnames = setting("traitnames")
-    for trait in traitnames
-        if !haskey(ind.traits, trait)
-            simlog("Individual is missing trait $trait. Might be killed.", 'e')
-            return false
-        end
     end
     true
 end

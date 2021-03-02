@@ -47,7 +47,7 @@ function defaultSettings()
         "mortality" => exp(22), # global base mortality from Brown et al. 2004 is 26.3, but competition and dispersal introduce add. mort.
         "mutate" => true, # mutations occur
         "mutationrate" => 3.6e10, # one mutation per generation/individual, corrected for metabolic function
-        "nniches" => 2, # number of environmental niches (max. 3)
+        "nniches" => 2, # number of environmental niches (max. 2) #XXX currently, only 2 is sensible
         "outfreq" => 10, # output frequency
         "overfill" => 1.0, # how much to overfill grid cells beyond their capacity
         "phylconstr" => 0.1, # phylogenetic constraint during mutation and inter-loci variation. scales trait value as sd.

@@ -12,9 +12,9 @@ gamete genome. (genome => array of chromosomes)
 """
 function meiosis(genome::Array{Chromosome,1}, maternal::Bool, lineage::String)
     gametelength = Int(length(genome)/2)
-    gamete = Chromosome[]
-    m, p = 1, 1
-    while length(gamete) < gametelength
+    gamete = Array{Chromosome,1}(undef, gametelength)
+    i, m, p = 1, 1, 1
+    while i <= gametelength
         # find the next maternal/paternal chromosome
         while !genome[m].maternal
             m += 1
@@ -23,13 +23,13 @@ function meiosis(genome::Array{Chromosome,1}, maternal::Bool, lineage::String)
             p += 1
         end
         # then choose one at random and use it to create a new chromosome for the gamete
-        cgenes = genome[rand([m,p])].genes
+        rand(Bool) ? cgenes = genome[m].genes : cgenes = genome[p].genes
         if setting("heterozygosity")
-            push!(gamete, LineageChromosome(cgenes, maternal, lineage))
+            gamete[i] = LineageChromosome(cgenes, maternal, lineage)
         else
-            push!(gamete, DefaultChromosome(cgenes, maternal))
+            gamete[i] = DefaultChromosome(cgenes, maternal)
         end
-        m += 1; p += 1
+        i += 1; m += 1; p += 1
     end
     gamete
 end

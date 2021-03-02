@@ -274,6 +274,7 @@ function printpopheader(io::IO)
     print(io, "time", "\tx", "\ty", "\ttemp", "\tprec", "\tcapacity", "\tisisland",
           "\tlineage", "\tjuveniles", "\tadults", "\ttempadaptationmean",
           "\tprecadaptationmean", "\theterozygosity")
+    #XXX this probably should't be hardcoded, use `setting("traitnames")` instead
     traitnames =  ["compat", "compatsd", "dispmean", "dispmeansd", "dispshape", "dispshapesd",
                    "ngenes", "nlnkgunits", "precopt", "precoptsd", "prectol", "prectolsd",
                    "repsize", "repsizesd", "seqsimilarity", "seqsimilaritysd", "seedsize", "seedsizesd",
@@ -295,6 +296,7 @@ for a range of individual properties, as seen over the whole world population.
 """
 function printpopstats(io::IO, world::Array{Patch, 1}, timestep::Integer)
     timestep == 0 && printpopheader(io)
+    #XXX this probably should't be hardcoded, use `setting("traitnames")` instead
     traitnames =  ["compat", "compatsd", "dispmean", "dispmeansd", "dispshape", "dispshapesd",
                    "ngenes", "nlnkgunits", "precopt", "precoptsd", "prectol", "prectolsd",
                    "repsize", "repsizesd", "seqsimilarity", "seqsimilaritysd", "seedsize", "seedsizesd",
@@ -311,7 +313,6 @@ function printpopstats(io::IO, world::Array{Patch, 1}, timestep::Integer)
                   "\t", mean(skipmissing(map(i -> i.tempadaptation, population))),
                   "\t", mean(skipmissing(map(i -> i.precadaptation, population))),
                   "\t", heterozygosity(population))
-            poptraitdict = Dict{String, Array{Float64, 1}}()
             for traitname in traitnames
                 poptrait = map(i -> i.traits[traitname], population)
                 print(io, "\t", mean(skipmissing(poptrait)))
