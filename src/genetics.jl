@@ -449,7 +449,7 @@ function mutate!(ind::Individual, temp::Float64)
 end
 
 """
-    mutate!(patch, setting)
+    mutate!(patch)
 
 Mutate all seed individuals in a patch.
 """

@@ -73,11 +73,13 @@ end
 The annual update procedure for the Zosterops experiments, this time for bird populations.
 """
 function zosteropsexperiment(world::Array{Patch,1})
-    establish!(world)
-    survive!(world)
-    reproduce!(world)
-    if setting("mutate")
-        mutate!(world)
+    Threads.@threads for patch in world
+        establish!(patch)
+        survive!(patch)
+        zreproduce!(patch)
+        if setting("mutate")
+            mutate!(patch)
+        end
     end
     zdisperse!(world)
 end

@@ -49,7 +49,7 @@ function disperse!(world::Array{Patch,1})
 end
 
 """
-    establish!(patch, nniches)
+    establish!(patch)
 
 Establishment of individuals in patch `p`: Sets the adaptation parameters (~fitness)
 according to an individual's adaptation to the niches of the surrounding environment.
@@ -75,7 +75,7 @@ function establish!(patch::Patch)
                 patch.community[idx].precadaptation = fitness
             end
             if !isviable(patch.community[idx])
-                splice!(community,idx)
+                splice!(patch.community,idx)
                 continue
             end
             patch.community[idx].marked = false
@@ -85,7 +85,7 @@ function establish!(patch::Patch)
 end
 
 """
-    establish!(world, nniches, static)
+    establish!(world)
 
 Carry out establishment for each patch in the world.
 """

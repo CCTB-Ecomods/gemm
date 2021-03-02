@@ -4,19 +4,19 @@
 # - competition
 
 """
-    survive!(patch, mortality)
+    survive!(patch)
 
 Density independent survival of individuals in a patch. The actual mortality
 probability is calculated with a metabolic formula, modified by the passed `mortality`
 variable and an individual's temperature adaptation.
 """
-function survive!(patch::Patch, mortality::Float64)
+function survive!(patch::Patch)
     temp = patch.temp
     idx = 1
     while idx <= size(patch.community,1)
         if !patch.community[idx].marked
             mass = patch.community[idx].size
-            deathrate = mortality * mass^(-1/4) * exp(-act/(boltz*temp))
+            deathrate = setting("mortality") * mass^(-1/4) * exp(-act/(boltz*temp))
             dieprob = (1 - exp(-deathrate))
             if rand() * patch.community[idx].tempadaptation < dieprob
                 #XXX `idstring()` is zosterops-specific
@@ -36,7 +36,7 @@ World-wide mortality. Sounds apocalyptic, but is just a fact of life.
 """
 function survive!(world::Array{Patch,1})
     for patch in world
-        (patch.isisland || !setting("static")) && survive!(patch, setting("mortality")) # pmap(!,patch) ???
+        (patch.isisland || !setting("static")) && survive!(patch) # pmap(!,patch) ???
     end
 end
 
@@ -111,7 +111,7 @@ function compete!(patch::Patch)
 end
 
 """
-    compete!(world, static)
+    compete!(world)
 
 Carry out competition on all patches.
 """

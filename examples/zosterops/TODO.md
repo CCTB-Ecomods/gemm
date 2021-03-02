@@ -53,11 +53,12 @@
   - [X] further optimise `zdisperse()` if possible
   - [X] further optimise meiosis
   - [X] don't check viability of all individuals every update
+  - [ ] optimise `zdisperse()` further still if possible
   - [ ] don't simulate unnecessary gene sequences
   - [ ] buffer more output for better I/O performance (`open()` is expensive)
   - [ ] replace `gettraitdict()` with `trait()`?
   - [X] do another profile after finishing Zosterops features
-  - [ ] parallelise...
+  - [X] parallelise...
 
 - [X] turn off mutation except at initialisation
 
