@@ -35,25 +35,14 @@ function meiosis(genome::Array{Chromosome,1}, maternal::Bool, lineage::String)
 end
 
 """
-    getmeantraitvalue(traits, traitidx)
+    gettraitvalue(traits, traitidx)
 
-Take an array of traits and return the mean value of the indexed trait.
+Take an array of traits and return the mean and standard devation of the indexed trait.
 """
-function getmeantraitvalue(traits::Array{Trait, 1}, traitidx::Integer)
-    mean(skipmissing(map(x -> x.value, filter(x -> x.nameindex == traitidx, traits))))
-end
-
-"""
-    getstdtraitvalue(traits, traitidx)
-
-Take an array of traits and return the standard deviation of the indexed trait.
-"""
-function getstdtraitvalue(traits::Array{Trait, 1}, traitidx::Integer)
-    if length(traits) <= 1
-        0.0
-    else
-        std(skipmissing(map(x -> x.value, filter(x -> x.nameindex == traitidx, traits))))
-    end
+function gettraitvalue(traits::Array{Trait, 1}, traitidx::Integer)
+    (length(traits) <= 1) && (return 0.0, 0.0)
+    wantedtraits = skipmissing(map(x -> x.value, filter(x -> x.nameindex == traitidx, traits)))
+    mean(wantedtraits), std(wantedtraits)
 end
 
 """
@@ -63,7 +52,6 @@ Convert a genome (an array of chromosomes) into a dict of traits and their value
 """
 function gettraitdict(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1})
     #TODO can this be made more efficient? It's called really often...
-    #XXX actually, could we delete it and replace it with a trait() look-up function?
     traitdict = Dict{String, Float64}()
     traits = Array{Trait,1}()
     nchrms = 0
@@ -76,8 +64,9 @@ function gettraitdict(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1})
         end
     end
     for traitidx in eachindex(traitnames)
-        traitdict[traitnames[traitidx]] = getmeantraitvalue(traits, traitidx)
-        traitdict[traitnames[traitidx] * "sd"] = getstdtraitvalue(traits, traitidx)
+        meanv, stdv = gettraitvalue(traits, traitidx)
+        traitdict[traitnames[traitidx]] = meanv
+        traitdict[traitnames[traitidx] * "sd"] = stdv
     end
     traitdict["ngenes"] = ngenes
     traitdict["nlnkgunits"] = nchrms

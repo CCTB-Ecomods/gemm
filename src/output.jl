@@ -240,7 +240,8 @@ function recordstatistics(world::Array{Patch,1})
     div = round.(diversity(world), digits = 3)
     space = freespace(world)
     simlog("Metacommunity size: "*string(popsize)*", lineages: "*string(length(lineages))) # to stdout
-    simlog(string(popsize)*","*string(space)*","*string(length(lineages))*","*string(div[1])*","*string(div[2])*","*string(div[3]),
+    simlog(string(popsize)*","*string(space)*","*string(length(lineages))*","*
+           string(div[1])*","*string(div[2])*","*string(div[3]),
            'i', "diversity.log", true)
 end
 
@@ -257,8 +258,9 @@ function recordlineages(world::Array{Patch,1}, timestep::Int)
     datastring = ""
     for p in world
         for l in unique(map(x -> x.lineage, p.community))
-            datastring *= string(timestep)*","*string(p.location[1])*","*string(p.location[2])*","*string(l)*","*
-            string(length(findall(x -> x.lineage == l, p.community)))*","*string(p.temp)*","*string(p.prec)
+            datastring *= string(timestep)*","*string(p.location[1])*","*string(p.location[2])*
+            ","*string(l)*","*string(length(findall(x -> x.lineage == l, p.community)))*","*
+            string(p.temp)*","*string(p.prec)*"\n"
         end
     end
     simlog(datastring, 'i', "lineages.log", true)
