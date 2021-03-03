@@ -35,17 +35,6 @@ function meiosis(genome::Array{Chromosome,1}, maternal::Bool, lineage::String)
 end
 
 """
-    gettraitvalue(traits, traitidx)
-
-Take an array of traits and return the mean and standard devation of the indexed trait.
-"""
-function gettraitvalue(traits::Array{Trait, 1}, traitidx::Integer)
-    (length(traits) <= 1) && (return 0.0, 0.0)
-    wantedtraits = skipmissing(map(x -> x.value, filter(x -> x.nameindex == traitidx, traits)))
-    mean(wantedtraits), std(wantedtraits)
-end
-
-"""
     gettraitdict(chromosomes, traitnames)
 
 Convert a genome (an array of chromosomes) into a dict of traits and their values.
@@ -64,12 +53,38 @@ function gettraitdict(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1})
         end
     end
     for traitidx in eachindex(traitnames)
-        meanv, stdv = gettraitvalue(traits, traitidx)
-        traitdict[traitnames[traitidx]] = meanv
-        traitdict[traitnames[traitidx] * "sd"] = stdv
+        wantedtraits = skipmissing(map(x -> x.value, filter(x -> x.nameindex == traitidx, traits)))
+        traitdict[traitnames[traitidx]] = mean(wantedtraits)
+        traitdict[traitnames[traitidx] * "sd"] = std(wantedtraits)
     end
     traitdict["ngenes"] = ngenes
     traitdict["nlnkgunits"] = nchrms
+    traitdict
+end
+
+"""
+    gettraitdictfast(chromosomes, traitnames)
+
+Convert a genome (an array of chromosomes) into a dict of traits and their values.
+This is an optimised version that can be run if `degpleiotropy` is 0 and `linkage` is "none".
+"""
+function gettraitdictfast(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1})
+    # Makes use of the fact that with `degpleiotropy == 1` and `linkage == "none"`,
+    # there is exactly one trait per chromosome (one gene per chromosome and one trait per gene),
+    # and the chromosomes are arranged in trait-order.
+    # FIXME for whatever reason, this is actually slower than the original function?!
+    #simlog(string(chrms), 'e') #TESTING
+    return gettraitdict(chrms, traitnames) #TESTING
+    traitdict = Dict{String, Float64}()
+    haploidlength = Int(length(chrms)/2)
+    for traitidx in eachindex(traitnames)
+        wantedtraits = (chrms[traitidx].genes[1].codes[1].value,
+                        chrms[traitidx+haploidlength].genes[1].codes[1].value)
+        traitdict[traitnames[traitidx]] = mean(wantedtraits)
+        traitdict[traitnames[traitidx] * "sd"] = std(wantedtraits)
+    end
+    traitdict["ngenes"] = length(chrms)
+    traitdict["nlnkgunits"] = length(chrms)
     traitdict
 end
 
@@ -209,43 +224,42 @@ random offset).
 function createtraits()
     #XXX this is all very ugly. (case/switch w/ v. 2.0+?)
     traitnames = setting("traitnames")
-    traits = Trait[]
+    traits = Array{Trait,1}(undef,length(traitnames))
     # exponential distributions of body sizes:
     repoffset = setting("maxrepsize") - setting("minrepsize")
     seedoffset = setting("maxseedsize") - setting("minseedsize")
     tempoffset = setting("maxtemp") - setting("mintemp")
     precoffset = setting("maxprec") - setting("minprec")
-    sizes = Vector{Float64}(undef, 2)
     #FIXME this needs to be changed to account for allometric relationships
+    repsize, seedsize = 0, 0
     while true 
-        sizes[1] = exp(setting("minrepsize") + repoffset * rand())
-        sizes[2] = exp(setting("minseedsize") + seedoffset * rand())
-        sizes[1] > sizes[2] && break
+        repsize = exp(setting("minrepsize") + repoffset * rand())
+        seedsize = exp(setting("minseedsize") + seedoffset * rand())
+        repsize > seedsize && break
     end
-    repsize, seedsize = sizes
     for idx in eachindex(traitnames)
         if occursin("dispshape", traitnames[idx])
-            push!(traits, Trait(idx, rand() * setting("dispshape")))
+            traits[idx] = Trait(idx, rand() * setting("dispshape"))
         elseif occursin("dispmean", traitnames[idx])
-            push!(traits, Trait(idx, rand() * setting("dispmean")))
+            traits[idx] = Trait(idx, rand() * setting("dispmean"))
         elseif occursin("precopt", traitnames[idx])
-            push!(traits, Trait(idx, setting("minprec") + rand() * precoffset))
+            traits[idx] = Trait(idx, setting("minprec") + rand() * precoffset)
         elseif occursin("prectol", traitnames[idx])
-            push!(traits, Trait(idx, rand() * setting("maxbreadth")))
+            traits[idx] = Trait(idx, rand() * setting("maxbreadth"))
         elseif occursin("repsize", traitnames[idx])
-            push!(traits, Trait(idx, repsize))
+            traits[idx] = Trait(idx, repsize)
         elseif occursin("seqsimilarity", traitnames[idx]) && setting("fixtol")
-            push!(traits, Trait(idx, setting("tolerance")))
+            traits[idx] = Trait(idx, setting("tolerance"))
         elseif occursin("seqsimilarity", traitnames[idx]) && !setting("fixtol")
-            push!(traits, Trait(idx, rand())) # assortative mating might evolve
+            traits[idx] = Trait(idx, rand()) # assortative mating might evolve
         elseif occursin("seedsize", traitnames[idx])
-            push!(traits, Trait(idx, seedsize))
+            traits[idx] = Trait(idx, seedsize)
         elseif occursin("tempopt", traitnames[idx])
-            push!(traits, Trait(idx, setting("mintemp") + rand() * tempoffset))
+            traits[idx] = Trait(idx, setting("mintemp") + rand() * tempoffset)
         elseif occursin("temptol", traitnames[idx])
-            push!(traits, Trait(idx, rand() * setting("maxbreadth")))
+            traits[idx] = Trait(idx, rand() * setting("maxbreadth"))
         else
-            push!(traits, Trait(idx, rand()))
+            traits[idx] = Trait(idx, rand())
         end
     end
     traits
@@ -258,41 +272,48 @@ Randomly create a given number of gene objects, with their base sequence and
 associated traits. Returns the result as an array of AbstractGenes.
 """
 function creategenes(ngenes::Int, traits::Array{Trait,1})
-    genes = AbstractGene[]
+    genes = Array{AbstractGene,1}(undef, ngenes)
     bases = ['a','c','g','t']
     compatidx = findfirst(x -> x == "compat", setting("traitnames"))
     # initialise each gene with an arbitrary sequence
     for i in 1:ngenes
         if setting("compressgenes") #default
-            push!(genes, Gene(intseq(setting("smallgenelength")), Trait[]))
+            genes[i] = Gene(intseq(setting("smallgenelength")), Trait[])
         else
             sequence = String(rand(bases, setting("smallgenelength")))
-            push!(genes, StringGene(sequence, Trait[]))
+            genes[i] = StringGene(sequence, Trait[])
         end
     end
-    # assign traits to the genes (allows for pleiotropy as well as polygenic inheritance)
-    for trait in traits
-        (trait.nameindex == compatidx) && continue # the compatibility gene is treated separately
-        if setting("degpleiotropy") == 0
-            # Disable polygenic inheritance and pleiotropy: make sure one gene codes for one trait.
-            for gene in genes
-                if isempty(gene.codes)
-                    push!(gene.codes, trait)
-                    break
-                end
-            end
-        else
+    # assign traits to the genes
+    if setting("degpleiotropy") == 0
+        # Disable polygenic inheritance and pleiotropy: make sure one gene codes for one trait.
+        for tr in eachindex(traits)
+            (tr == compatidx) && (genes[tr] = createcompatgene(bases, compatidx))
+            genes[tr].codes = [traits[tr]]
+        end
+    else # allow for pleiotropy as well as polygenic inheritance
+        for trait in traits
+            (trait.nameindex == compatidx) && continue
             # We're actually setting polygenic inheritance here, rather than pleiotropy.
             # Pleiotropy is introduced indirectly, because a higher number of coding genes
             # increases the likelihood of picking a gene that already codes for other traits.
             ncodinggenes = rand(Geometric(1 - setting("degpleiotropy"))) + 1
             codinggenes = rand(genes,ncodinggenes)
             for gene in codinggenes
-                push!(gene.codes,trait)
+                push!(gene.codes,deepcopy(trait))
             end
         end
+        push!(genes, createcompatgene(bases, compatidx))
     end
-    # append a gene that will be used to determine mating compatibility
+    genes
+end
+
+"""
+    createcompatgene(bases, compatidx)
+
+Create the gene that is used to determine reproductive compatibility.
+"""
+function createcompatgene(bases::Array{Char,1}, compatidx::Int)::AbstractGene
     # Note: we only need big genes for the compatibility gene, because we need a longer base
     # sequence than offered by `smallgenelength` if we want to do phylogenetic analyses.
     setting("usebiggenes") ? seql = setting("biggenelength") : seql = setting("smallgenelength")
@@ -300,14 +321,13 @@ function creategenes(ngenes::Int, traits::Array{Trait,1})
     ctrait = [Trait(compatidx, 0.5)]
     if setting("compressgenes")
         if setting("usebiggenes")
-            push!(genes, BigGene(seq2bignum(cseq), ctrait))
+            return BigGene(seq2bignum(cseq), ctrait)
         else
-            push!(genes, Gene(seq2num(cseq), ctrait))
+            return Gene(seq2num(cseq), ctrait)
         end
     else
-        push!(genes, StringGene(cseq, ctrait))
+        return StringGene(cseq, ctrait)
     end
-    genes
 end
 
 """
@@ -317,10 +337,17 @@ Randomly distribute the passed genes into the given number of haploid chromosome
 Returns a diploid genome (array of chromosome objects).
 """
 function createchrms(nchrms::Int,genes::Array{AbstractGene,1},lineage::String)::Array{Chromosome,1}
-    ngenes=size(genes,1)
-    if nchrms>1
-        chrmsplits = sort(rand(1:ngenes,nchrms-1))
-        chromosomes = Chromosome[]
+    chromosomes = Array{Chromosome,1}(undef,nchrms*2)
+    if nchrms == 1 # linkage == "full"
+        chromosomes[1] = @Chromosome(genes, true, lineage)
+        chromosomes[2] = @Chromosome(deepcopy(genes),false, lineage)
+    elseif nchrms == length(genes) # linkage == "none"
+        for g in eachindex(genes)
+            chromosomes[g] = @Chromosome([genes[g]], true, lineage)
+            chromosomes[nchrms+g] = @Chromosome([deepcopy(genes[g])], false, lineage)
+        end
+    else # linkage == "random"
+        chrmsplits = sort(rand(1:length(genes), nchrms-1))
         for chr in 1:nchrms
             if chr==1 # first chromosome
                 cgenes = genes[1:chrmsplits[chr]]
@@ -329,21 +356,8 @@ function createchrms(nchrms::Int,genes::Array{AbstractGene,1},lineage::String)::
             else
                 cgenes = genes[(chrmsplits[chr-1]+1):chrmsplits[chr]]
             end
-            if setting("heterozygosity")
-                push!(chromosomes, LineageChromosome(cgenes, true, lineage))
-                push!(chromosomes, LineageChromosome(cgenes, false, lineage))
-            else
-                push!(chromosomes, DefaultChromosome(cgenes, true))
-                push!(chromosomes, DefaultChromosome(cgenes, false))
-            end
-        end
-    else # only one haploid chromosome
-        if setting("heterozygosity")
-            chromosomes = [LineageChromosome(genes, true, lineage),
-                           LineageChromosome(genes, false, lineage)]
-        else
-            chromosomes = [DefaultChromosome(genes, true),
-                           DefaultChromosome(genes,false)]
+            chromosomes[chr] = @Chromosome(cgenes, true, lineage)
+            chromosomes[nchrms+chr] = @Chromosome(deepcopy(cgenes), false, lineage)
         end
     end
     chromosomes
@@ -434,7 +448,11 @@ function mutate!(ind::Individual, temp::Float64)
             ind.genome[c].genes[g].sequence = String(charseq)
         end
     end
-    ind.traits = gettraitdict(ind.genome, setting("traitnames"))
+    if setting("degpleiotropy") == 0 && setting("linkage") == "none"
+        ind.traits = gettraitdictfast(ind.genome, setting("traitnames"))
+    else
+        ind.traits = gettraitdict(ind.genome, setting("traitnames"))
+    end
 end
 
 """

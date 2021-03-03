@@ -71,6 +71,16 @@ mutable struct LineageChromosome <: Chromosome
     lineage::String
 end
 
+"""
+A wrapper to create either a default or a lineage chromosome depending on the
+heterozygosity setting.
+"""
+macro Chromosome(genes, maternal, lineage)
+    :(setting("heterozygosity") ?
+      LineageChromosome(:($$genes), :($$maternal), :($$lineage)) :
+      DefaultChromosome(:($$genes), :($$maternal)))
+end
+
 @enum Sex hermaphrodite male female
 
 """

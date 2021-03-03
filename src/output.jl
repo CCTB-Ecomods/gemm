@@ -345,6 +345,7 @@ function simlog(msg::String, category::Char='i', logfile::String="simulation.log
     function logprint(msg::String, tostderr=false)
         if tostderr || !(setting("quiet") || onlylog)
             tostderr ? iostr = stderr : iostr = stdout
+            #TODO use `printstyled` to give coloured errors/warnings
             println(iostr, msg)
         end
         if setting("logging")

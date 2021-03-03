@@ -65,15 +65,13 @@ function createind(marked::Bool = false)
         nchrms = Integer(round(ngenes/linkage))
     end
     chromosomes = createchrms(nchrms, genes, lineage)
-    locivar = rand()
-    varyalleles!(chromosomes, locivar)
+    varyalleles!(chromosomes, rand())
     traitdict = gettraitdict(chromosomes, setting("traitnames"))
     if setting("indsize") == "adult"
         indsize = traitdict["repsize"]
     elseif setting("indsize") == "seed"
         indsize = traitdict["seedsize"]
     else
-        #XXX sizes uniformally distributed?
         indsize = traitdict["seedsize"] + rand() * (traitdict["repsize"] - traitdict["seedsize"])
     end
     Individual(lineage, chromosomes, traitdict, marked, 1.0, 1.0, indsize, hermaphrodite, 0, id)

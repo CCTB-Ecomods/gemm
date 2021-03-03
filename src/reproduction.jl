@@ -130,7 +130,11 @@ function createoffspring(noffs::Integer, ind::Individual, partner::Individual, d
         mothergenome = meiosis(ind.genome, true, ind.lineage)
         (isempty(partnergenome) || isempty(mothergenome)) && continue
         genome = vcat(partnergenome,mothergenome)
-        traits = gettraitdict(genome, setting("traitnames"))
+        if setting("degpleiotropy") == 0 && setting("linkage") == "none"
+            traits = gettraitdictfast(genome, setting("traitnames"))
+        else
+            traits = gettraitdict(genome, setting("traitnames"))
+        end
         marked = true
         fitness = 0.0
         newpartner = 0

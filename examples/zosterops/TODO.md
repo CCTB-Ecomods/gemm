@@ -57,10 +57,12 @@
   - [X] @simlog macro
   - [ ] don't simulate unnecessary gene sequences
   - [ ] buffer more output for better I/O performance (`open()` is expensive)
-  - [ ] replace `gettraitdict()` with `trait()`?
+  - [X] replace `gettraitdict()` with `trait()`? - doesn't work
   - [X] do another profile after finishing Zosterops features
   - [X] parallelise...
   - [X] add `neighbours` array to patches
+  - [ ] speed up initialisation
+  - [ ] further optimise `gettraitdict()`
 
 - [X] turn off mutation except at initialisation
 
@@ -94,6 +96,7 @@
 		- [X] make sure hybridisation works as intended
 		- [X] error when linkage != "none"?
 		- [ ] lots of "seed/rep" warnings
+		- [X] massively faulty genomes
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 

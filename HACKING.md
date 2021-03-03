@@ -46,7 +46,7 @@ If you want to test the model performance, there are two easy ways to do so:
    macro at the end of the run. This gives you execution time as well as the amount of memory
    allocations for a quick overview.
    
-2. Run `rungemmprofile.jl`. This uses Julia's 
+2. Open a Julia interpreter, then run `include("rungemmprofile.jl")` (twice!). This uses Julia's 
    [inbuilt profiler](https://docs.julialang.org/en/v1/manual/profile/) to give a more detailed
    insight into which functions are called how often. Output is saved to `profile_flat.txt` and
    `profile_tree.txt`. (The former gives cumulative function call frequencies, the latter a

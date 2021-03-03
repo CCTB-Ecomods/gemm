@@ -51,7 +51,11 @@ let zosterops = Individual[] #holds the species archetypes
             end
         end
         # then recalculate the individual's trait dict and return the finished archetype
-        archetype.traits = gettraitdict(archetype.genome, setting("traitnames"))
+        if setting("linkage") == "none" # `degpleiotropy` is definitely 0 for zosterops mode
+            archetype.traits = gettraitdictfast(archetype.genome, setting("traitnames"))
+        else
+            archetype.traits = gettraitdict(archetype.genome, setting("traitnames"))
+        end
         return archetype
     end
     
@@ -73,7 +77,11 @@ let zosterops = Individual[] #holds the species archetypes
         (isnothing(bird)) && @simlog("Unknown species name: "*name, 'e')
         bird.id = rand(UInt32)
         varyalleles!(bird.genome, rand())
-        bird.traits = gettraitdict(bird.genome, setting("traitnames"))
+        if setting("linkage") == "none" # `degpleiotropy` is definitely 0 for zosterops mode
+            bird.traits = gettraitdictfast(bird.genome, setting("traitnames"))
+        else
+            bird.traits = gettraitdict(bird.genome, setting("traitnames"))
+        end
         bird.size = bird.traits["repsize"] # we need to fix the size after again after mutation
         bird.sex = sex
         return bird
