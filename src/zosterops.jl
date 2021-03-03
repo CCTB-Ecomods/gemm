@@ -7,8 +7,8 @@
 #    `precipitation` (unfortunately, we can't actually rename it everywhere)
 # 2. the `cellsize` setting now determines the patch carrying capacity in
 #    individuals, not grams
-# 3. the `fertility` setting is the absolute number of offspring per breeding pair
-#    (instead of a metabolic coefficient)
+# 3. the `fertility` setting is the maximum number of offspring per breeding pair per year,
+#    instead of a metabolic coefficient. (`noffs = rand(0:fertility)`)
 # 4. the `tolerance` setting now determines the probability that a mate of
 #    another species is accepted, if no conspecific mate is available
 # 5. `degpleiotropy` must be set to 0, otherwise the species initialisation will fail
@@ -236,7 +236,6 @@ end
 Reproduction of Zosterops breeding pairs in a patch.
 """
 function zreproduce!(patch::Patch)
-    noffs = Integer(setting("fertility"))
     for bird in patch.community
         @simlog("$(idstring(bird)), $(bird.sex), partner: $(bird.partner)", 'd')
         if bird.partner != 0
@@ -245,6 +244,8 @@ function zreproduce!(patch::Patch)
                 @simlog("$(idstring(bird)) no longer has a partner.", 'd')
                 bird.partner = 0
             elseif bird.sex == female # only mate once per pair
+                noffs = rand(0:Integer(setting("fertility")))
+                iszero(noffs) && continue
                 partner = patch.community[pt]
                 @simlog("$(idstring(bird)) mated with $(idstring(partner)).", 'd')
                 append!(patch.seedbank, createoffspring(noffs, bird, partner, true))
