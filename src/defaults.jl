@@ -9,6 +9,7 @@ function defaultSettings()
     Dict(
         "biggenelength" => 200, # length of the compatibility gene's sequence (if `usebiggenes`)
         "borders" => "absorbing", # border behaviour: absorbing/reflecting/mainland
+        #"bufferoutput" => false, # use output buffering (faster execution, more RAM usage) #TODO
         "burn-in" => 1000, # timesteps before invasion starts
         "capgrowth" => false, # strictly limit individuals' size to `repsize`
         "cellsize" => 20e6, # maximum biomass per hectare in gramm (based on Clark et al. 2001)

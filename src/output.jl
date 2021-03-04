@@ -197,6 +197,10 @@ data is recorded depends on the settings.) `timestep` and `setting` information
 is used for file name creation.
 """
 function writedata(world::Array{Patch,1}, timestep::Int)
+    if setting("lineages")
+        recordlineages(world, timestep)
+        recordstatistics(world)
+    end
     if setting("raw")
         filename = "inds_s" * string(setting("seed"))
         filename = joinpath(setting("dest"), filename)

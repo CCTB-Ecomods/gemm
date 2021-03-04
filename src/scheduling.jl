@@ -21,11 +21,7 @@ function simulate!(world::Array{Patch,1}, timesteps::Int=1000, timeoffset::Int =
         else
             simlog("Mode setting not recognised: $(setting("mode"))", 'e')
         end
-        if setting("lineages")
-            recordstatistics(world)
-            recordlineages(world, t)
-        end
-        if mod(t, setting("outfreq")) == 0 && any([setting("fasta") != "off", setting("raw"), setting("stats")])
+        if iszero(mod(t, setting("outfreq")))
             writedata(world, t)
         end
     end
