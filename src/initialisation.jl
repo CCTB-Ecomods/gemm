@@ -1,13 +1,13 @@
 # initialisation functions for GeMM
 
 """
-    createpop()
+    createpop(cellsize)
 
 Create a new, random individual and replicates it a certain number of times
 (depending on metabolic variables) to create a new population of organisms.
 Returns an array of individuals.
 """
-function createpop()
+function createpop(cellsize::Float64)
     # start with an archetypical individual
     archetype = createind(true)
     population = [archetype]
@@ -19,7 +19,7 @@ function createpop()
                         exp(-act / (boltz * 298.0)))
     elseif occursin("bodysize", setting("popsize"))
         # population size up to 25% of the maximum possible in this cell
-        quarterpopsize = Integer(ceil((setting("cellsize") / archetype.traits["repsize"]) / 4))
+        quarterpopsize = Integer(ceil(cellsize / archetype.traits["repsize"]) / 4)
         popsize = rand(1:quarterpopsize) + 1
     elseif occursin("minimal", setting("popsize")) || popsize == 0
         popsize = 2 #Takes two to tangle ;-)
@@ -78,24 +78,24 @@ function createind(marked::Bool = false)
 end
 
 """
-    genesis()
+    genesis(cellsize)
 
 Create a new community, composed of random new species populations, for a patch.
 Returns an array of individuals.
 """
-function genesis()
+function genesis(cellsize::Float64)
     community = Individual[]
     totalmass = 0.0
     while true
-        population = createpop()
+        population = createpop(cellsize)
         popsize = length(population)
         # Check the cell capacity
         popmass = sum(map(x -> x.size, population))
-        if totalmass + popmass > setting("cellsize") * setting("overfill")
+        if totalmass + popmass > cellsize * setting("overfill")
             # stop loop if cell is full
-            if totalmass >= setting("cellsize") * 0.9 || occursin("single", setting("popsize"))
+            if totalmass >= cellsize * 0.9 || occursin("single", setting("popsize"))
                 #make sure the cell is full enough
-                @simlog("Cell is now $(round((totalmass/setting("cellsize"))*100))% full.", 'd')
+                @simlog("Cell is now $(round((totalmass/cellsize)*100))% full.", 'd')
                 break
             else
                 continue
@@ -125,10 +125,10 @@ separated by a whitespace character (<ID> <x> <y>).", 'e')
     id = parse(Int, patchentry[1])
     xcord = parse(Int, patchentry[2])
     ycord = parse(Int, patchentry[3])
-    capacity = setting("cellsize")
+    defaultcapacity = setting("cellsize")
     # XXX the 'global' here is a hack so that I can use eval() later on
     # (eval() always works on the global scope)
-    global newpatch = Patch(id, (xcord, ycord), capacity)
+    global newpatch = Patch(id, (xcord, ycord), defaultcapacity)
     @simlog("Creating patch $id at $xcord/$ycord", 'd')
     # parse other parameter options
     for p in patchentry[4:end]
@@ -180,9 +180,9 @@ function createworld(maptable::Array{Array{String,1},1})
             if setting("mode") == "zosterops"
                 append!(newpatch.community, zgenesis(newpatch))
             elseif setting("indsize") != "seed"
-                append!(newpatch.community, genesis())
+                append!(newpatch.community, genesis(newpatch.capacity))
             else
-                append!(newpatch.seedbank, genesis())
+                append!(newpatch.seedbank, genesis(newpatch.capacity))
             end
         end
         world[entry] = newpatch

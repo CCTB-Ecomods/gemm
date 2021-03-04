@@ -98,6 +98,7 @@
 		- [X] error when linkage != "none"?
 		- [ ] lots of "seed/rep" warnings
 		- [X] massively faulty genomes
+		- [ ] is `updateworld!()` a problem? (out of date, duplicative)
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 
@@ -108,6 +109,8 @@
 - [X] measure & record population heterozygosity
 
 - [X] automate experimental setup for hybridisation and habitat fragmentation studies
+
+- [X] carrying capacity should be adaptable per-patch
 
 - [ ] prepare map series for habitat scenarios (cf. Githiru et al. 2011):
 		- [ ] converted exotic plantations

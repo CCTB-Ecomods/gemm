@@ -6,7 +6,7 @@
 # Simulation arena - fake values, only for testing
 
 # <id> <x> <y> <temperature> <agc> [parameters]
-1	1	1	temp=293	prec=12 initpop
+1	1	1	temp=293	prec=12 initpop capacity=2
 2	2	1	temp=293	prec=90 initpop
 3	3	1	temp=293	prec=99 initpop
 4	4	1	temp=293	prec=99 initpop
@@ -14,11 +14,11 @@
 6	2	2	temp=293	prec=98 initpop
 7	3	2	temp=293	prec=92 initpop
 8	4	2	temp=293	prec=99 initpop
-9	1	3	temp=293	prec=63 initpop
-10	2	3	temp=293	prec=44 initpop
-11	3	3	temp=293	prec=28 initpop
-12	4	3	temp=293	prec=32 initpop
-13	1	4	temp=293	prec=53 initpop
-14	2	4	temp=293	prec=63 initpop
-15	3	4	temp=293	prec=15 initpop
-16	4	4	temp=293	prec=64 initpop
+9	1	3	temp=293	prec=63 initpop capacity=4
+10	2	3	temp=293	prec=44 initpop capacity=2
+11	3	3	temp=293	prec=28 initpop capacity=2
+12	4	3	temp=293	prec=32 initpop capacity=2
+13	1	4	temp=293	prec=53 initpop capacity=4
+14	2	4	temp=293	prec=63 initpop capacity=4
+15	3	4	temp=293	prec=15 initpop capacity=2
+16	4	4	temp=293	prec=64 initpop capacity=4

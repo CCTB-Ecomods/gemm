@@ -106,7 +106,7 @@ function zgenesis(patch::Patch)
     end
     (isempty(species)) && return community
     # calculate the number of initial breeding pairs and add a male and a female for each
-    npairs = Integer(rand(0:round(setting("cellsize")/2)))
+    npairs = Integer(rand(0:round(patch.capacity/2)))
     for i in 1:npairs
         sp = rand(species)
         m = getzosteropsspecies(sp, male)
@@ -161,7 +161,7 @@ function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
         end
         (isnothing(bestdest)) && @goto failure
         # check if the patch is within the bird's AGC range and has free space
-        if (bestfit <= bird.traits["prectol"] && length(bestdest.community) < setting("cellsize"))
+        if (bestfit <= bird.traits["prectol"] && length(bestdest.community) < bestdest.capacity)
             # can we settle here?
             partner = zfindmate(bestdest.community, bird)
             if !isnothing(partner)
@@ -169,7 +169,7 @@ function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
                 bird.partner = partner.id
                 partner.partner = bird.id
                 @goto success
-            elseif length(bestdest.community) <= (setting("cellsize")-2)
+            elseif length(bestdest.community) <= (bestdest.capacity-2)
                 # if there's space for another breeding pair
                 @label success
                 bird.marked = true
