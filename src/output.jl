@@ -376,7 +376,7 @@ A wrapper macro around the function `simlog()`. Use this for debug statements, a
 prevents evaluation of the message string if debug mode is not on (a slight performance gain).
 """
 macro simlog(msg::Union{String,Expr}, category::Char='i', args...)
-    return :(($category == 'd') && setting("debug") && simlog(:($$msg), $category, $(args...)))
+    return :((($category != 'd') || setting("debug")) && simlog(:($$msg), $category, $(args...)))
 end
 
 #XXX perhaps the utility functions below should go elsewhere?

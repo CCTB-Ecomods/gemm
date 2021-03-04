@@ -62,7 +62,8 @@
   - [X] parallelise...
   - [X] add `neighbours` array to patches
   - [ ] speed up initialisation
-  - [ ] further optimise `gettraitdict()`
+  - [ ] replace Trait struct with Pair
+  - [X] further optimise `gettraitdict()`
 
 - [X] turn off mutation except at initialisation
 

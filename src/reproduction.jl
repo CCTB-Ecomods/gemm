@@ -124,10 +124,11 @@ of offspring individuals. Returns an array of individuals.
 function createoffspring(noffs::Integer, ind::Individual, partner::Individual, dimorphism::Bool=false)
     #TODO This is a very compute-intensive function - optimise?
     offspring = Individual[]
+    heterozygosity = setting("heterozygosity")
     for i in 1:noffs # pmap? this loop could be factorized!
         # offspring have different genomes due to recombination
-        partnergenome = meiosis(partner.genome, false, partner.lineage)
-        mothergenome = meiosis(ind.genome, true, ind.lineage)
+        partnergenome = meiosis(partner.genome, false, partner.lineage, heterozygosity)
+        mothergenome = meiosis(ind.genome, true, ind.lineage, heterozygosity)
         (isempty(partnergenome) || isempty(mothergenome)) && continue
         genome = vcat(partnergenome,mothergenome)
         if setting("degpleiotropy") == 0 && setting("linkage") == "none"

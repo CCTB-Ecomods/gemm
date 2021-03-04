@@ -10,26 +10,17 @@
 Carry out meiosis on a genome (marked as maternal or not). Returns a haploid
 gamete genome. (genome => array of chromosomes)
 """
-function meiosis(genome::Array{Chromosome,1}, maternal::Bool, lineage::String)
+function meiosis(genome::Array{Chromosome,1}, maternal::Bool, lineage::String, heterozygosity::Bool)
+    #NOTE This function assumes that a genome is sorted, with all paternal chromosomes
+    # in the first half and all maternals in the second (or vice versa).
     gametelength = Int(length(genome)/2)
     gamete = Array{Chromosome,1}(undef, gametelength)
-    i, m, p = 1, 1, 1
+    i = 1
     while i <= gametelength
-        # find the next maternal/paternal chromosome
-        while !genome[m].maternal
-            m += 1
-        end
-        while genome[p].maternal
-            p += 1
-        end
-        # then choose one at random and use it to create a new chromosome for the gamete
-        rand(Bool) ? cgenes = genome[m].genes : cgenes = genome[p].genes
-        if setting("heterozygosity")
-            gamete[i] = LineageChromosome(cgenes, maternal, lineage)
-        else
-            gamete[i] = DefaultChromosome(cgenes, maternal)
-        end
-        i += 1; m += 1; p += 1
+        rand(Bool) ? g = i : g = i+gametelength
+        gamete[i] = heterozygosity ? LineageChromosome(genome[g].genes, maternal, lineage) :
+            DefaultChromosome(genome[g].genes, maternal)
+        i += 1
     end
     gamete
 end
@@ -72,19 +63,20 @@ function gettraitdictfast(chrms::Array{Chromosome, 1}, traitnames::Array{String,
     # Makes use of the fact that with `degpleiotropy == 1` and `linkage == "none"`,
     # there is exactly one trait per chromosome (one gene per chromosome and one trait per gene),
     # and the chromosomes are arranged in trait-order.
-    # FIXME for whatever reason, this is actually slower than the original function?!
-    #simlog(string(chrms), 'e') #TESTING
-    return gettraitdict(chrms, traitnames) #TESTING
+    genomesize = length(chrms)
     traitdict = Dict{String, Float64}()
-    haploidlength = Int(length(chrms)/2)
+    haploidlength = Int(genomesize/2)
+    values = Array{Float64,}(undef,genomesize)
+    for c in eachindex(chrms)
+        @inbounds values[c] = chrms[c].genes[1].codes[1].value
+    end
     for traitidx in eachindex(traitnames)
-        wantedtraits = (chrms[traitidx].genes[1].codes[1].value,
-                        chrms[traitidx+haploidlength].genes[1].codes[1].value)
+        wantedtraits = (values[traitidx], values[traitidx+haploidlength])
         traitdict[traitnames[traitidx]] = mean(wantedtraits)
         traitdict[traitnames[traitidx] * "sd"] = std(wantedtraits)
     end
-    traitdict["ngenes"] = length(chrms)
-    traitdict["nlnkgunits"] = length(chrms)
+    traitdict["ngenes"] = genomesize
+    traitdict["nlnkgunits"] = genomesize
     traitdict
 end
 
