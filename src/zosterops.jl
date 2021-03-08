@@ -128,6 +128,8 @@ Disperse all juvenile individuals within the world.
 function zdisperse!(world::Array{Patch,1})
     for patch in world
         for ind in patch.seedbank
+            #growth is one-step, so we integrate it here
+            ind.size = ind.traits["repsize"]
             zdisperse!(ind, patch, world)
         end
         patch.seedbank = Array{Individual,1}()

@@ -62,8 +62,9 @@
   - [X] parallelise...
   - [X] add `neighbours` array to patches
   - [ ] speed up initialisation
-  - [ ] replace Trait struct with Pair
+  - [X] replace Trait struct with Pair - doesn't work
   - [X] further optimise `gettraitdict()`
+  - [ ] do a compilation run?
 
 - [X] turn off mutation except at initialisation
 
@@ -98,7 +99,9 @@
 		- [X] error when linkage != "none"?
 		- [ ] lots of "seed/rep" warnings
 		- [X] massively faulty genomes
+		- [X] am I updating the individuals' sizes after reproduction??
 		- [ ] is `updateworld!()` a problem? (out of date, duplicative)
+		- [ ] are the life spans sensible?
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 

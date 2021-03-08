@@ -429,7 +429,7 @@ function mutate!(ind::Individual, temp::Float64)
         end
         charseq[i] = newbase
         mutate!(ind.genome[c].genes[g].codes)
-        ind.genome[c].genes[g].sequence = deepcopy(ind.genome[c].genes[g].sequence)
+        ind.genome[c].genes[g].sequence = deepcopy(ind.genome[c].genes[g].sequence) #XXX why?
         if setting("compressgenes")
             if length(charseq) > 21
                 ind.genome[c].genes[g].sequence = seq2bignum(String(charseq))

@@ -265,6 +265,7 @@ function recordlineages(world::Array{Patch,1}, timestep::Int)
             datastring *= string(timestep)*","*string(p.location[1])*","*string(p.location[2])*
             ","*string(l)*","*string(length(findall(x -> x.lineage == l, p.community)))*","*
             string(p.temp)*","*string(p.prec)*"\n"
+            #TODO the trailing linefeed causes empty lines in the output file between updates
         end
     end
     simlog(datastring, 'i', "lineages.log", true)

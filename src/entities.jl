@@ -4,7 +4,6 @@
 A simple struct to store organism trait names and values.
 """
 mutable struct Trait
-    #XXX This type might be replaced by pairs
     nameindex::UInt8
     value::Float64
 end

@@ -1,12 +1,12 @@
 ## ZOSTEROPS EXPERIMENT MAP
 
 # Timesteps
-50
+10
 
 # Simulation arena - fake values, only for testing
 
 # <id> <x> <y> <temperature> <agc> [parameters]
-1	1	1	temp=293	prec=12 initpop capacity=2
+1	1	1	temp=293	prec=92 initpop
 2	2	1	temp=293	prec=90 initpop
 3	3	1	temp=293	prec=99 initpop
 4	4	1	temp=293	prec=99 initpop
