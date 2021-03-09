@@ -20,7 +20,7 @@ library(rayshader)
 
 ##XXX should we specify area (carrying capacity) in the map file?
 
-simlength = 500
+simlength = 300
 elevation_file = "taita_elevation.tif"
 forest_file = "taita_forest_cover.tif"
 habitat_file = "taita_habitats.tif"
@@ -94,6 +94,7 @@ convertMap = function(above_ground_carbon, run_length=simlength, out=map_output_
     if (typeof(above_ground_carbon) == "character") {
         above_ground_carbon = raster(above_ground_carbon)
     }
+    above_ground_carbon[which(as.vector(above_ground_carbon<0))] = 0
     print("Converting to GEMM input format")
     map_text = c("## ZOSTEROPS EXPERIMENT MAP", "",
                  "# Timesteps", toString(run_length), "",
@@ -108,10 +109,19 @@ convertMap = function(above_ground_carbon, run_length=simlength, out=map_output_
     y = rep(1:nrows, each=ncols)
     map_text = c(map_text, paste(i, x, y, "temp=293", #XXX link temp to elevation?
                                  paste0("prec=", round(above_ground_carbon[i], 2)),
+                                 paste0("capacity=", capacity(above_ground_carbon[i])),
                                  ifelse(above_ground_carbon[i]>0,"initpop", ""),
                                  sep="\t"))
     writeLines(map_text, out)
 }
+
+# A small utility function to calculate the patch carrying capacity from the AGC value
+capacity = function(agc_data) {
+    cc = floor((agc_data+10)/20)*2
+    cc = sapply(cc, function(p) ifelse(p>=2, p, ifelse(runif(1)<0.1, 2, 0)))
+    return(cc)
+}
+
 
 runAll = function()
 {
