@@ -53,7 +53,7 @@ default_settings = {
 alternate_tolerances = [0, 0.1, 0.5, 1.0]
 
 alternate_maps = ["taita_hills.map", "taita_hills_plantations.map",
-                  "taita_hills_corridor.map", "taita_hills_deforestation.map"]
+                  "taita_hills_corridors.map", "taita_hills_deforested.map"]
 
 def archive_code():
     "Save the current codebase in a tar archive."
