@@ -118,7 +118,7 @@ convertMap = function(above_ground_carbon, run_length=simlength, out=map_output_
 # A small utility function to calculate the patch carrying capacity from the AGC value
 capacity = function(agc_data) {
     cc = floor((agc_data+10)/20)*2
-    cc = sapply(cc, function(p) ifelse(p>=2, p, ifelse(runif(1)<0.1, 2, 0)))
+    cc = sapply(cc, function(p) ifelse(p>=2, p, ifelse(runif(1)<0.01, 2, 0)))
     return(cc)
 }
 

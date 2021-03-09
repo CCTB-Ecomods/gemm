@@ -101,7 +101,7 @@
 		- [X] massively faulty genomes
 		- [X] am I updating the individuals' sizes after reproduction??
 		- [ ] is `updateworld!()` a problem? (out of date, duplicative)
-		- [ ] are the life spans sensible?
+		- [x] are the life spans sensible?
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 
@@ -114,6 +114,8 @@
 - [X] automate experimental setup for hybridisation and habitat fragmentation studies
 
 - [X] carrying capacity should be adaptable per-patch
+
+- [X] calculate carrying capacity based on patch AGC
 
 - [ ] prepare map series for habitat scenarios (cf. Githiru et al. 2011):
 		- [ ] converted exotic plantations

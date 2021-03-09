@@ -24,10 +24,10 @@ default_settings = {
     "nniches":2,
     "static":"false",
     "mutate":"false",
+    "phylconstr":0.1,
     "usebiggenes":"false",
     "compressgenes":"false",
     "indsize":"adult",
-    "maxbreadth":5.0,
     "capgrowth":"true",
     "degpleiotropy":0,
     # Zosterops-specific parameters
@@ -43,7 +43,7 @@ default_settings = {
     "mintemp":283,
     "heterozygosity":"true",
     # species parameters
-    "species":'[Dict("lineage"=>"silvanus","precopt"=>180,"prectol"=>90,"tempopt"=>293,"temptol"=>1),Dict("lineage"=>"jubaensis","precopt"=>50,"prectol"=>47,"tempopt"=>293,"temptol"=>1)]',
+    "species":'[Dict("lineage"=>"silvanus","precopt"=>180,"prectol"=>90,"tempopt"=>293,"temptol"=>2),Dict("lineage"=>"jubaensis","precopt"=>50,"prectol"=>47,"tempopt"=>293,"temptol"=>2)]',
     "traitnames":'["compat","dispmean","dispshape","numpollen","precopt","prectol","repsize","seqsimilarity","seedsize","tempopt","temptol"]',
     # variable parameters
     "maps":"taita_hills.map",
@@ -53,7 +53,7 @@ default_settings = {
 alternate_tolerances = [0, 0.1, 0.5, 1.0]
 
 alternate_maps = ["taita_hills.map", "taita_hills_plantations.map",
-                  "taita_hills_homesteads.map", "taita_hills_deforestation.map"]
+                  "taita_hills_corridor.map", "taita_hills_deforestation.map"]
 
 def archive_code():
     "Save the current codebase in a tar archive."
