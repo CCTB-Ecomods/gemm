@@ -97,7 +97,7 @@
 		- [X] BUG: dispshape sometimes not greater zero (required for logistic distribution)
 		- [X] make sure hybridisation works as intended
 		- [X] error when linkage != "none"?
-		- [ ] lots of "seed/rep" warnings
+		- [X] lots of "seed/rep" warnings
 		- [X] massively faulty genomes
 		- [X] am I updating the individuals' sizes after reproduction??
 		- [ ] is `updateworld!()` a problem? (out of date, duplicative)
@@ -117,10 +117,10 @@
 
 - [X] calculate carrying capacity based on patch AGC
 
-- [ ] prepare map series for habitat scenarios (cf. Githiru et al. 2011):
-		- [ ] converted exotic plantations
-		- [ ] random homestead tree planting
-		- [ ] reduced montane forest patches
+- [X] prepare map series for habitat scenarios (cf. Githiru et al. 2011):
+		- [X] converted exotic plantations
+		- [X] corridor planting
+		- [X] reduced montane forest patches
 
 - [ ] measure & record:
 		- degree of heterozygosity
