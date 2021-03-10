@@ -13,12 +13,12 @@ function runsim(config::String = "", seed::Integer = 0)
     timesteps = 0
     timeoffset = 0
     correctmode!()
-    for i in 1:length(setting("maps"))
+    for m in 1:length(setting("maps"))
         timeoffset += timesteps
-        timesteps, maptable = readmapfile(setting("maps")[i])
-        i == 1 && (world = createworld(maptable))
-        i > 1 && updateworld!(world, maptable)
-        i == 1 && writedata(world, timeoffset)
+        timesteps, maptable = readmapfile(setting("maps")[m])
+        m == 1 && (world = createworld(maptable))
+        m > 1 && (world = updateworld(world, maptable))
+        m == 1 && writedata(world, timeoffset)
         simulate!(world, timesteps, timeoffset)
     end
     world

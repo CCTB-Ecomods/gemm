@@ -100,7 +100,7 @@
 		- [X] lots of "seed/rep" warnings
 		- [X] massively faulty genomes
 		- [X] am I updating the individuals' sizes after reproduction??
-		- [ ] is `updateworld!()` a problem? (out of date, duplicative)
+		- [X] is `updateworld!()` a problem? (out of date, duplicative)
 		- [x] are the life spans sensible?
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)

@@ -193,69 +193,27 @@ function createworld(maptable::Array{Array{String,1},1})
 end
 
 """
-    updateworld!(world, maptable, cellsize)
+    updateworld(world, maptable, cellsize)
 
 Reinitialise the world from another parsed map file. Works analogously to 
 `createworld`. Intended for use in scenarios where the model world changes
 during a run (e.g. through global warming or island ontogeny).
+If the ID of an old patch matches the ID of a new patch, its community and
+seed bank are transferred to the new patch.
 """
-#FIXME this function needs to be folded into createworld(), it duplicates way too much code
-function updateworld!(world::Array{Patch,1},maptable::Array{Array{String,1},1})
-    cellsize = setting("cellsize")
+function updateworld(oldworld::Array{Patch,1}, maptable::Array{Array{String,1},1})
     simlog("Updating world...")
-    allids = Int[]
-    for entry in maptable
-        size(entry,1) < 3 && error("please check your map file for incomplete or faulty entries. \n
-                            Each line must contain patch information with at least \n
-                            \t - a unique integer ID, \n
-                            \t - an integer x coordinate, \n
-                            \t - an integer y coordinate, \n
-                            separated by a whitespace character (<ID> <x> <y>).")
-        id = parse(Int, entry[1])
-        push!(allids, id)
-        xcord = parse(Int, entry[2])
-        ycord = parse(Int, entry[3])
-        # XXX the 'global' here is a hack so that I can use eval() later on
-        # (this always works on the global scope)
-        idx = findall(x -> x.id == id, world)
-        if length(idx) == 0
-            marked = true
-            global newpatch = Patch(id, (xcord, ycord), cellsize)
-        else
-            marked = false
-            world[idx[1]].location = (xcord, ycord)
-            global newpatch = world[idx[1]]
+    newworld = Array{Patch}(undef, length(maptable))
+    for entry in eachindex(maptable)
+        newpatch = createpatch(maptable[entry])
+        updates = findfirst(p -> p.id==newpatch.id, oldworld)
+        if !isnothing(updates) # did this patch exist in the old world?
+            newpatch.community = oldworld[updates].community
+            newpatch.seedbank = oldworld[updates].seedbank
         end
-        # parse other parameter options
-        for p in entry[4:end]
-            varval = split(p, '=')
-            var = varval[1]
-            if !(var in map(string, fieldnames(Patch)))
-                simlog("Unrecognized patch parameter $var.", 'w')
-                continue
-            elseif length(varval) < 2
-                val = true # if no value is specified, assume 'true'
-            else
-                val = Meta.parse(varval[2])
-            end
-            # check for correct type and modify the new patch
-            vartype = typeof(eval(Meta.parse("newpatch."*var)))
-            if !isa(val, vartype)
-                try
-                    val = convert(vartype, val)
-                catch
-                    simlog("Invalid patch parameter type $var: $val", 'w')
-                    continue
-                end
-            end
-            eval(Meta.parse("newpatch."*string(var)*" = $val"))
-        end
-        if marked
-            push!(world, newpatch)
-            global newpatch = nothing #clear memory
-        end
+        newworld[entry] = newpatch
     end
-    filter!(x -> x.id in allids, world)
-    world
+    global newpatch = nothing # remove variable used in `createpatch()`
+    (setting("mode") == "zosterops") && findneighbours!(world)
+    newworld
 end
-
