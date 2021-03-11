@@ -12,7 +12,7 @@ import os, sys, shutil, time, subprocess
 # See `zosterops.config` for details
 default_settings = {
     # input/output settings
-    "outfreq":5,
+    "outfreq":10,
     "logging":"true",
     "debug":"false",
     "stats":"true",
@@ -25,6 +25,7 @@ default_settings = {
     "static":"false",
     "mutate":"false",
     "phylconstr":0.1,
+    "mutationrate":"3.6e10",
     "usebiggenes":"false",
     "compressgenes":"false",
     "indsize":"adult",
@@ -47,12 +48,12 @@ default_settings = {
     "traitnames":'["compat","dispmean","dispshape","numpollen","precopt","prectol","repsize","seqsimilarity","seedsize","tempopt","temptol"]',
     # variable parameters
     "maps":"taita_hills.map",
-    "tolerance":0.1
+    "tolerance":0.1 #TODO is this sensible?
 }
 
-alternate_tolerances = [0, 0.1, 0.5, 1.0]
+alternate_tolerances = [0, 0.01, 0.05, 0.1, 0.5, 1.0]
 
-alternate_maps = ["taita_hills.map", "taita_hills_plantations.map",
+alternate_maps = ["taita_hills_default.map", "taita_hills_plantations.map",
                   "taita_hills_corridors.map", "taita_hills_deforested.map"]
 
 def archive_code():
@@ -110,7 +111,7 @@ def run_hybridisation_study(seed1, seedN):
     seed = seed1
     while seed <= seedN:
         for t in alternate_tolerances:
-            conf = "taita_hills_tol"+str(t)+"_"+str(seed)
+            conf = "tolerance_"+str(t)+"_"+str(seed)
             write_config(conf+".config", "results/"+conf, seed, None, t)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
@@ -130,7 +131,7 @@ def run_habitat_study(seed1, seedN):
         for m in alternate_maps:
             if m not in os.listdir():
                 shutil.copy("examples/zosterops/"+m, ".")
-            conf = m[:-4]+"_"+str(seed)
+            conf = "habitat_"+m.split("_")[2][:-4]+"_"+str(seed)
             write_config(conf+".config", "results/"+conf, seed, m)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
@@ -138,6 +139,7 @@ def run_habitat_study(seed1, seedN):
     for s in running_sims:
         s.wait()
 
+##TODO exploratory studies (esp. with mutations)
     
 ## USAGE OPTIONS:
 ## ./habitatstudy.py [archive/default]

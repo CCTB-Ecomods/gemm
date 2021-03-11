@@ -38,9 +38,10 @@ for (filepath in popfiles) {
 
 ## population sizes over time
 globalcapacity = results %>% filter(time==0, Scenario=="tol0") %>% select(capacity) %>% sum()
-adultplot = results %>% group_by(time, Scenario, replicate) %>% summarise(popsize=sum(adults)) %>%
+adultplot = results %>% group_by(time, Scenario, replicate) %>%
+    filter(lineage=="silvanus") %>% summarise(popsize=sum(adults)) %>%
     ggplot(aes(time, popsize, group=Scenario)) + #ylim(c(0,80000)) +
-    geom_hline(aes(yintercept=globalcapacity), linetype=2, color="grey", size=0.5) +
+    ##geom_hline(aes(yintercept=globalcapacity), linetype=2, color="grey", size=0.5) +
     stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
     stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
     ylab("Number of adults") + xlab("Year") +
@@ -48,7 +49,8 @@ adultplot = results %>% group_by(time, Scenario, replicate) %>% summarise(popsiz
 ggsave(paste0("adults_over_time_", experiment, ".pdf"), adultplot, width=6, height=4)
 
 ## heterozygosity over time
-hetplot = results %>% group_by(time, Scenario, replicate) %>% summarise(pophet=mean(heterozygosity)) %>%
+hetplot = results %>% group_by(time, Scenario, replicate) %>%
+    filter(lineage=="silvanus") %>% summarise(pophet=mean(heterozygosity)) %>%
     ggplot(aes(time, pophet, group=Scenario)) +
     stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
     stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -62,7 +64,7 @@ precoptplot = results %>% group_by(time, Scenario, replicate) %>%
     ggplot(aes(time, popprec, group=Scenario)) +
     stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
     stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
-    ylab("Mean AGC optimum of Z.silvanus") + xlab("Year") +
+    ylab("Mean AGC optimum") + xlab("Year") +
     scale_color_viridis_d() + theme_bw()
 ggsave(paste0("precopt_over_time_", experiment, ".pdf"), precoptplot, width=6, height=4)
 
@@ -72,14 +74,15 @@ prectolplot = results %>% group_by(time, Scenario, replicate) %>%
     ggplot(aes(time, popprec, group=Scenario)) +
     stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
     stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
-    ylab("Mean AGC tolerance of Z.silvanus") + xlab("Year") +
+    ylab("Mean AGC tolerance") + xlab("Year") +
     scale_color_viridis_d() + theme_bw()
 ggsave(paste0("prectol_over_time_", experiment, ".pdf"), prectolplot, width=6, height=4)
 
 ## combine the above plots into a single gridded plot
-gridplot = plot_grid(adultplot + theme(legend.position=c(.8, .65)),
-                     hetplot + theme(legend.position="none"),
+gridplot = plot_grid(adultplot + theme(legend.position="none"),
+                     ##c(.8, .65)), + theme(legend.position="none"),
+                     hetplot + theme(legend.position="left"),
                      precoptplot + theme(legend.position="none"),
                      prectolplot + theme(legend.position="none"),
                      ncol=2, align="vh")
-ggsave(paste0("hybridisation_over_time_", experiment, ".pdf"), gridplot, width=7, height=5)
+ggsave(paste0("hybridisation_over_time_", experiment, "_silvanus.pdf"), gridplot, width=7, height=5)
