@@ -9,6 +9,8 @@
 
 import os, sys, shutil, time, subprocess
 
+## PARAMETERS AND VARIABLES
+
 # See `zosterops.config` for details
 default_settings = {
     # input/output settings
@@ -58,6 +60,11 @@ alternate_maps = ["taita_hills_default.map", "taita_hills_plantations.map",
 
 alternate_mutationrates = ["0", "3.6e9", "3.6e10", "3.6e11"]
 
+alternate_linkages = ["none", "random", "full"]
+
+
+## AUXILIARY FUNCTIONS
+
 def archive_code():
     "Save the current codebase in a tar archive."
     tarname = time.strftime("GeMM_source_%d%b%y.tar.gz")
@@ -100,6 +107,9 @@ def run_default():
     write_config(conf, dest, 0)
     subprocess.run(["julia", "rungemm.jl", "--config", conf])
 
+
+## EXPERIMENT FUNCTIONS
+    
 def run_hybridisation_experiment(seed1, seedN):
     """
     Launch a set of replicate simulations for the hybridisation experiment.
@@ -140,6 +150,26 @@ def run_mutation_experiment(seed1, seedN):
         seed = seed + 1
     for s in running_sims:
         s.wait()
+
+def run_linkage_experiment(seed1, seedN):
+    """
+    Launch a set of replicate simulations for the linkage experiment.
+    Starts one run for each linkage setting for each replicate seed from 1 to N.
+    """
+    print("Running "+str(seedN-seed1+1)+" replicates of the linkage experiment.")
+    running_sims = []
+    if default_settings["maps"] not in os.listdir():
+        shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
+    seed = seed1
+    while seed <= seedN:
+        for l in alternate_linkages:
+            conf = "linkage_"+str(m)+"_"+str(seed)
+            write_config(conf+".config", "results/"+conf, seed, linkage=l)
+            sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
+            running_sims.append(sim)
+        seed = seed + 1
+    for s in running_sims:
+        s.wait()
         
 def run_habitat_experiment(seed1, seedN):
     """
@@ -161,11 +191,12 @@ def run_habitat_experiment(seed1, seedN):
     for s in running_sims:
         s.wait()
 
-##TODO exploratory studies (esp. with mutations)
-    
+
+## RUNTIME SCRIPT
+        
 ## USAGE OPTIONS:
 ## ./habitatstudy.py [archive/default]
-## ./habitatstudy.py [hybrid/habitat] <seed1> <seedN>
+## ./habitatstudy.py [hybrid/habitat/mutation/linkage] <seed1> <seedN>
 if __name__ == '__main__':
     archive_code()
     if len(sys.argv) < 2 or sys.argv[1] == "default":
@@ -178,3 +209,5 @@ if __name__ == '__main__':
         run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]))
     elif "mutation" in sys.argv[1]:
         run_mutation_experiment(int(sys.argv[2]), int(sys.argv[3]))
+    elif "linkage" in sys.argv[1]:
+        run_linkage_experiment(int(sys.argv[2]), int(sys.argv[3]))
