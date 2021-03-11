@@ -133,6 +133,8 @@
 
 - [ ] write data analysis script
 
+- [ ] conduct exploratory simulations with mutations/linkage/AGC-K
+
 - [ ] update documentation
 
 ## Notes
