@@ -56,6 +56,8 @@ alternate_tolerances = [0, 0.01, 0.05, 0.1, 0.5, 1.0]
 alternate_maps = ["taita_hills_default.map", "taita_hills_plantations.map",
                   "taita_hills_corridors.map", "taita_hills_deforested.map"]
 
+alternate_mutationrates = ["0", "3.6e9", "3.6e10", "3.6e11"]
+
 def archive_code():
     "Save the current codebase in a tar archive."
     tarname = time.strftime("GeMM_source_%d%b%y.tar.gz")
@@ -68,7 +70,7 @@ def archive_code():
     os.remove("current_commit.txt")
     return tarname
 
-def write_config(config, dest, seed, simmap=None, tolerance=None):
+def write_config(config, dest, seed, **params):
     "Write out a config file with the given values"
     cf = open(config, 'w')
     cf.write("# GeMM Zosterops: Taita Hills study\n")
@@ -78,8 +80,7 @@ def write_config(config, dest, seed, simmap=None, tolerance=None):
     cf.write("seed "+str(seed)+"\n")
     for k in default_settings.keys():
         value = default_settings[k]
-        if simmap != None and k == "maps": value = simmap
-        if tolerance != None and k == "tolerance": value = tolerance
+        if k in params.keys(): value = params[k]
         cf.write(k + " " + str(value) + "\n")
     cf.close()
     
@@ -99,12 +100,12 @@ def run_default():
     write_config(conf, dest, 0)
     subprocess.run(["julia", "rungemm.jl", "--config", conf])
 
-def run_hybridisation_study(seed1, seedN):
+def run_hybridisation_experiment(seed1, seedN):
     """
-    Launch a set of replicate simulations for the hybridisation study.
+    Launch a set of replicate simulations for the hybridisation experiment.
     Starts one run for each tolerance setting for each replicate seed from 1 to N.
     """
-    print("Running "+str(seedN-seed1+1)+" replicates of the hybridisation study.")
+    print("Running "+str(seedN-seed1+1)+" replicates of the hybridisation experiment.")
     running_sims = []
     if default_settings["maps"] not in os.listdir():
         shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
@@ -112,19 +113,40 @@ def run_hybridisation_study(seed1, seedN):
     while seed <= seedN:
         for t in alternate_tolerances:
             conf = "tolerance_"+str(t)+"_"+str(seed)
-            write_config(conf+".config", "results/"+conf, seed, None, t)
+            write_config(conf+".config", "results/"+conf, seed, tolerance=t)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
         seed = seed + 1
     for s in running_sims:
         s.wait()
 
-def run_habitat_study(seed1, seedN):
+def run_mutation_experiment(seed1, seedN):
     """
-    Launch a set of replicate simulations for the habitat fragmentation study.
+    Launch a set of replicate simulations for the mutation experiment.
+    Starts one run for each mutation setting for each replicate seed from 1 to N.
+    """
+    print("Running "+str(seedN-seed1+1)+" replicates of the mutation experiment.")
+    running_sims = []
+    if default_settings["maps"] not in os.listdir():
+        shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
+    seed = seed1
+    while seed <= seedN:
+        for m in alternate_mutationrates:
+            conf = "mutation_"+str(m)+"_"+str(seed)
+            write_config(conf+".config", "results/"+conf, seed, tolerance=0,
+                         mutate="true", mutationrate=m)
+            sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
+            running_sims.append(sim)
+        seed = seed + 1
+    for s in running_sims:
+        s.wait()
+        
+def run_habitat_experiment(seed1, seedN):
+    """
+    Launch a set of replicate simulations for the habitat fragmentation experiment.
     Starts one run for each map scenario for each replicate seed from 1 to N.
     """
-    print("Running "+str(seedN-seed1+1)+" replicates of the habitat fragmentation study.")
+    print("Running "+str(seedN-seed1+1)+" replicates of the habitat fragmentation experiment.")
     running_sims = []
     seed = seed1
     while seed <= seedN:
@@ -132,7 +154,7 @@ def run_habitat_study(seed1, seedN):
             if m not in os.listdir():
                 shutil.copy("examples/zosterops/"+m, ".")
             conf = "habitat_"+m.split("_")[2][:-4]+"_"+str(seed)
-            write_config(conf+".config", "results/"+conf, seed, m)
+            write_config(conf+".config", "results/"+conf, seed, maps=m)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
         seed = seed + 1
@@ -151,6 +173,8 @@ if __name__ == '__main__':
     elif sys.argv[1] == "archive":
         pass #only archive the code
     elif "hybrid" in sys.argv[1]:
-        run_hybridisation_study(int(sys.argv[2]), int(sys.argv[3]))
+        run_hybridisation_experiment(int(sys.argv[2]), int(sys.argv[3]))
     elif "habitat" in sys.argv[1]:
-        run_habitat_study(int(sys.argv[2]), int(sys.argv[3]))
+        run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]))
+    elif "mutation" in sys.argv[1]:
+        run_mutation_experiment(int(sys.argv[2]), int(sys.argv[3]))
