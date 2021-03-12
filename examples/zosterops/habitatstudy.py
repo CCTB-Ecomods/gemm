@@ -163,7 +163,7 @@ def run_linkage_experiment(seed1, seedN):
     seed = seed1
     while seed <= seedN:
         for l in alternate_linkages:
-            conf = "linkage_"+str(m)+"_"+str(seed)
+            conf = "linkage_"+str(l)+"_"+str(seed)
             write_config(conf+".config", "results/"+conf, seed, linkage=l)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
