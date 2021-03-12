@@ -13,9 +13,10 @@ library(cowplot) ## arrange ggplots in a grid
 library(ggsci) ## scientific color scales
 library(ggfortify)
 library(reshape2)
+library(Hmisc)
 
-datadir = "data" ## "results" by default
-experiment = "tolerance" ## "tolerance" or "habitat"
+datadir = "results" ## "results" by default
+experiment = "tolerance" ## "tolerance", "habitat", "mutation", "linkage"
 popfiles = Sys.glob(paste0(datadir, "/*", experiment, "*/*tsv"))
 worldend = 300     ## apocalypse...
 ## On that note: is it ethical to terminate virtual organisms in a mass-extinction
@@ -31,7 +32,7 @@ loadData = function(files=popfiles, saveData=TRUE) {
     results = tibble()
     for (filepath in files) {
         nexttsv = read_tsv(filepath) %>% select(all_of(metrics)) %>%
-            mutate(Scenario=strsplit(conf, "_")[[1]][3]) %>% ##FIXME
+            mutate(Scenario=str_replace(conf, "_\\d+\\.config", "")) %>%
             select(-conf)
         results = bind_rows(results, nexttsv)
     }
@@ -41,7 +42,7 @@ loadData = function(files=popfiles, saveData=TRUE) {
 
 ## population sizes over time
 adultplot = function(results) {
-    globalcapacity = results %>% filter(time==0, Scenario=="tol0") %>% select(capacity) %>% sum()
+    ##globalcapacity = results %>% filter(time==0, Scenario=="tol0") %>% select(capacity) %>% sum()
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage=="silvanus") %>% summarise(popsize=sum(adults)) %>%
         ggplot(aes(time, popsize, group=Scenario)) + #ylim(c(0,80000)) +
