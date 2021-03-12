@@ -122,7 +122,7 @@
 		- [X] corridor planting
 		- [X] reduced montane forest patches
 
-- [ ] measure & record:
+- [X] measure & record:
 		- degree of heterozygosity
 		- genetic diversity
 		- population sizes
@@ -132,8 +132,12 @@
 		- [X] temperature opt/tol must allow sufficient survival rates
 
 - [ ] write data analysis script
+		- [X] population size, heterozygosity, precopt, and prectol over time
+		- [ ] maps of spatial population distribution (and free patches)
+		- [ ] statistical tests of scenario outcomes
+		- [ ] comparison of Z.silvanus with Z.jubaensis
 
-- [ ] conduct exploratory simulations with mutations/linkage
+- [X] conduct exploratory simulations with mutations/linkage
 
 - [ ] update documentation
 

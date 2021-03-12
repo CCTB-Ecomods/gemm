@@ -41,10 +41,10 @@ loadData = function(files=popfiles, saveData=TRUE) {
 }
 
 ## population sizes over time
-adultplot = function(results) {
+adultplot = function(results, species="silvanus") {
     ##globalcapacity = results %>% filter(time==0, Scenario=="tol0") %>% select(capacity) %>% sum()
     results %>% group_by(time, Scenario, replicate) %>%
-        filter(lineage=="silvanus") %>% summarise(popsize=sum(adults)) %>%
+        filter(lineage==species) %>% summarise(popsize=sum(adults)) %>%
         ggplot(aes(time, popsize, group=Scenario)) + #ylim(c(0,80000)) +
         ##geom_hline(aes(yintercept=globalcapacity), linetype=2, color="grey", size=0.5) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
@@ -55,9 +55,9 @@ adultplot = function(results) {
 }
 
 ## heterozygosity over time
-hetplot = function(results) {
+hetplot = function(results, species="silvanus") {
     results %>% group_by(time, Scenario, replicate) %>%
-        filter(lineage=="silvanus") %>% summarise(pophet=mean(heterozygosity)) %>%
+        filter(lineage==species) %>% summarise(pophet=mean(heterozygosity)) %>%
         ggplot(aes(time, pophet, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -67,9 +67,9 @@ hetplot = function(results) {
 }
 
 ## precipitation tolerance over time
-precoptplot = function(results) {
+precoptplot = function(results, species="silvanus") {
     results %>% group_by(time, Scenario, replicate) %>%
-        filter(lineage=="silvanus") %>% summarise(popprec=mean(precoptmean)) %>%
+        filter(lineage==species) %>% summarise(popprec=mean(precoptmean)) %>%
         ggplot(aes(time, popprec, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -79,9 +79,9 @@ precoptplot = function(results) {
 }
 
 ## precipitation tolerance over time
-prectolplot = function(results) {
+prectolplot = function(results, species="silvanus") {
     results %>% group_by(time, Scenario, replicate) %>%
-        filter(lineage=="silvanus") %>% summarise(popprec=mean(prectolmean)) %>%
+        filter(lineage==species) %>% summarise(popprec=mean(prectolmean)) %>%
         ggplot(aes(time, popprec, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -91,24 +91,24 @@ prectolplot = function(results) {
 }
 
 ## Plot each graph as an individual file
-plotSingle = function(results) {
-    ggsave(paste0("adults_over_time_", experiment, ".pdf"),
-           adultplot(results), width=6, height=4)
-    ggsave(paste0("heterozygosity_over_time_", experiment, ".pdf"),
-           hetplot(results), width=6, height=4)
-    ggsave(paste0("precopt_over_time_", experiment, ".pdf"),
-           precoptplot(results), width=6, height=4)
-    ggsave(paste0("prectol_over_time_", experiment, ".pdf"),
-           prectolplot(results), width=6, height=4)
+plotSingle = function(results, species="silvanus") {
+    ggsave(paste0("adults_over_time_", experiment, "_", species, ".pdf"),
+           adultplot(results, species), width=6, height=4)
+    ggsave(paste0("heterozygosity_over_time_", experiment, "_", species, ".pdf"),
+           hetplot(results,species), width=6, height=4)
+    ggsave(paste0("precopt_over_time_", experiment, "_", species, ".pdf"),
+           precoptplot(results,species), width=6, height=4)
+    ggsave(paste0("prectol_over_time_", experiment, "_", species, ".pdf"),
+           prectolplot(results,species), width=6, height=4)
 }
 
 ## Combine the above plots into a single gridded plot
-plotGrid = function(results) {
-    gridplot = plot_grid(adultplot(results) + theme(legend.position="none"),
-              hetplot(results) + theme(legend.position="left"),
-              precoptplot(results) + theme(legend.position="none"),
-              prectolplot(results) + theme(legend.position="none"),
+plotGrid = function(results, species="silvanus") {
+    gridplot = plot_grid(adultplot(results, species) + theme(legend.position="none"),
+              hetplot(results, species) + theme(legend.position="left"),
+              precoptplot(results, species) + theme(legend.position="none"),
+              prectolplot(results, species) + theme(legend.position="none"),
               ncol=2, align="vh")
-    ggsave(paste0("hybridisation_over_time_", experiment, "_silvanus.pdf"),
+    ggsave(paste0("hybridisation_over_time_", experiment, "_", species, ".pdf"),
            gridplot, width=7, height=5)
 }
