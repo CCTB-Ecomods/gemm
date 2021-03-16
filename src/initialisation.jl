@@ -214,6 +214,6 @@ function updateworld(oldworld::Array{Patch,1}, maptable::Array{Array{String,1},1
         newworld[entry] = newpatch
     end
     global newpatch = nothing # remove variable used in `createpatch()`
-    (setting("mode") == "zosterops") && findneighbours!(world)
-    newworld
+    (setting("mode") == "zosterops") && findneighbours!(newworld)
+    return newworld
 end
