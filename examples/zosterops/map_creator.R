@@ -115,9 +115,12 @@ convertMap = function(above_ground_carbon, run_length=simlength, out=map_output_
     writeLines(map_text, out)
 }
 
-# A small utility function to calculate the patch carrying capacity from the AGC value
+## A small utility function to calculate the patch carrying capacity from the AGC value.
+## It gives 1 breeding pair/km² for open country (AGC <= 10), 1 pair/ha for woodland
+## (10 < AGC <= 33), 2-3 pairs/ha for exotic forest (33 < AGC <= 87), and 4-8 pairs/ha
+## for montane forest (AGC >= 88).
 capacity = function(agc_data) {
-    cc = floor((agc_data+10)/20)*2
+    cc = floor((agc_data+10)/(20+(0.05*agc_data)))*2
     cc = sapply(cc, function(p) ifelse(p>=2, p, ifelse(runif(1)<0.01, 2, 0)))
     return(cc)
 }

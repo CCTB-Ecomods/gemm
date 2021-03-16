@@ -2,9 +2,9 @@
 
 ## General
 
-- [ ] read species & habitat descriptions of *Zosterops* & Taita Hills
+- [X] read species & habitat descriptions of *Zosterops* & Taita Hills
 
-- [ ] read up on current literature about evolutionary rescue, introgressive hybridization
+- [X] read up on current literature about evolutionary rescue, introgressive hybridization
 
 - [X] prepare F2 presentation on "Adapting a plant community model to bird populations"
 
@@ -102,6 +102,8 @@
 		- [X] am I updating the individuals' sizes after reproduction??
 		- [X] is `updateworld!()` a problem? (out of date, duplicative)
 		- [x] are the life spans sensible?
+		- [X] fix AGC-K equation - population sizes are too high
+		- [ ] fix chromosome lineage labelling bug
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 
@@ -120,7 +122,8 @@
 - [X] prepare map series for habitat scenarios (cf. Githiru et al. 2011):
 		- [X] converted exotic plantations
 		- [X] corridor planting
-		- [X] reduced montane forest patches
+		- [X] edge-depleted montane forest patches
+		- [X] clear-cut small montane forest patches
 
 - [X] measure & record:
 		- degree of heterozygosity
@@ -134,10 +137,17 @@
 - [ ] write data analysis script
 		- [X] population size, heterozygosity, precopt, and prectol over time
 		- [ ] maps of spatial population distribution (and free patches)
+		- [ ] percent carrying capacity and free patches over time
 		- [ ] statistical tests of scenario outcomes
 		- [ ] comparison of Z.silvanus with Z.jubaensis
+		- [ ] standing variation over time / between species
+		- [ ] comparison of habitat types (montane forest/plantation/savannah)
+		- [ ] letters on grid plots!
 
-- [X] conduct exploratory simulations with mutations/linkage
+- [ ] conduct exploratory simulations with:
+		- [X] mutations/linkage
+		- [ ] mutations+hybridisation/linkage+hybridisation
+		- [ ] habitat+hybridisation
 
 - [ ] update documentation
 

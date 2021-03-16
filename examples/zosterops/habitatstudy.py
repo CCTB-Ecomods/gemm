@@ -56,7 +56,8 @@ default_settings = {
 alternate_tolerances = [0, 0.01, 0.05, 0.1, 0.5, 1.0]
 
 alternate_maps = ["taita_hills_default.map", "taita_hills_plantations.map",
-                  "taita_hills_corridors.map", "taita_hills_deforested.map"]
+                  "taita_hills_corridors.map", "taita_hills_edgedepletion.map",
+                  "taita_hills_patchclearing.map"]
 
 alternate_mutationrates = ["0", "3.6e9", "3.6e10", "3.6e11"]
 
