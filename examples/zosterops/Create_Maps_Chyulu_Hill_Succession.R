@@ -48,7 +48,7 @@ convertMap = function(above_ground_carbon, run_length=simlength, out=map_output_
 
 
 capacity= function(agc_data) {
-  cc = floor(100* ((agc_data+20)/100))*2
+  cc = floor(100* ((agc_data)/100))*2
   cc = sapply(cc, function(p) ifelse(p>=2, p, ifelse(runif(1)<0.01, 2, 0)))
   return(cc)
 }
