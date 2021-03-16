@@ -106,7 +106,7 @@ function zgenesis(patch::Patch)
     end
     (isempty(species)) && return community
     # calculate the number of initial breeding pairs and add a male and a female for each
-    npairs = Integer(rand(0:round(patch.capacity/2)))
+    npairs = Integer(round(patch.capacity/2))
     for i in 1:npairs
         sp = rand(species)
         m = getzosteropsspecies(sp, male)
