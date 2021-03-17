@@ -93,22 +93,29 @@ prectolplot = function(results, species="silvanus") {
 }
 
 ## heterozygosity over space
-hetmap = function(results) {
-    ##TODO
+hetmap = function(results, scenario, species="silvanus", plot=TRUE) {
+    popmap = results %>% filter(time==worldend) %>% filter(Scenario==scenario) %>%
+        filter(lineage %in% species) %>% select(x, y, replicate, heterozygosity) %>%
+        group_by(x, y) %>% summarise(avghet=mean(heterozygosity)) %>%
+        ggplot(aes(x, y, fill=avghet)) +
+        geom_raster(interpolate=TRUE) +
+        scale_fill_gradient(low="white", high="darkred", guide="none") +
+        scale_y_reverse() + theme_void()
+    if (plot) { ggsave(paste0("heterozygosity_map_", scenario, ".pdf"), width=5, height=5) }
+    else { return(hetplot) }
 }
 
 ## population size over space
 popmap = function(results, scenario, species=c("silvanus", "jubaensis"), plot=TRUE) {
-    popmap = results %>% filter(time==worldend) %>% filter(Scenario==scenario) %>%
+    popplot = results %>% filter(time==worldend) %>% filter(Scenario==scenario) %>%
         filter(lineage %in% species) %>% select(x, y, replicate, adults) %>%
         group_by(x, y) %>% summarise(avgpop=mean(adults)) %>%
         ggplot(aes(x, y, fill=avgpop)) +
         geom_raster(interpolate=TRUE) +
         scale_fill_gradient(low="white", high="purple", guide="none") +
-        scale_y_reverse() +
-        theme_void()
+        scale_y_reverse() + theme_void()
     if (plot) { ggsave(paste0("population_map_", scenario, ".pdf"), width=5, height=5) }
-    else { return(popmap) }
+    else { return(popplot) }
 }
 
 ## trait shift after time
