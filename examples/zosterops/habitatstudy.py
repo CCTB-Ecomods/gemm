@@ -46,7 +46,7 @@ default_settings = {
     "mintemp":283,
     "heterozygosity":"true",
     # species parameters
-    "species":'[Dict("lineage"=>"silvanus","precopt"=>180,"prectol"=>90,"tempopt"=>293,"temptol"=>2),Dict("lineage"=>"jubaensis","precopt"=>50,"prectol"=>47,"tempopt"=>293,"temptol"=>2)]',
+    "species":'[Dict("lineage"=>"silvanus","precopt"=>180,"prectol"=>90,"tempopt"=>293,"temptol"=>2),Dict("lineage"=>"flavilateralis","precopt"=>50,"prectol"=>47,"tempopt"=>293,"temptol"=>2)]',
     "traitnames":'["compat","dispmean","dispshape","numpollen","precopt","prectol","repsize","seqsimilarity","seedsize","tempopt","temptol"]',
     # variable parameters
     "maps":"taita_hills.map",

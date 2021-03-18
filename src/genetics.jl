@@ -18,6 +18,7 @@ function meiosis(genome::Array{Chromosome,1}, maternal::Bool, lineage::String, h
     i = 1
     while i <= gametelength
         rand(Bool) ? g = i : g = i+gametelength
+        #FIXME don't use parent lineage, but original chromosomal lineage to construct new chromosome
         gamete[i] = heterozygosity ? LineageChromosome(genome[g].genes, maternal, lineage) :
             DefaultChromosome(genome[g].genes, maternal)
         i += 1

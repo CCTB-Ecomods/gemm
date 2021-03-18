@@ -19,7 +19,7 @@ let zosterops = Individual[] #holds the species archetypes
     """
         initzosteropsspecies()
 
-    Initialise the predefined Zosterops species archetypes (silvanus/highland, jubaensis/lowland).
+    Initialise the predefined Zosterops species archetypes.
     """
     function initzosteropsspecies()
         # ensure that "one gene, one trait" is true and that we have species definitions

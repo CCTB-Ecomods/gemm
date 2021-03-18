@@ -23,6 +23,7 @@ worldend = 300     ## apocalypse...
 ## On that note: is it ethical to terminate virtual organisms in a mass-extinction
 ## at the end of an experiment, or should they not rather be released back into the wild?
 
+defaultspecies = "silvanus"
 
 ## read and pre-process data
 loadData = function(files=popfiles, saveData=TRUE) {
@@ -46,7 +47,7 @@ loadData = function(files=popfiles, saveData=TRUE) {
 ### INDIVIDUAL PLOTS
 
 ## population sizes over time
-adultplot = function(results, species="silvanus") {
+adultplot = function(results, species=defaultspecies) {
     ##globalcapacity = results %>% filter(time==0, Scenario=="tol0") %>% select(capacity) %>% sum()
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage==any_of(species)) %>% summarise(popsize=sum(adults)) %>%
@@ -60,7 +61,7 @@ adultplot = function(results, species="silvanus") {
 }
 
 ## heterozygosity over time
-hetplot = function(results, species="silvanus") {
+hetplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage==any_of(species)) %>% summarise(pophet=mean(heterozygosity)) %>%
         ggplot(aes(time, pophet, group=Scenario)) +
@@ -72,7 +73,7 @@ hetplot = function(results, species="silvanus") {
 }
 
 ## precipitation tolerance over time
-precoptplot = function(results, species="silvanus") {
+precoptplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage==any_of(species)) %>% summarise(popprec=mean(precoptmean)) %>%
         ggplot(aes(time, popprec, group=Scenario)) +
@@ -84,7 +85,7 @@ precoptplot = function(results, species="silvanus") {
 }
 
 ## precipitation tolerance over time
-prectolplot = function(results, species="silvanus") {
+prectolplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage==any_of(species)) %>% summarise(popprec=mean(prectolmean)) %>%
         ggplot(aes(time, popprec, group=Scenario)) +
@@ -96,37 +97,41 @@ prectolplot = function(results, species="silvanus") {
 }
 
 ## heterozygosity over space
-hetmap = function(results, scenario, species="silvanus", plot=TRUE) {
+hetmap = function(results, scenario, species=defaultspecies, plot=TRUE) {
     hetplot = results %>% filter(time==worldend) %>% filter(Scenario==scenario) %>%
         filter(lineage %in% species) %>% select(x, y, replicate, heterozygosity) %>%
         group_by(x, y) %>% summarise(avghet=mean(heterozygosity)) %>%
         ggplot(aes(x, y, fill=avghet)) +
         geom_raster(interpolate=TRUE) +
-        scale_fill_gradient(low="white", high="darkred", guide="none") +
-        scale_y_reverse() + theme_void()
+        scale_fill_gradient(low="lightgrey", high="darkred", guide="none") +
+        scale_y_reverse() + theme_void() +
+        theme(panel.border=element_rect(size=1, linetype="solid"))
     if (plot) {
-        ggsave(paste0("heterozygosity_map_", scenario, ".pdf"), hetplot, width=5, height=5)
+        ggsave(paste0("heterozygosity_map_", scenario, "_", species, ".pdf"),
+               hetplot, width=5, height=5)
     }
     else { return(hetplot) }
 }
 
 ## population size over space
-popmap = function(results, scenario, species=c("silvanus", "jubaensis"), plot=TRUE) {
+popmap = function(results, scenario, species=defaultspecies, plot=TRUE) {
     popplot = results %>% filter(time==worldend) %>% filter(Scenario==scenario) %>%
         filter(lineage %in% species) %>% select(x, y, replicate, adults) %>%
         group_by(x, y) %>% summarise(avgpop=mean(adults)) %>%
         ggplot(aes(x, y, fill=avgpop)) +
         geom_raster(interpolate=TRUE) +
-        scale_fill_gradient(low="white", high="purple", guide="none") +
-        scale_y_reverse() + theme_void()
+        scale_fill_gradient(low="lightgrey", high="purple", guide="none") +
+        scale_y_reverse() + theme_void() +
+        theme(panel.border=element_rect(size=1, linetype="solid"))
     if (plot) {
-        ggsave(paste0("population_map_", scenario, ".pdf"), popplot, width=5, height=5)
+        ggsave(paste0("population_map_", scenario, "_", species, ".pdf"),
+               popplot, width=5, height=5)
     }
     else { return(popplot) }
 }
 
 ## trait shift after time
-traitplot = function(results, species="silvanus") {
+traitplot = function(results, species=defaultspecies) {
     ##TODO
     filteredresults = results %>% filter((time==0 | time==worldend) & lineage==species) %>%
         mutate(Scenario=as.factor(Scenario)) %>% group_by(time, Scenario, replicate) %>%
@@ -159,7 +164,7 @@ traitplot = function(results, species="silvanus") {
 ### GROUP PLOTS
 
 ## Plot each time graph as an individual file
-plotSingle = function(results, species="silvanus") {
+plotSingle = function(results, species=defaultspecies) {
     ggsave(paste0("adults_over_time_", experiment, "_", species, ".pdf"),
            adultplot(results, species), width=6, height=4)
     ggsave(paste0("heterozygosity_over_time_", experiment, "_", species, ".pdf"),
@@ -171,18 +176,18 @@ plotSingle = function(results, species="silvanus") {
 }
 
 ## Combine the time plots into a single gridded plot
-plotGrid = function(results, species="silvanus") {
+plotGrid = function(results, species=defaultspecies) {
     gridplot = plot_grid(adultplot(results, species) + theme(legend.position="none"),
               hetplot(results, species) + theme(legend.position="left"),
               precoptplot(results, species) + theme(legend.position="none"),
               prectolplot(results, species) + theme(legend.position="none"),
-              ncol=2, align="vh")
+              ncol=2, align="vh", labels="auto")
     ggsave(paste0("hybridisation_over_time_", experiment, "_", species, ".pdf"),
            gridplot, width=7, height=5)
 }
 
 ## Plot population density and heterozygosity maps for all scenarios
-plotMaps = function(results, species="silvanus") {
+plotMaps = function(results, species=defaultspecies) {
     scenarios = unique(results$Scenario)
     for (s in scenarios) {
         popmap(results, s, species)
@@ -191,7 +196,7 @@ plotMaps = function(results, species="silvanus") {
 }
 
 ## Summary function to plot everything
-plotAll = function(results, species="silvanus") {
+plotAll = function(results, species=defaultspecies) {
     plotSingle(results, species)
     plotGrid(results, species)
     plotMaps(results, species)

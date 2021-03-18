@@ -24,7 +24,7 @@
 
 - [X] initialise two species
 		- highland species *Z. silvanus* (Taita White-eye, a.k.a. subspecies of *Z. poliogaster*)
-		- lowland species *Z. jubaensis* (former subspecies of *Z. abyssinicus*)
+		- lowland species *Z. flavilateralis* (former subspecies of *Z. abyssinicus*)
 
 - [X] introduce sex (birds are not hermaphrodites)
 
@@ -139,7 +139,7 @@
 		- [ ] maps of spatial population distribution (and free patches)
 		- [ ] percent carrying capacity and free patches over time
 		- [ ] statistical tests of scenario outcomes
-		- [ ] comparison of Z.silvanus with Z.jubaensis
+		- [ ] comparison of Z.silvanus with Z.flavilateralis
 		- [ ] standing variation over time / between species
 		- [ ] comparison of habitat types (montane forest/plantation/savannah)
 		- [ ] letters on grid plots!
