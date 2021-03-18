@@ -42,6 +42,9 @@ loadData = function(files=popfiles, saveData=TRUE) {
     return(results)
 }
 
+
+### INDIVIDUAL PLOTS
+
 ## population sizes over time
 adultplot = function(results, species="silvanus") {
     ##globalcapacity = results %>% filter(time==0, Scenario=="tol0") %>% select(capacity) %>% sum()
@@ -94,14 +97,16 @@ prectolplot = function(results, species="silvanus") {
 
 ## heterozygosity over space
 hetmap = function(results, scenario, species="silvanus", plot=TRUE) {
-    popmap = results %>% filter(time==worldend) %>% filter(Scenario==scenario) %>%
+    hetplot = results %>% filter(time==worldend) %>% filter(Scenario==scenario) %>%
         filter(lineage %in% species) %>% select(x, y, replicate, heterozygosity) %>%
         group_by(x, y) %>% summarise(avghet=mean(heterozygosity)) %>%
         ggplot(aes(x, y, fill=avghet)) +
         geom_raster(interpolate=TRUE) +
         scale_fill_gradient(low="white", high="darkred", guide="none") +
         scale_y_reverse() + theme_void()
-    if (plot) { ggsave(paste0("heterozygosity_map_", scenario, ".pdf"), width=5, height=5) }
+    if (plot) {
+        ggsave(paste0("heterozygosity_map_", scenario, ".pdf"), hetplot, width=5, height=5)
+    }
     else { return(hetplot) }
 }
 
@@ -114,7 +119,9 @@ popmap = function(results, scenario, species=c("silvanus", "jubaensis"), plot=TR
         geom_raster(interpolate=TRUE) +
         scale_fill_gradient(low="white", high="purple", guide="none") +
         scale_y_reverse() + theme_void()
-    if (plot) { ggsave(paste0("population_map_", scenario, ".pdf"), width=5, height=5) }
+    if (plot) {
+        ggsave(paste0("population_map_", scenario, ".pdf"), popplot, width=5, height=5)
+    }
     else { return(popplot) }
 }
 
@@ -133,27 +140,25 @@ traitplot = function(results, species="silvanus") {
                                  precopt=endtraits$precopt-inittraits$precopt,
                                  prectol=endtraits$prectol-inittraits$prectol,
                                  dispmean=endtraits$dispmeans-inittraits$dispmeans,
-                                 dispshape=endtraits$dispshape-inittraits$dispshape))
+                                 dispshape=endtraits$dispshape-inittraits$dispshape)) %>%
+        mutate(precopt=as.numeric(precopt), prectol=as.numeric(prectol),
+               dispmean=as.numeric(dispmean), dispshape=as.numeric(dispshape)) %>%
+        melt(id.vars=c("Scenario"), variable.name="Trait")
 
-    ## <<< WORKS UP TO HERE >>>
-    
-    traitnames = endtraits %>% select(ends_with("diff")) %>% names() %>% str_replace("diff", "")
-
-    traitresponses = endtraits %>%
-        ggplot(aes(traitnames, endtraits[traitnames], fill = ifelse(Estimate > 0, "1", "-1"))) +
+    traitresponses = endresults %>% 
+        ggplot(aes(Scenario, value)) +
         geom_hline(yintercept = 0, linetype = "dashed", color = "grey", size = 1) +
-        geom_bar(stat = "identity", width = 0.5, position = "dodge") +
-        geom_errorbar(aes(ymin = Estimate - `Std. Error`, ymax = Estimate + `Std. Error`),
-                      position = position_dodge(.5), width = 0) +
-        scale_y_continuous(limits = c(min(lme_table[,"Estimate"] - lme_table[,"Std. Error"]),
-                                      max(lme_table[,"Estimate"] + lme_table[,"Std. Error"]) + 0.01)) +
-        xlab("") + ylab("Difference in means between scenarios") + coord_flip() +
-        facet_grid(traitnames) +
-        scale_fill_npg(guide = FALSE)
-    ggsave(paste0("diffs_means_", dispmode, "_nolinkage.pdf"), width = 5, height = 5)
+        geom_boxplot(aes(fill=Trait)) +
+        facet_wrap(~Trait, scales="free") +
+        xlab("") + ylab(paste("Shift in population trait means after", worldend, "years")) +
+        coord_flip() + scale_fill_npg(guide="none")
+    ggsave(paste0("trait_means_", experiment, "_", species, ".pdf"), width = 7, height = 5)
 }
 
-## Plot each graph as an individual file
+
+### GROUP PLOTS
+
+## Plot each time graph as an individual file
 plotSingle = function(results, species="silvanus") {
     ggsave(paste0("adults_over_time_", experiment, "_", species, ".pdf"),
            adultplot(results, species), width=6, height=4)
@@ -165,7 +170,7 @@ plotSingle = function(results, species="silvanus") {
            prectolplot(results,species), width=6, height=4)
 }
 
-## Combine the above plots into a single gridded plot
+## Combine the time plots into a single gridded plot
 plotGrid = function(results, species="silvanus") {
     gridplot = plot_grid(adultplot(results, species) + theme(legend.position="none"),
               hetplot(results, species) + theme(legend.position="left"),
@@ -174,4 +179,20 @@ plotGrid = function(results, species="silvanus") {
               ncol=2, align="vh")
     ggsave(paste0("hybridisation_over_time_", experiment, "_", species, ".pdf"),
            gridplot, width=7, height=5)
+}
+
+## Plot population density and heterozygosity maps for all scenarios
+plotMaps = function(results, species="silvanus") {
+    scenarios = unique(results$Scenario)
+    for (s in scenarios) {
+        popmap(results, s, species)
+        hetmap(results, s, species)
+    }
+}
+
+## Summary function to plot everything
+plotAll = function(results, species="silvanus") {
+    plotSingle(results, species)
+    plotGrid(results, species)
+    plotMaps(results, species)
 }
