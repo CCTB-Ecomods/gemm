@@ -97,8 +97,8 @@ prectolplot = function(results, species=defaultspecies) {
 }
 
 ## heterozygosity over space
-hetmap = function(results, scenario, species=defaultspecies, plot=TRUE) {
-    hetplot = results %>% filter(time==worldend) %>% filter(Scenario==scenario) %>%
+hetmap = function(results, scenario, species=defaultspecies, date=worldend,  plot=TRUE) {
+    hetplot = results %>% filter(time==date) %>% filter(Scenario==scenario) %>%
         filter(lineage %in% species) %>% select(x, y, replicate, heterozygosity) %>%
         group_by(x, y) %>% summarise(avghet=mean(heterozygosity)) %>%
         ggplot(aes(x, y, fill=avghet)) +
@@ -114,8 +114,8 @@ hetmap = function(results, scenario, species=defaultspecies, plot=TRUE) {
 }
 
 ## population size over space
-popmap = function(results, scenario, species=defaultspecies, plot=TRUE) {
-    popplot = results %>% filter(time==worldend) %>% filter(Scenario==scenario) %>%
+popmap = function(results, scenario, species=defaultspecies, date=worldend, plot=TRUE) {
+    popplot = results %>% filter(time==date) %>% filter(Scenario==scenario) %>%
         filter(lineage %in% species) %>% select(x, y, replicate, adults) %>%
         group_by(x, y) %>% summarise(avgpop=mean(adults)) %>%
         ggplot(aes(x, y, fill=avgpop)) +
@@ -132,7 +132,6 @@ popmap = function(results, scenario, species=defaultspecies, plot=TRUE) {
 
 ## trait shift after time
 traitplot = function(results, species=defaultspecies) {
-    ##TODO
     filteredresults = results %>% filter((time==0 | time==worldend) & lineage==species) %>%
         mutate(Scenario=as.factor(Scenario)) %>% group_by(time, Scenario, replicate) %>%
         summarise(precopt=mean(precoptmean), prectol=mean(prectolmean),
@@ -187,7 +186,7 @@ plotGrid = function(results, species=defaultspecies) {
 }
 
 ## Plot population density and heterozygosity maps for all scenarios
-plotMaps = function(results, species=defaultspecies) {
+plotMaps = function(results, species=defaultspecies, date=worldend) {
     scenarios = unique(results$Scenario)
     for (s in scenarios) {
         popmap(results, s, species)

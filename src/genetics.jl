@@ -10,7 +10,7 @@
 Carry out meiosis on a genome (marked as maternal or not). Returns a haploid
 gamete genome. (genome => array of chromosomes)
 """
-function meiosis(genome::Array{Chromosome,1}, maternal::Bool, lineage::String, heterozygosity::Bool)
+function meiosis(genome::Array{Chromosome,1}, maternal::Bool, heterozygosity::Bool)
     #NOTE This function assumes that a genome is sorted, with all paternal chromosomes
     # in the first half and all maternals in the second (or vice versa).
     gametelength = Int(length(genome)/2)
@@ -18,8 +18,7 @@ function meiosis(genome::Array{Chromosome,1}, maternal::Bool, lineage::String, h
     i = 1
     while i <= gametelength
         rand(Bool) ? g = i : g = i+gametelength
-        #FIXME don't use parent lineage, but original chromosomal lineage to construct new chromosome
-        gamete[i] = heterozygosity ? LineageChromosome(genome[g].genes, maternal, lineage) :
+        gamete[i] = heterozygosity ? LineageChromosome(genome[g].genes, maternal, genome[g].lineage) :
             DefaultChromosome(genome[g].genes, maternal)
         i += 1
     end
