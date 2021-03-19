@@ -49,7 +49,7 @@ loadData = function(files=popfiles, saveData=TRUE) {
 adultplot = function(results, species=defaultspecies) {
     ##globalcapacity = results %>% filter(time==0, Scenario=="tol0") %>% select(capacity) %>% sum()
     results %>% group_by(time, Scenario, replicate) %>%
-        filter(lineage==any_of(species)) %>% summarise(popsize=sum(adults)) %>%
+        filter(lineage %in% species) %>% summarise(popsize=sum(adults)) %>%
         ggplot(aes(time, popsize, group=Scenario)) + #ylim(c(0,80000)) +
         ##geom_hline(aes(yintercept=globalcapacity), linetype=2, color="grey", size=0.5) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
@@ -62,7 +62,7 @@ adultplot = function(results, species=defaultspecies) {
 ## heterozygosity over time
 hetplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
-        filter(lineage==any_of(species)) %>% summarise(pophet=mean(heterozygosity)) %>%
+        filter(lineage %in% species) %>% summarise(pophet=mean(heterozygosity)) %>%
         ggplot(aes(time, pophet, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -74,11 +74,11 @@ hetplot = function(results, species=defaultspecies) {
 ## precipitation tolerance over time
 precoptplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
-        filter(lineage==any_of(species)) %>% summarise(popprec=mean(precoptmean)) %>%
+        filter(lineage %in% species) %>% summarise(popprec=mean(precoptmean)) %>%
         ggplot(aes(time, popprec, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
-        geom_hline(aes(color="grey"), yintercept=90, linetype=2) +
+        geom_hline(aes(color="lightgrey"), yintercept=90, linetype=2) +
         ylab("Mean AGC optimum") + xlab("Year") +
         scale_color_viridis_d() + theme_bw() %>%
         return()
@@ -87,11 +87,10 @@ precoptplot = function(results, species=defaultspecies) {
 ## precipitation tolerance over time
 prectolplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
-        filter(lineage==any_of(species)) %>% summarise(popprec=mean(prectolmean)) %>%
+        filter(lineage %in% species) %>% summarise(popprec=mean(prectolmean)) %>%
         ggplot(aes(time, popprec, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
-        geom_hline(aes(color="grey"), yintercept=90, linetype=2) +
         ylab("Mean AGC tolerance") + xlab("Year") +
         scale_color_viridis_d() + theme_bw() %>%
         return()
@@ -136,7 +135,7 @@ traitplot = function(results, species=defaultspecies) {
     filteredresults = results %>% filter((time==0 | time==worldend) & lineage==species) %>%
         mutate(Scenario=as.factor(Scenario)) %>% group_by(time, Scenario, replicate) %>%
         summarise(precopt=mean(precoptmean), prectol=mean(prectolmean),
-                  ##repsize=mean(repsizemean),tempopt=mean(tempoptmean),temptol=mean(temptolmean),
+                  repsize=mean(repsizemean),tempopt=mean(tempoptmean),temptol=mean(temptolmean),
                   dispmeans=mean(dispmeanmean), dispshape=mean(dispshapemean)) %>%
         select(-ends_with("mean"))
     inittraits = filteredresults %>% filter(time==0)
@@ -144,20 +143,23 @@ traitplot = function(results, species=defaultspecies) {
     endresults = as_tibble(cbind(Scenario=as.character(endtraits$Scenario),
                                  precopt=endtraits$precopt-inittraits$precopt,
                                  prectol=endtraits$prectol-inittraits$prectol,
+                                 tempopt=endtraits$tempopt-inittraits$tempopt,
+                                 temptol=endtraits$temptol-inittraits$temptol,
                                  dispmean=endtraits$dispmeans-inittraits$dispmeans,
                                  dispshape=endtraits$dispshape-inittraits$dispshape)) %>%
         mutate(precopt=as.numeric(precopt), prectol=as.numeric(prectol),
-               dispmean=as.numeric(dispmean), dispshape=as.numeric(dispshape)) %>%
+               dispmean=as.numeric(dispmean), dispshape=as.numeric(dispshape),
+               tempopt=as.numeric(tempopt), temptol=as.numeric(temptol)) %>%
         melt(id.vars=c("Scenario"), variable.name="Trait")
 
     traitresponses = endresults %>% 
         ggplot(aes(Scenario, value)) +
         geom_hline(yintercept = 0, linetype = "dashed", color = "grey", size = 1) +
         geom_boxplot(aes(fill=Trait)) +
-        facet_wrap(~Trait, scales="free") +
+        facet_wrap(~Trait, scales="free", ncol=2) +
         xlab("") + ylab(paste("Shift in population trait means after", worldend, "years")) +
         coord_flip() + scale_fill_npg(guide="none")
-    ggsave(paste0("trait_means_", experiment, "_", species, ".pdf"), width = 7, height = 5)
+    ggsave(paste0("trait_means_", experiment, "_", species, ".pdf"), width = 6, height = 7)
 }
 
 
@@ -195,9 +197,25 @@ plotMaps = function(results, species=defaultspecies, date=worldend) {
     }
 }
 
+## Plot a grid of population & heterozygosity maps of the two specified scenarios
+##XXX This needs some more thought?
+plotMapGrid = function(results, scen1, scen2, spec=defaultspecies) {
+    gridplot = plot_grid(popmap(results, scen1, spec, plot=FALSE) + theme(legend.position="none"),
+                         hetmap(results, scen1, spec, plot=FALSE) + theme(legend.position="none"),
+                         popmap(results, scen2, spec, plot=FALSE) + theme(legend.position="none"),
+                         hetmap(results, scen2, spec, plot=FALSE) + theme(legend.position="none"),
+              ncol=2, align="vh", labels="auto")
+    ggsave(paste0("hybridisation_over_space_", experiment, "_", spec, ".pdf"),
+           gridplot, width=5, height=5)    
+}
+
 ## Summary function to plot everything
 plotAll = function(results, species=defaultspecies) {
     plotSingle(results, species)
     plotGrid(results, species)
     plotMaps(results, species)
+    traitplot(results, species)
+    if (experiment == tolerance) { ##TODO this needs some more thought
+        plotMapGrid(results, "tolerance_0", "tolerance_1.0", species)
+    }
 }
