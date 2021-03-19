@@ -14,7 +14,6 @@ library(ggsci) ## scientific color scales
 library(ggfortify)
 library(reshape2)
 library(Hmisc)
-library(xtable)
 
 datadir = "results" ## "results" by default
 experiment = "tolerance" ## "tolerance", "habitat", "mutation", "linkage"
@@ -79,6 +78,7 @@ precoptplot = function(results, species=defaultspecies) {
         ggplot(aes(time, popprec, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
+        geom_hline(aes(color="grey"), yintercept=90, linetype=2) +
         ylab("Mean AGC optimum") + xlab("Year") +
         scale_color_viridis_d() + theme_bw() %>%
         return()
@@ -91,6 +91,7 @@ prectolplot = function(results, species=defaultspecies) {
         ggplot(aes(time, popprec, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
+        geom_hline(aes(color="grey"), yintercept=90, linetype=2) +
         ylab("Mean AGC tolerance") + xlab("Year") +
         scale_color_viridis_d() + theme_bw() %>%
         return()
