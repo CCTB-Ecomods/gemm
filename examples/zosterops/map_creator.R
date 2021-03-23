@@ -20,15 +20,18 @@ library(rayshader)
 
 ##XXX should we specify area (carrying capacity) in the map file?
 
-simlength = 300
+autorun = FALSE ## automatically run all analyses?
+
+simlength = 300 ## number of years the simulation should run
+
+above_ground_carbon_file = "taita_agc_resampled.tif" ## << this is the important file!
 elevation_file = "taita_elevation.tif"
 forest_file = "taita_forest_cover.tif"
 habitat_file = "taita_habitats.tif"
-above_ground_carbon_file = "taita_agc_resampled.tif"
 
-image_output_file = "taita_map.jpg"
+map_output_file = "taita_hills.map" ## << this is the model input
+image_output_file = "taita_map.jpg" ## these two are for image display
 image_3D_output_file = "taita_hills_3D"
-map_output_file = "taita_hills.map"
 
 ## Read in the GeoTIFF files and make sure they're workable
 loadAllData = function(el_file=elevation_file, fo_file=forest_file,
@@ -89,6 +92,7 @@ visualise3DMap = function(elevation, forest, out=image_3D_output_file)
 }
 
 ## Take in the AGC raster and create a GeMM map file
+## >>> THIS IS THE KEY FUNCTION OF THIS FILE <<<
 convertMap = function(above_ground_carbon, run_length=simlength, out=map_output_file)
 {
     if (typeof(above_ground_carbon) == "character") {
@@ -121,7 +125,7 @@ convertMap = function(above_ground_carbon, run_length=simlength, out=map_output_
 ## for montane forest (AGC >= 88).
 capacity = function(agc_data) {
     cc = floor((agc_data+10)/(20+(0.05*agc_data)))*2
-    cc = sapply(cc, function(p) ifelse(p>=2, p, ifelse(runif(1)<0.01, 2, 0)))
+    ##cc = sapply(cc, function(p) ifelse(p>=2, p, ifelse(runif(1)<0.01, 2, 0)))
     return(cc)
 }
 
@@ -142,4 +146,10 @@ runMap = function(agc_file=above_ground_carbon_file)
 {
     data = raster(agc_file)
     convertMap(data)
+}
+
+
+## If autorun is set, generate the map as soon as the script is loaded
+if (autorun) {
+    runMap()
 }

@@ -211,8 +211,9 @@ function writedata(world::Array{Patch,1}, timestep::Int)
         end
     end
     if setting("stats")
+        # why not `filename = joinpath(setting("dest"), "pops.tsv")`?
         filename = "pops_s" * string(setting("seed"))
-        filename = joinpath(setting("dest"), filename)
+        filename = joinpath(setting("dest"), "pops.tsv")
         filename = filename * ".tsv"
         simlog("Writing stats to \""*string(filename)*"\"")
         open(filename, "a") do file

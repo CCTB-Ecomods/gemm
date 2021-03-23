@@ -136,20 +136,23 @@
 
 - [ ] write data analysis script
 		- [X] population size, heterozygosity, precopt, and prectol over time
-		- [ ] maps of spatial population distribution (and free patches)
+		- [X] maps of spatial population distribution (and free patches)
+		- [X] maps of spatial heterozygosity distribution
+		- [X] trait shift after simulation end
 		- [ ] percent carrying capacity and free patches over time
 		- [ ] statistical tests of scenario outcomes
-		- [ ] comparison of Z.silvanus with Z.flavilateralis
+		- [ ] comparison of *Z.silvanus* with *Z.flavilateralis*
 		- [ ] standing variation over time / between species
 		- [ ] comparison of habitat types (montane forest/plantation/savannah)
 		- [ ] letters on grid plots!
 
 - [ ] conduct exploratory simulations with:
 		- [X] mutations/linkage
-		- [ ] mutations+hybridisation/linkage+hybridisation
 		- [ ] habitat+hybridisation
 
 - [ ] update documentation
+		- [ ] Julia functions
+		- [X] workflow
 
 ## Notes
 
