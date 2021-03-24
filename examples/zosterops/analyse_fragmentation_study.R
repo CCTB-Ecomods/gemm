@@ -15,9 +15,10 @@ library(ggfortify)
 library(reshape2)
 library(Hmisc)
 
+autorun = FALSE ## automatically run all analyses?
+
 datadir = "results" ## "results" by default
 experiment = "tolerance" ## "tolerance", "habitat", "mutation", "linkage"
-popfiles = Sys.glob(paste0(datadir, "/*", experiment, "*/*tsv"))
 worldend = 300     ## apocalypse...
 ## On that note: is it ethical to terminate virtual organisms in a mass-extinction
 ## at the end of an experiment, or should they not rather be released back into the wild?
@@ -25,14 +26,15 @@ worldend = 300     ## apocalypse...
 defaultspecies = "silvanus"
 
 ## read and pre-process data
-loadData = function(files=popfiles, saveData=TRUE) {
+loadData = function(exp=experiment, saveData=TRUE) {
+    popfiles = Sys.glob(paste0(datadir, "/*", exp, "*/*tsv"))
     metrics = c("time", "x", "y", "prec", "capacity", "replicate", "conf",
                 "lineage", "adults", "heterozygosity", "precadaptationmean",
                 "dispmeanmean", "dispmeanstd", "dispshapemean", "dispshapestd",
                 "precoptmean", "precoptstd", "prectolmean", "prectolstd",
                 "tempoptmean", "temptolmean", "repsizemean")
     results = tibble()
-    for (filepath in files) {
+    for (filepath in popfiles) {
         nexttsv = read_tsv(filepath) %>% select(all_of(metrics)) %>%
             mutate(Scenario=str_replace(conf, "_\\d+\\.config", "")) %>%
             select(-conf)
@@ -198,14 +200,16 @@ plotMaps = function(results, species=defaultspecies, date=worldend) {
 }
 
 ## Plot a grid of population & heterozygosity maps of the two specified scenarios
-##XXX This needs some more thought?
-plotMapGrid = function(results, scen1, scen2, spec=defaultspecies) {
-    gridplot = plot_grid(popmap(results, scen1, spec, plot=FALSE) + theme(legend.position="none"),
-                         hetmap(results, scen1, spec, plot=FALSE) + theme(legend.position="none"),
-                         popmap(results, scen2, spec, plot=FALSE) + theme(legend.position="none"),
-                         hetmap(results, scen2, spec, plot=FALSE) + theme(legend.position="none"),
+## scen1-4: names of scenarios to plot; metric: "population" or "heterozygosity"
+plotMapGrid = function(results, scen1, scen2, scen3, scen4, metric, spec=defaultspecies) {
+    if (metric == "population") { func = popmap }
+    else if (metric == "heterozygosity") { func = hetmap }
+    gridplot = plot_grid(func(results, scen1, spec, plot=FALSE) + theme(legend.position="none"),
+                         func(results, scen2, spec, plot=FALSE) + theme(legend.position="none"),
+                         func(results, scen3, spec, plot=FALSE) + theme(legend.position="none"),
+                         func(results, scen4, spec, plot=FALSE) + theme(legend.position="none"),
               ncol=2, align="vh", labels="auto")
-    ggsave(paste0("hybridisation_over_space_", experiment, "_", spec, ".pdf"),
+    ggsave(paste0(metric, "_over_space_", experiment, "_", spec, ".pdf"),
            gridplot, width=5, height=5)    
 }
 
@@ -215,7 +219,25 @@ plotAll = function(results, species=defaultspecies) {
     plotGrid(results, species)
     plotMaps(results, species)
     traitplot(results, species)
-    if (experiment == tolerance) { ##TODO this needs some more thought
-        plotMapGrid(results, "tolerance_0", "tolerance_1.0", species)
+    if (experiment == "tolerance") {
+        plotMapGrid(results, "tolerance_0", "tolerance_0.01",
+                    "tolerance_0.1", "tolerance_1.0", "population", species)
+        plotMapGrid(results, "tolerance_0", "tolerance_0.01",
+                    "tolerance_0.1", "tolerance_1.0", "heterozygosity", species)
+
     }
+    else if (experiment == "habitat") {
+        plotMapGrid(results, "habitat_edgedepletion", "habitat_patchclearing",
+                    "habitat_corridors", "habitat_plantations", "population", species)
+    }
+}
+
+## If autorun is set, run the experiment specified via commandline argument
+if (autorun) {
+    arg = commandArgs()[length(commandArgs())]
+    if (arg %in% c("tolerance", "habitat", "mutation", "linkage")) {
+        experiment = arg
+    }
+    results = loadData(experiment)
+    plotAll(results)
 }

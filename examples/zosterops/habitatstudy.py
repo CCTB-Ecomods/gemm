@@ -59,7 +59,7 @@ alternate_maps = ["taita_hills_default.map", "taita_hills_plantations.map",
                   "taita_hills_corridors.map", "taita_hills_edgedepletion.map",
                   "taita_hills_patchclearing.map"]
 
-alternate_mutationrates = ["0", "3.6e9", "3.6e10", "3.6e11"]
+alternate_mutationrates = ["0", "3.6e09", "3.6e10", "3.6e11"]
 
 alternate_linkages = ["none", "random", "full"]
 
@@ -97,8 +97,7 @@ def run_default():
     print("Running a default simulation.")
     conf = "zosterops_default.config"
     dest = "results/taita_hills"
-    if not os.path.exists(default_settings["maps"]):
-        shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
+    shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
     if os.path.exists(dest):
         if input("Delete old test data? (y/n) ") == 'y':
             shutil.rmtree(dest)
@@ -118,8 +117,7 @@ def run_hybridisation_experiment(seed1, seedN):
     """
     print("Running "+str(seedN-seed1+1)+" replicates of the hybridisation experiment.")
     running_sims = []
-    if default_settings["maps"] not in os.listdir():
-        shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
+    shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
     seed = seed1
     while seed <= seedN:
         for t in alternate_tolerances:
@@ -159,8 +157,7 @@ def run_linkage_experiment(seed1, seedN):
     """
     print("Running "+str(seedN-seed1+1)+" replicates of the linkage experiment.")
     running_sims = []
-    if default_settings["maps"] not in os.listdir():
-        shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
+    shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
     seed = seed1
     while seed <= seedN:
         for l in alternate_linkages:
@@ -172,7 +169,7 @@ def run_linkage_experiment(seed1, seedN):
     for s in running_sims:
         s.wait()
         
-def run_habitat_experiment(seed1, seedN):
+def run_habitat_experiment(seed1, seedN, tolerance=0.1):
     """
     Launch a set of replicate simulations for the habitat fragmentation experiment.
     Starts one run for each map scenario for each replicate seed from 1 to N.
@@ -182,10 +179,11 @@ def run_habitat_experiment(seed1, seedN):
     seed = seed1
     while seed <= seedN:
         for m in alternate_maps:
-            if m not in os.listdir():
-                shutil.copy("examples/zosterops/"+m, ".")
-            conf = "habitat_"+m.split("_")[2][:-4]+"_"+str(seed)
-            write_config(conf+".config", "results/"+conf, seed, maps=m)
+            shutil.copy("examples/zosterops/"+m, ".")
+            conf = "habitat_"+m.split("_")[2][:-4]
+            if tolerance != 0.1: conf = conf+"_tolerance"+str(tolerance)
+            conf = conf+"_"+str(seed)
+            write_config(conf+".config", "results/"+conf, seed, maps=m, tolerance=tolerance)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
         seed = seed + 1
@@ -197,18 +195,20 @@ def run_habitat_experiment(seed1, seedN):
         
 ## USAGE OPTIONS:
 ## ./habitatstudy.py [archive/default]
-## ./habitatstudy.py [hybrid/habitat/mutation/linkage] <seed1> <seedN>
+## ./habitatstudy.py [hybrid/habitat/mutation/linkage] <seed1> <seedN> [tolerance]
 if __name__ == '__main__':
     archive_code()
     if len(sys.argv) < 2 or sys.argv[1] == "default":
         run_default()
     elif sys.argv[1] == "archive":
         pass #only archive the code
-    elif "hybrid" in sys.argv[1]:
+    elif sys.argv[1] == "hybrid":
         run_hybridisation_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif "habitat" in sys.argv[1]:
-        run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif "mutation" in sys.argv[1]:
+    elif sys.argv[1] == "habitat":
+        if len(sys.argv) > 4: #if the tolerance is specified
+            run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
+        else: run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]))
+    elif sys.argv[1] == "mutation":
         run_mutation_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif "linkage" in sys.argv[1]:
+    elif sys.argv[1] == "linkage":
         run_linkage_experiment(int(sys.argv[2]), int(sys.argv[3]))

@@ -139,6 +139,8 @@
 		- [X] maps of spatial population distribution (and free patches)
 		- [X] maps of spatial heterozygosity distribution
 		- [X] trait shift after simulation end
+		- [ ] trend divergence after simulation end
+		- [ ] home range heterozygosity
 		- [ ] percent carrying capacity and free patches over time
 		- [ ] statistical tests of scenario outcomes
 		- [ ] comparison of *Z.silvanus* with *Z.flavilateralis*

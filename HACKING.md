@@ -75,7 +75,9 @@ This is the procedure for running the hybridisation experiments (a.k.a. Daniel's
    of each scenario of the given experiment for each seed. Runs are launched in parallel with one
    run per processor core, so make sure you have enough cores! (For example, running
    `./habitatstudy.py hybrid 6 10` will launch six scenarios with 5 replicates (6 through 10),
-   making for a total of 30 cores.) The script waits until all runs have completed, then terminates.
+   making for a total of 30 cores.) Also, make sure you have enough harddrive storage space for
+   the output (can be several GB per run.) The script waits until all runs have completed, then 
+   terminates.
    
 3. **Analysing the data:** By default, model output data is stored in `results`, with one folder
    per simulation run. The folder name designates the experiment, scenario, and replicate number.
