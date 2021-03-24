@@ -206,7 +206,7 @@ if __name__ == '__main__':
         run_hybridisation_experiment(int(sys.argv[2]), int(sys.argv[3]))
     elif sys.argv[1] == "habitat":
         if len(sys.argv) > 4: #if the tolerance is specified
-            run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
+            run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))
         else: run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]))
     elif sys.argv[1] == "mutation":
         run_mutation_experiment(int(sys.argv[2]), int(sys.argv[3]))

@@ -52,6 +52,7 @@ adultplot = function(results, species=defaultspecies) {
     ##globalcapacity = results %>% filter(time==0, Scenario=="tol0") %>% select(capacity) %>% sum()
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(popsize=sum(adults)) %>%
+        mutate(Scenario=str_replace(Scenario, "^[a-z]+_", "")) %>%
         ggplot(aes(time, popsize, group=Scenario)) + #ylim(c(0,80000)) +
         ##geom_hline(aes(yintercept=globalcapacity), linetype=2, color="grey", size=0.5) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
@@ -65,6 +66,7 @@ adultplot = function(results, species=defaultspecies) {
 hetplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(pophet=mean(heterozygosity)) %>%
+        mutate(Scenario=str_replace(Scenario, "^[a-z]+_", "")) %>%
         ggplot(aes(time, pophet, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -77,6 +79,7 @@ hetplot = function(results, species=defaultspecies) {
 precoptplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(popprec=mean(precoptmean)) %>%
+        mutate(Scenario=str_replace(Scenario, "^[a-z]+_", "")) %>%
         ggplot(aes(time, popprec, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -90,6 +93,7 @@ precoptplot = function(results, species=defaultspecies) {
 prectolplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(popprec=mean(prectolmean)) %>%
+        mutate(Scenario=str_replace(Scenario, "^[a-z]+_", "")) %>%
         ggplot(aes(time, popprec, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -134,6 +138,7 @@ popmap = function(results, scenario, species=defaultspecies, date=worldend, plot
 
 ## trait shift after time
 traitplot = function(results, species=defaultspecies) {
+    experiment = str_replace(results$Scenario[1], "_\\w+", "")
     filteredresults = results %>% filter((time==0 | time==worldend) & lineage==species) %>%
         mutate(Scenario=as.factor(Scenario)) %>% group_by(time, Scenario, replicate) %>%
         summarise(precopt=mean(precoptmean), prectol=mean(prectolmean),
@@ -149,7 +154,8 @@ traitplot = function(results, species=defaultspecies) {
                                  temptol=endtraits$temptol-inittraits$temptol,
                                  dispmean=endtraits$dispmeans-inittraits$dispmeans,
                                  dispshape=endtraits$dispshape-inittraits$dispshape)) %>%
-        mutate(precopt=as.numeric(precopt), prectol=as.numeric(prectol),
+        mutate(Scenario=str_replace(Scenario, paste0("^", experiment, "_"), ""),
+               precopt=as.numeric(precopt), prectol=as.numeric(prectol),
                dispmean=as.numeric(dispmean), dispshape=as.numeric(dispshape),
                tempopt=as.numeric(tempopt), temptol=as.numeric(temptol)) %>%
         melt(id.vars=c("Scenario"), variable.name="Trait")
@@ -162,6 +168,26 @@ traitplot = function(results, species=defaultspecies) {
         xlab("") + ylab(paste("Shift in population trait means after", worldend, "years")) +
         coord_flip() + scale_fill_npg(guide="none")
     ggsave(paste0("trait_means_", experiment, "_", species, ".pdf"), width = 6, height = 7)
+}
+
+## boxplot of population growths after simulation end
+growthplot = function(results, species=defaultspecies) {
+    experiment = str_replace(results$Scenario[1], "_\\w+", "")
+    filteredresults = results %>% group_by(time, Scenario, replicate) %>%
+        filter(lineage %in% species) %>% summarise(popsize=sum(adults))
+    initpops = filteredresults %>% filter(time==0)
+    endpops = filteredresults %>% filter(time==worldend)
+    endresults = as_tibble(cbind(Scenario=as.character(endpops$Scenario),
+                                 popgrowth=endpops$popsize-initpops$popsize)) %>%
+        mutate(Scenario=str_replace(Scenario, paste0("^", experiment, "_"), ""),
+               popgrowth=as.numeric(popgrowth))
+
+    effects = endresults %>% ggplot(aes(Scenario, popgrowth)) +
+        geom_violin(aes(fill=Scenario)) +
+        geom_boxplot(fill="white", width=0.1) +
+        ylab("Population growth after 300 years") + xlab(experiment) +
+        scale_fill_viridis_d(guide="none") + theme_bw()
+    ggsave(paste0("population_growth_", experiment, "_", species, ".pdf"), width=5, height=5)
 }
 
 
@@ -219,6 +245,7 @@ plotAll = function(results, species=defaultspecies) {
     plotGrid(results, species)
     plotMaps(results, species)
     traitplot(results, species)
+    growthplot(results, species)
     if (experiment == "tolerance") {
         plotMapGrid(results, "tolerance_0", "tolerance_0.01",
                     "tolerance_0.1", "tolerance_1.0", "population", species)
