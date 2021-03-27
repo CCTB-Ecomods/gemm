@@ -138,7 +138,6 @@ popmap = function(results, scenario, species=defaultspecies, date=worldend, plot
 
 ## trait shift after time
 traitplot = function(results, species=defaultspecies) {
-    experiment = str_replace(results$Scenario[1], "_\\w+", "")
     filteredresults = results %>% filter((time==0 | time==worldend) & lineage==species) %>%
         mutate(Scenario=as.factor(Scenario)) %>% group_by(time, Scenario, replicate) %>%
         summarise(precopt=mean(precoptmean), prectol=mean(prectolmean),
@@ -172,12 +171,13 @@ traitplot = function(results, species=defaultspecies) {
 
 ## boxplot of population growths after simulation end
 growthplot = function(results, species=defaultspecies) {
-    experiment = str_replace(results$Scenario[1], "_\\w+", "")
     filteredresults = results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(popsize=sum(adults))
     initpops = filteredresults %>% filter(time==0)
     endpops = filteredresults %>% filter(time==worldend)
-    endresults = as_tibble(cbind(Scenario=as.character(endpops$Scenario),
+    #FIXME not all runs present in initpops are also present in endpops!
+    print(paste(dim(initpops)[1]-dim(endpops)[1], "extinctions"))
+    endresults = as_tibble(cbind(Scenario=as.character(initpops$Scenario),
                                  popgrowth=endpops$popsize-initpops$popsize)) %>%
         mutate(Scenario=str_replace(Scenario, paste0("^", experiment, "_"), ""),
                popgrowth=as.numeric(popgrowth))
@@ -225,7 +225,7 @@ plotMaps = function(results, species=defaultspecies, date=worldend) {
     }
 }
 
-## Plot a grid of population & heterozygosity maps of the two specified scenarios
+## Plot a grid of population & heterozygosity maps of the four specified scenarios
 ## scen1-4: names of scenarios to plot; metric: "population" or "heterozygosity"
 plotMapGrid = function(results, scen1, scen2, scen3, scen4, metric, spec=defaultspecies) {
     if (metric == "population") { func = popmap }
@@ -236,6 +236,20 @@ plotMapGrid = function(results, scen1, scen2, scen3, scen4, metric, spec=default
                          func(results, scen4, spec, plot=FALSE) + theme(legend.position="none"),
               ncol=2, align="vh", labels="auto")
     ggsave(paste0(metric, "_over_space_", experiment, "_", spec, ".pdf"),
+           gridplot, width=5, height=5)    
+}
+
+## Plot a grid of population & heterozygosity maps of the two specified time steps
+## scen: name of scenario; t1-4: timesteps to plot; metric: "population" or "heterozygosity"
+plotMapTimeseries = function(results, scen, t1, t2, t3, t4, metric, spec=defaultspecies) {
+    if (metric == "population") { func = popmap }
+    else if (metric == "heterozygosity") { func = hetmap }
+    gridplot = plot_grid(func(results, scen, spec, t1, plot=FALSE) + theme(legend.position="none"),
+                         func(results, scen, spec, t2, plot=FALSE) + theme(legend.position="none"),
+                         func(results, scen, spec, t3, plot=FALSE) + theme(legend.position="none"),
+                         func(results, scen, spec, t4, plot=FALSE) + theme(legend.position="none"),
+              ncol=2, align="vh", labels=c(t1, t2, t3, t4))
+    ggsave(paste0(metric, "_over_space_timeseries_", experiment, "_", spec, ".pdf"),
            gridplot, width=5, height=5)    
 }
 

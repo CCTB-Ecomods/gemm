@@ -44,13 +44,15 @@ default_settings = {
     "minrepsize":2.3,
     "maxtemp":303,
     "mintemp":283,
+    "metabolicdeath":"false",
+    "mortality":0.125,
     "heterozygosity":"true",
     # species parameters
     "species":'[Dict("lineage"=>"silvanus","precopt"=>180,"prectol"=>90,"tempopt"=>293,"temptol"=>2),Dict("lineage"=>"flavilateralis","precopt"=>50,"prectol"=>47,"tempopt"=>293,"temptol"=>2)]',
     "traitnames":'["compat","dispmean","dispshape","numpollen","precopt","prectol","repsize","seqsimilarity","seedsize","tempopt","temptol"]',
     # variable parameters
     "maps":"taita_hills.map",
-    "tolerance":0.1 #TODO is this sensible?
+    "tolerance":0.01
 }
 
 alternate_tolerances = [0, 0.01, 0.05, 0.1, 0.5, 1.0]
@@ -169,7 +171,7 @@ def run_linkage_experiment(seed1, seedN):
     for s in running_sims:
         s.wait()
         
-def run_habitat_experiment(seed1, seedN, tolerance=0.1):
+def run_habitat_experiment(seed1, seedN, tolerance=default_settings["tolerance"]):
     """
     Launch a set of replicate simulations for the habitat fragmentation experiment.
     Starts one run for each map scenario for each replicate seed from 1 to N.
@@ -180,9 +182,7 @@ def run_habitat_experiment(seed1, seedN, tolerance=0.1):
     while seed <= seedN:
         for m in alternate_maps:
             shutil.copy("examples/zosterops/"+m, ".")
-            conf = "habitat_"+m.split("_")[2][:-4]
-            if tolerance != 0.1: conf = conf+"_tolerance"+str(tolerance)
-            conf = conf+"_"+str(seed)
+            conf = "habitat_tol"+str(tolerance)+m.split("_")[2][:-4]+"_"+str(seed)
             write_config(conf+".config", "results/"+conf, seed, maps=m, tolerance=tolerance)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
@@ -206,7 +206,7 @@ if __name__ == '__main__':
         run_hybridisation_experiment(int(sys.argv[2]), int(sys.argv[3]))
     elif sys.argv[1] == "habitat":
         if len(sys.argv) > 4: #if the tolerance is specified
-            run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))
+            run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]), sys.argv[4])
         else: run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]))
     elif sys.argv[1] == "mutation":
         run_mutation_experiment(int(sys.argv[2]), int(sys.argv[3]))
