@@ -40,6 +40,7 @@ function defaultSettings()
         "maxrepsize" => 14.0, # maximal repsize in grams calculated as exp(maxrepsize) -> 1.2 t
         "maxseedsize" => 10.0, # maximal seedsize in grams calculated as exp(maxseedsize) -> 22 kg
         "maxtemp" => 313.0, # max optimum temp in K
+        "metabolicdeath" => true, # if false, `mortality` gives absolute per-update mortality probability
         "minprec" => 0.0, # min optimum precipitation
         "minrepsize" => 3.0, # minimal repsize in grams calculated as exp(minrepsize) -> 20 g
         "minseedsize" => -2.0, # minimal seedsize in grams calculated as exp(minseedsize) -> 0.14 g

@@ -106,7 +106,7 @@ function zgenesis(patch::Patch)
     end
     (isempty(species)) && return community
     # calculate the number of initial breeding pairs and add a male and a female for each
-    npairs = Integer(round(patch.capacity/2))
+    npairs = Integer(rand(0:round(patch.capacity/2)))
     for i in 1:npairs
         sp = rand(species)
         m = getzosteropsspecies(sp, male)
@@ -292,14 +292,5 @@ function findneighbours!(world::Array{Patch,1})
             end
         end
     end
-end
-
-"""
-    idstring(individual)
-
-A small utility function that returns a string identifier for a given individual.
-"""
-function idstring(bird::Individual)
-    return "Z."*bird.lineage*" "*string(bird.id)
 end
 

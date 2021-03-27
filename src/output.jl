@@ -452,3 +452,13 @@ function freespace(world::Array{Patch,1})
     end
     round((space/length(world))/1e6, digits = 3)
 end
+
+
+"""
+    idstring(individual)
+
+A small utility function that returns a string identifier for a given individual.
+"""
+function idstring(ind::Individual)
+    return ind.lineage*" "*string(ind.id)
+end

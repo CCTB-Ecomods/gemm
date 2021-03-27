@@ -15,11 +15,16 @@ function survive!(patch::Patch)
     idx = 1
     while idx <= size(patch.community,1)
         if !patch.community[idx].marked
-            mass = patch.community[idx].size
-            deathrate = setting("mortality") * mass^(-1/4) * exp(-act/(boltz*temp))
-            dieprob = (1 - exp(-deathrate))
-            if rand() * patch.community[idx].tempadaptation < dieprob
-                #XXX `idstring()` is zosterops-specific
+            dies = false
+            if setting("metabolicdeath")
+                mass = patch.community[idx].size
+                deathrate = setting("mortality") * mass^(-1/4) * exp(-act/(boltz*temp))
+                dieprob = (1 - exp(-deathrate))
+                (rand() * patch.community[idx].tempadaptation < dieprob) && (dies = true)
+            else
+                (rand() < setting("mortality")) && (dies = true)
+            end
+            if dies
                 @simlog("$(idstring(patch.community[idx])) has died.", 'd')
                 splice!(patch.community, idx)
                 continue
