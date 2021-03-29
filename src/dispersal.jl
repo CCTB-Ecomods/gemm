@@ -60,6 +60,9 @@ function establish!(patch::Patch)
     idx = 1
     while idx <= size(patch.community,1)
         if patch.community[idx].marked
+            #TODO make this section configurable?
+            # (At the moment, tempadaptation and precadaptation aren't actually needed
+            # for the Zosterops experiments, so they are needlessly calculated.)
             opt = patch.community[idx].traits["tempopt"]
             tol = patch.community[idx].traits["temptol"]
             fitness = gausscurve(opt, tol, temp, 0.0)

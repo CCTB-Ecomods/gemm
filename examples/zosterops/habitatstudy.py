@@ -111,7 +111,10 @@ def run_default():
 
 
 ## EXPERIMENT FUNCTIONS
-    
+
+## TODO write a generic experiment function
+## def run_experiment(configs)
+
 def run_hybridisation_experiment(seed1, seedN):
     """
     Launch a set of replicate simulations for the hybridisation experiment.
@@ -125,6 +128,25 @@ def run_hybridisation_experiment(seed1, seedN):
         for t in alternate_tolerances:
             conf = "tolerance_"+str(t)+"_"+str(seed)
             write_config(conf+".config", "results/"+conf, seed, tolerance=t)
+            sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
+            running_sims.append(sim)
+        seed = seed + 1
+    for s in running_sims:
+        s.wait()
+        
+def run_habitat_experiment(seed1, seedN, tolerance=default_settings["tolerance"]):
+    """
+    Launch a set of replicate simulations for the habitat fragmentation experiment.
+    Starts one run for each map scenario for each replicate seed from 1 to N.
+    """
+    print("Running "+str(seedN-seed1+1)+" replicates of the habitat fragmentation experiment.")
+    running_sims = []
+    seed = seed1
+    while seed <= seedN:
+        for m in alternate_maps:
+            shutil.copy("examples/zosterops/"+m, ".")
+            conf = "habitat_tol"+str(tolerance)+"_"+m.split("_")[2][:-4]+"_"+str(seed)
+            write_config(conf+".config", "results/"+conf, seed, maps=m, tolerance=tolerance)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
         seed = seed + 1
@@ -170,39 +192,41 @@ def run_linkage_experiment(seed1, seedN):
         seed = seed + 1
     for s in running_sims:
         s.wait()
-        
-def run_habitat_experiment(seed1, seedN, tolerance=default_settings["tolerance"]):
+
+def run_long_experiment(seed1, seedN):
     """
-    Launch a set of replicate simulations for the habitat fragmentation experiment.
-    Starts one run for each map scenario for each replicate seed from 1 to N.
+    Launch a set of replicate simulations for the long experiment (= hybridisation
+    experiment with 1000 timesteps).
     """
-    print("Running "+str(seedN-seed1+1)+" replicates of the habitat fragmentation experiment.")
+    print("Running "+str(seedN-seed1+1)+" replicates of the long experiment.")
     running_sims = []
+    mapfile = "taita_hills_long.map"
+    shutil.copy("examples/zosterops/"+default_settings["maps"], mapfile)
+    os.system('sed -e "4s/300/1000/" -i '+mapfile)
     seed = seed1
     while seed <= seedN:
-        for m in alternate_maps:
-            shutil.copy("examples/zosterops/"+m, ".")
-            conf = "habitat_tol"+str(tolerance)+m.split("_")[2][:-4]+"_"+str(seed)
-            write_config(conf+".config", "results/"+conf, seed, maps=m, tolerance=tolerance)
+        for t in alternate_tolerances:
+            conf = "tolerance_long_"+str(t)+"_"+str(seed)
+            write_config(conf+".config", "results/"+conf, seed, tolerance=t,
+                         maps=mapfile, outfreq=25)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
         seed = seed + 1
     for s in running_sims:
         s.wait()
 
-
 ## RUNTIME SCRIPT
         
 ## USAGE OPTIONS:
 ## ./habitatstudy.py [archive/default]
-## ./habitatstudy.py [hybrid/habitat/mutation/linkage] <seed1> <seedN> [tolerance]
+## ./habitatstudy.py [tolerance/habitat/mutation/linkage] <seed1> <seedN> [tolerance]
 if __name__ == '__main__':
     archive_code()
     if len(sys.argv) < 2 or sys.argv[1] == "default":
         run_default()
     elif sys.argv[1] == "archive":
         pass #only archive the code
-    elif sys.argv[1] == "hybrid":
+    elif sys.argv[1] == "tolerance":
         run_hybridisation_experiment(int(sys.argv[2]), int(sys.argv[3]))
     elif sys.argv[1] == "habitat":
         if len(sys.argv) > 4: #if the tolerance is specified
@@ -212,3 +236,5 @@ if __name__ == '__main__':
         run_mutation_experiment(int(sys.argv[2]), int(sys.argv[3]))
     elif sys.argv[1] == "linkage":
         run_linkage_experiment(int(sys.argv[2]), int(sys.argv[3]))
+    elif sys.argv[1] == "long":
+        run_long_experiment(int(sys.argv[2]), int(sys.argv[3]))

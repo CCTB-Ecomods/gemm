@@ -52,7 +52,7 @@ adultplot = function(results, species=defaultspecies) {
     ##globalcapacity = results %>% filter(time==0, Scenario=="tol0") %>% select(capacity) %>% sum()
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(popsize=sum(adults)) %>%
-        mutate(Scenario=str_replace(Scenario, "^[a-z]+_", "")) %>%
+        mutate(Scenario=str_replace(Scenario, paste0("^", experiment, "_"), "")) %>%
         ggplot(aes(time, popsize, group=Scenario)) + #ylim(c(0,80000)) +
         ##geom_hline(aes(yintercept=globalcapacity), linetype=2, color="grey", size=0.5) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
@@ -66,7 +66,7 @@ adultplot = function(results, species=defaultspecies) {
 hetplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(pophet=mean(heterozygosity)) %>%
-        mutate(Scenario=str_replace(Scenario, "^[a-z]+_", "")) %>%
+        mutate(Scenario=str_replace(Scenario, paste0("^", experiment, "_"), "")) %>%
         ggplot(aes(time, pophet, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -79,7 +79,7 @@ hetplot = function(results, species=defaultspecies) {
 precoptplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(popprec=mean(precoptmean)) %>%
-        mutate(Scenario=str_replace(Scenario, "^[a-z]+_", "")) %>%
+        mutate(Scenario=str_replace(Scenario, paste0("^", experiment, "_"), "")) %>%
         ggplot(aes(time, popprec, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -93,7 +93,7 @@ precoptplot = function(results, species=defaultspecies) {
 prectolplot = function(results, species=defaultspecies) {
     results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(popprec=mean(prectolmean)) %>%
-        mutate(Scenario=str_replace(Scenario, "^[a-z]+_", "")) %>%
+        mutate(Scenario=str_replace(Scenario, paste0("^", experiment, "_"), "")) %>%
         ggplot(aes(time, popprec, group=Scenario)) +
         stat_summary(aes(color=Scenario), fun.y = mean, geom="line", size=1) +
         stat_summary(fun.data=mean_cl_boot, geom="ribbon", alpha=0.1) +
@@ -249,7 +249,7 @@ plotMapTimeseries = function(results, scen, t1, t2, t3, t4, metric, spec=default
                          func(results, scen, spec, t3, plot=FALSE) + theme(legend.position="none"),
                          func(results, scen, spec, t4, plot=FALSE) + theme(legend.position="none"),
               ncol=2, align="vh", labels=c(t1, t2, t3, t4))
-    ggsave(paste0(metric, "_over_space_timeseries_", experiment, "_", spec, ".pdf"),
+    ggsave(paste0(metric, "_over_space_timeseries_", scen, "_", spec, ".pdf"),
            gridplot, width=5, height=5)    
 }
 
@@ -257,20 +257,21 @@ plotMapTimeseries = function(results, scen, t1, t2, t3, t4, metric, spec=default
 plotAll = function(results, species=defaultspecies) {
     plotSingle(results, species)
     plotGrid(results, species)
-    plotMaps(results, species)
+    ##plotMaps(results, species)
     traitplot(results, species)
     growthplot(results, species)
-    if (experiment == "tolerance") {
+    if ("tolerance" %in% experiment) {
         plotMapGrid(results, "tolerance_0", "tolerance_0.01",
                     "tolerance_0.1", "tolerance_1.0", "population", species)
         plotMapGrid(results, "tolerance_0", "tolerance_0.01",
                     "tolerance_0.1", "tolerance_1.0", "heterozygosity", species)
 
     }
-    else if (experiment == "habitat") {
+    else if ("habitat" %in% experiment) {
         plotMapGrid(results, "habitat_edgedepletion", "habitat_patchclearing",
                     "habitat_corridors", "habitat_plantations", "population", species)
     }
+    if (species=="silvanus") { plotGrid(results, "flavilateralis") }
 }
 
 ## If autorun is set, run the experiment specified via commandline argument

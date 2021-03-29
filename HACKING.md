@@ -69,12 +69,12 @@ This is the procedure for running the hybridisation experiments (a.k.a. Daniel's
    you want to run, and that the `default_settings` are as you wish them to be. All needed
    map files must be located in `examples/zosterops`. Then launch a batch of simulations with
    the bash command `./habitstudy.py <experiment> <seed1> <seedN>`. `<experiment>` can be
-   one of "hybrid", "habitat", "mutation", or "linkage". The seeds specify the range of replicates
+   one of "tolerance", "habitat", "mutation", or "linkage". The seeds specify the range of replicates
    to be run. (Simulations are assigned their replicate number as the RNG seed, so all simulations
    in the same replicate start with identical conditions.) The script launches one simulation run
    of each scenario of the given experiment for each seed. Runs are launched in parallel with one
    run per processor core, so make sure you have enough cores! (For example, running
-   `./habitatstudy.py hybrid 6 10` will launch six scenarios with 5 replicates (6 through 10),
+   `./habitatstudy.py tolerance 6 10` will launch six scenarios with 5 replicates (6 through 10),
    making for a total of 30 cores.) Also, make sure you have enough harddrive storage space for
    the output (can be several GB per run.) The script waits until all runs have completed, then 
    terminates.
