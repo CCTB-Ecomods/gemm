@@ -171,17 +171,34 @@ traitplot = function(results, species=defaultspecies) {
 
 ## boxplot of population growths after simulation end
 growthplot = function(results, species=defaultspecies) {
+    ## Calculate population sizes at the start and end of each run
     filteredresults = results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(popsize=sum(adults))
     initpops = filteredresults %>% filter(time==0)
     endpops = filteredresults %>% filter(time==worldend)
-    #FIXME not all runs present in initpops are also present in endpops!
-    print(paste(dim(initpops)[1]-dim(endpops)[1], "extinctions"))
     endresults = as_tibble(cbind(Scenario=as.character(initpops$Scenario),
-                                 popgrowth=endpops$popsize-initpops$popsize)) %>%
+                                 popgrowth=initpops$popsize)) %>%
         mutate(Scenario=str_replace(Scenario, paste0("^", experiment, "_"), ""),
                popgrowth=as.numeric(popgrowth))
+    ## Calculate the population difference (i.e. growth), keeping in mind that
+    ## due to extinctions not all runs present in initpops are also present in endpops
+    print(paste(dim(initpops)[1]-dim(endpops)[1], "extinctions"))
+    i = 1
+    j = 1
+    while (i <= dim(initpops)[1]) {
+        if ((j <= dim(endpops)[1]) && (initpops[i,]$Scenario == endpops[j,]$Scenario) &&
+            (initpops[i,]$replicate == endpops[j,]$replicate)) {
+            endresults[i,]$popgrowth = endpops[j,]$popsize - initpops[i,]$popsize
+            i = i+1
+            j = j+1
+        }
+        else {
+            endresults[i,]$popgrowth = 0 - initpops[i,]$popsize
+            i = i+1
+        }
+    }
 
+    ## Plot the effective growth as violin/boxplot
     effects = endresults %>% ggplot(aes(Scenario, popgrowth)) +
         geom_violin(aes(fill=Scenario)) +
         geom_boxplot(fill="white", width=0.1) +
@@ -261,15 +278,28 @@ plotAll = function(results, species=defaultspecies) {
     traitplot(results, species)
     growthplot(results, species)
     if ("tolerance" %in% experiment) {
-        plotMapGrid(results, "tolerance_0", "tolerance_0.01",
-                    "tolerance_0.1", "tolerance_1.0", "population", species)
-        plotMapGrid(results, "tolerance_0", "tolerance_0.01",
-                    "tolerance_0.1", "tolerance_1.0", "heterozygosity", species)
-
+        plotMapGrid(results, paste0(experiment, "_0"),
+                    paste0(experiment, "_0.01"),
+                    paste0(experiment, "_0.1"),
+                    paste0(experiment, "_1.0"),
+                    "population", species)
+        plotMapGrid(results, paste0(experiment, "_0"),
+                    paste0(experiment, "_0.01"),
+                    paste0(experiment, "_0.1"),
+                    paste0(experiment, "_1.0"),
+                    "heterozygosity", species)
     }
     else if ("habitat" %in% experiment) {
-        plotMapGrid(results, "habitat_edgedepletion", "habitat_patchclearing",
-                    "habitat_corridors", "habitat_plantations", "population", species)
+        plotMapGrid(results, paste0(experiment, "_edgedepletion"),
+                    paste0(experiment, "_patchclearing"),
+                    paste0(experiment, "_corridors"),
+                    paste0(experiment, "_plantations"),
+                    "population", species)
+        plotMapGrid(results, paste0(experiment, "_edgedepletion"),
+                    paste0(experiment, "_patchclearing"),
+                    paste0(experiment, "_corridors"),
+                    paste0(experiment, "_plantations"),
+                    "heterozygosity", species)
     }
     if (species=="silvanus") { plotGrid(results, "flavilateralis") }
 }
