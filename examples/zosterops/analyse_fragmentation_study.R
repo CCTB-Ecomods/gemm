@@ -27,7 +27,7 @@ defaultspecies = "silvanus"
 
 ## read and pre-process data
 loadData = function(exp=experiment, saveData=TRUE) {
-    popfiles = Sys.glob(paste0(datadir, "/*", exp, "*/*tsv"))
+    popfiles = Sys.glob(paste0(datadir, "/*", exp, "_*/*tsv"))
     metrics = c("time", "x", "y", "prec", "capacity", "replicate", "conf",
                 "lineage", "adults", "heterozygosity", "precadaptationmean",
                 "dispmeanmean", "dispmeanstd", "dispshapemean", "dispshapestd",
@@ -141,7 +141,7 @@ traitplot = function(results, species=defaultspecies) {
     filteredresults = results %>% filter((time==0 | time==worldend) & lineage==species) %>%
         mutate(Scenario=as.factor(Scenario)) %>% group_by(time, Scenario, replicate) %>%
         summarise(precopt=mean(precoptmean), prectol=mean(prectolmean),
-                  repsize=mean(repsizemean),tempopt=mean(tempoptmean),temptol=mean(temptolmean),
+                  repsize=mean(repsizemean),#tempopt=mean(tempoptmean),temptol=mean(temptolmean),
                   dispmeans=mean(dispmeanmean), dispshape=mean(dispshapemean)) %>%
         select(-ends_with("mean"))
     inittraits = filteredresults %>% filter(time==0)
@@ -149,14 +149,14 @@ traitplot = function(results, species=defaultspecies) {
     endresults = as_tibble(cbind(Scenario=as.character(endtraits$Scenario),
                                  precopt=endtraits$precopt-inittraits$precopt,
                                  prectol=endtraits$prectol-inittraits$prectol,
-                                 tempopt=endtraits$tempopt-inittraits$tempopt,
-                                 temptol=endtraits$temptol-inittraits$temptol,
+                                 ##tempopt=endtraits$tempopt-inittraits$tempopt,
+                                 ##temptol=endtraits$temptol-inittraits$temptol,
                                  dispmean=endtraits$dispmeans-inittraits$dispmeans,
                                  dispshape=endtraits$dispshape-inittraits$dispshape)) %>%
         mutate(Scenario=str_replace(Scenario, paste0("^", experiment, "_"), ""),
                precopt=as.numeric(precopt), prectol=as.numeric(prectol),
-               dispmean=as.numeric(dispmean), dispshape=as.numeric(dispshape),
-               tempopt=as.numeric(tempopt), temptol=as.numeric(temptol)) %>%
+               dispmean=as.numeric(dispmean), dispshape=as.numeric(dispshape)) %>%
+               ##tempopt=as.numeric(tempopt), temptol=as.numeric(temptol)) %>%
         melt(id.vars=c("Scenario"), variable.name="Trait")
 
     traitresponses = endresults %>% 
@@ -166,16 +166,16 @@ traitplot = function(results, species=defaultspecies) {
         facet_wrap(~Trait, scales="free", ncol=2) +
         xlab("") + ylab(paste("Shift in population trait means after", worldend, "years")) +
         coord_flip() + scale_fill_npg(guide="none")
-    ggsave(paste0("trait_means_", experiment, "_", species, ".pdf"), width = 6, height = 7)
+    ggsave(paste0("trait_means_", experiment, "_", species, ".pdf"), width = 6, height = 5)
 }
 
 ## boxplot of population growths after simulation end
-growthplot = function(results, species=defaultspecies) {
+growthplot = function(results, species=defaultspecies, endtime=worldend) {
     ## Calculate population sizes at the start and end of each run
     filteredresults = results %>% group_by(time, Scenario, replicate) %>%
         filter(lineage %in% species) %>% summarise(popsize=sum(adults))
     initpops = filteredresults %>% filter(time==0)
-    endpops = filteredresults %>% filter(time==worldend)
+    endpops = filteredresults %>% filter(time==endtime)
     endresults = as_tibble(cbind(Scenario=as.character(initpops$Scenario),
                                  popgrowth=initpops$popsize)) %>%
         mutate(Scenario=str_replace(Scenario, paste0("^", experiment, "_"), ""),
@@ -202,7 +202,7 @@ growthplot = function(results, species=defaultspecies) {
     effects = endresults %>% ggplot(aes(Scenario, popgrowth)) +
         geom_violin(aes(fill=Scenario)) +
         geom_boxplot(fill="white", width=0.1) +
-        ylab("Population growth after 300 years") + xlab(experiment) +
+        ylab(paste0("Population growth after ", endtime, " years")) + xlab(experiment) +
         scale_fill_viridis_d(guide="none") + theme_bw()
     ggsave(paste0("population_growth_", experiment, "_", species, ".pdf"), width=5, height=5)
 }

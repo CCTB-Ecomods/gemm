@@ -139,18 +139,17 @@
 		- [X] maps of spatial population distribution (and free patches)
 		- [X] maps of spatial heterozygosity distribution
 		- [X] trait shift after simulation end
-		- [ ] trend divergence after simulation end
+		- [X] trend divergence after simulation end
 		- [ ] home range heterozygosity
 		- [ ] percent carrying capacity and free patches over time
-		- [ ] statistical tests of scenario outcomes
-		- [ ] comparison of *Z.silvanus* with *Z.flavilateralis*
+		- [X] comparison of *Z.silvanus* with *Z.flavilateralis*
 		- [ ] standing variation over time / between species
 		- [ ] comparison of habitat types (montane forest/plantation/savannah)
-		- [ ] letters on grid plots!
+		- [X] letters on grid plots!
 
 - [ ] conduct exploratory simulations with:
 		- [X] mutations/linkage
-		- [ ] habitat+hybridisation
+		- [X] habitat+hybridisation
 
 - [ ] update documentation
 		- [ ] Julia functions
