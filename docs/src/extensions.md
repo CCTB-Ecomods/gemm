@@ -17,8 +17,7 @@ Pages = ["habitatchange.jl"]
 
 Carry out species invasions experiments in an island setting.
 
-<!--FIXME Documenter.jl doesn't recognise function definitions that are not
-	on the top level - like the `invade!()` functions. -->
+*FIXME Documenter.jl doesn't recognise function definitions that are not on the top level - like the `invade!()` functions.*
 
 ```@autodocs
 Modules = [GeMM]
@@ -29,6 +28,12 @@ Pages = ["invasion.jl"]
 
 Adapt GeMM to investigate eco-evolutionary population dynamics of East-African
 Zosterops populations in the Taita Hills, Kenya.
+
+*FIXME Documenter.jl doesn't recognise function definitions that are not on the top level. This includes:*
+
+- `initzosteropsspecies()`
+- `getzosteropsspecies()`
+- `coordinate()`
 
 ```@autodocs
 Modules = [GeMM]

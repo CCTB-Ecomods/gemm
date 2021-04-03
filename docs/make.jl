@@ -2,7 +2,7 @@ push!(LOAD_PATH, "../src/")
 
 using Documenter, GeMM
 
-makedocs(sitename="Island Speciation Model",
+makedocs(sitename="GeMM",
          modules = [GeMM],
          pages = ["index.md",
                   "framework.md",
