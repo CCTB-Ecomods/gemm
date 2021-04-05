@@ -58,4 +58,4 @@ julia -p <NPROCS> rungemmparallel.jl -s <SEED> -n <NREPS> -c <CONFIG>
 where `<NPROCS>` = number of cores, `<SEED>` = integer value to set a random seed, 
 `<NREPS>` = number of replicates and `<CONFIG>` the configuration file.
 
-*Last updated: 2021-04-03 (commit 7457dd7)*  
+*Last updated: 2021-04-03 (commit 15350e9)*  

@@ -2,6 +2,10 @@
 
 echo "Preprocessing..."
 
+# write the functions.txt file (because Documenter.jl ignores indented functions)
+#FIXME this ignores functions that are explicitly marked as global :-/
+grep "^[[:blank:]]*function" ../src/*.jl | cut -f 4 -d "." | sed -e "s/^jl:[[:blank:]]*function //g" > functions.txt
+
 # include a date stamp with the latest commit
 sed -i -e "s/\*Last updated:.*/\*Last updated: $(git log --format="%cd (commit %h)" --date=short -1)\*  /" src/index.md 
 

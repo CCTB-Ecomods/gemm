@@ -119,6 +119,23 @@ hetmap = function(results, scenario, species=defaultspecies, date=worldend,  plo
     else { return(hetplot) }
 }
 
+## AGC optimum over space
+optmap = function(results, scenario, species=defaultspecies, date=worldend,  plot=TRUE) {
+    optplot = results %>% filter(time==date) %>% filter(Scenario==scenario) %>%
+        filter(lineage %in% species) %>% select(x, y, replicate, precoptmean) %>%
+        group_by(x, y) %>% summarise(avgopt=mean(precoptmean)) %>%
+        ggplot(aes(x, y, fill=avgopt)) +
+        geom_raster(interpolate=TRUE) +
+        scale_fill_gradient(low="lightgrey", high="darkgreen", guide="none") +
+        scale_y_reverse() + theme_void() +
+        theme(panel.border=element_rect(size=1, linetype="solid"))
+    if (plot) {
+        ggsave(paste0("agcopt_map_", scenario, "_", species, ".pdf"),
+               optplot, width=5, height=5)
+    }
+    else { return(optplot) }
+}
+
 ## population size over space
 popmap = function(results, scenario, species=defaultspecies, date=worldend, plot=TRUE) {
     popplot = results %>% filter(time==date) %>% filter(Scenario==scenario) %>%
