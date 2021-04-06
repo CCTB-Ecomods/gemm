@@ -7,6 +7,7 @@
 ### Licensed under the terms of the MIT license
 ###
 
+library(raster)
 library(tidyverse)
 library(ggplot2)
 library(cowplot) ## arrange ggplots in a grid
@@ -224,6 +225,39 @@ growthplot = function(results, species=defaultspecies, endtime=worldend) {
     ggsave(paste0("population_growth_", experiment, "_", species, ".pdf"), width=5, height=5)
 }
 
+## Calculate population density and heterozygosity in the known habitat patches of Z.silvanus
+homerange = function(results, scenario, date=worldend, write=TRUE) {
+    ## summarise population size and heterozygosity over space
+    spatialdata = results %>% filter(time==date) %>% filter(lineage=="silvanus") %>%
+        filter(Scenario==scenario) %>% select(x, y, replicate, adults, heterozygosity) %>%
+        group_by(x, y) %>% summarise(avgpop=mean(adults), avghet=mean(heterozygosity))
+    ## load the AGC and habitat patch GIS files
+    basemap = raster("taita_agc_resampled.tif") #Petri's AGC basemap
+    TH_patches = shapefile("silvanus_habitat_patches.shp") #the Patch shape files
+
+    ## create two new rasters (of the same extent as the AGC data) for population density and
+    ## heterozygosity, and fill them with values from the results
+    patchpop = basemap
+    patchpop[patchpop!=0] = NA
+    patchhet = patchpop
+    for(i in 1:nrow(spatialdata)){
+        cellNo = cellFromRowCol(patchpop, spatialdata$y[i], spatialdata$x[i])
+        patchpop[cellNo] = spatialdata$avgpop[i]
+        patchhet[cellNo] = spatialdata$avghet[i]
+    }
+    ## extract those raster cells that are inside a known habitat fragment
+    popvals = raster::extract(patchpop, TH_patches)
+    hetvals = raster::extract(patchhet, TH_patches)
+    res = data.frame(TH_patches$FRAG, unlist(lapply(vals, length)),
+                     unlist(lapply(popvals, mean, na.rm = T)),
+                     unlist(lapply(hetvals, mean, na.rm = T)))
+    names(res) = c("patch name","patch size [ha]", "density [ind/ha]", "heterozygosity [%]")
+
+    if (write) { ## save the the whole thing as a CSV table
+        write.csv(res, file=paste0("habitat_patches_", experiment, ".csv"))
+    }
+    else { return(res) }
+}
 
 ### GROUP PLOTS
 
@@ -264,6 +298,7 @@ plotMaps = function(results, species=defaultspecies, date=worldend) {
 plotMapGrid = function(results, scen1, scen2, scen3, scen4, metric, spec=defaultspecies) {
     if (metric == "population") { func = popmap }
     else if (metric == "heterozygosity") { func = hetmap }
+    else if (metric == "agc_opt") { func = optmap }
     gridplot = plot_grid(func(results, scen1, spec, plot=FALSE) + theme(legend.position="none"),
                          func(results, scen2, spec, plot=FALSE) + theme(legend.position="none"),
                          func(results, scen3, spec, plot=FALSE) + theme(legend.position="none"),
@@ -278,6 +313,7 @@ plotMapGrid = function(results, scen1, scen2, scen3, scen4, metric, spec=default
 plotMapTimeseries = function(results, scen, t1, t2, t3, t4, metric, spec=defaultspecies) {
     if (metric == "population") { func = popmap }
     else if (metric == "heterozygosity") { func = hetmap }
+    else if (metric == "agc_opt") { func = optmap }
     gridplot = plot_grid(func(results, scen, spec, t1, plot=FALSE) + theme(legend.position="none"),
                          func(results, scen, spec, t2, plot=FALSE) + theme(legend.position="none"),
                          func(results, scen, spec, t3, plot=FALSE) + theme(legend.position="none"),
@@ -294,29 +330,26 @@ plotAll = function(results, species=defaultspecies) {
     ##plotMaps(results, species)
     traitplot(results, species)
     growthplot(results, species)
+    for (s in unique(results$Scenario)) {
+        homerange(results, s)
+    }
     if ("tolerance" %in% experiment) {
-        plotMapGrid(results, paste0(experiment, "_0"),
-                    paste0(experiment, "_0.01"),
-                    paste0(experiment, "_0.1"),
-                    paste0(experiment, "_1.0"),
-                    "population", species)
-        plotMapGrid(results, paste0(experiment, "_0"),
-                    paste0(experiment, "_0.01"),
-                    paste0(experiment, "_0.1"),
-                    paste0(experiment, "_1.0"),
-                    "heterozygosity", species)
+        for (metric in c("population", "heterozygosity", "agc_opt")) {
+            plotMapGrid(results, paste0(experiment, "_0"),
+                        paste0(experiment, "_0.01"),
+                        paste0(experiment, "_0.1"),
+                        paste0(experiment, "_1.0"),
+                        metric, species)
+        }
     }
     else if ("habitat" %in% experiment) {
-        plotMapGrid(results, paste0(experiment, "_edgedepletion"),
-                    paste0(experiment, "_patchclearing"),
-                    paste0(experiment, "_corridors"),
-                    paste0(experiment, "_plantations"),
-                    "population", species)
-        plotMapGrid(results, paste0(experiment, "_edgedepletion"),
-                    paste0(experiment, "_patchclearing"),
-                    paste0(experiment, "_corridors"),
-                    paste0(experiment, "_plantations"),
-                    "heterozygosity", species)
+        for (metric in c("population", "heterozygosity", "agc_opt")) {
+            plotMapGrid(results, paste0(experiment, "_edgedepletion"),
+                        paste0(experiment, "_patchclearing"),
+                        paste0(experiment, "_corridors"),
+                        paste0(experiment, "_plantations"),
+                        metric, species)
+        }
     }
     if (species=="silvanus") { plotGrid(results, "flavilateralis") }
 }

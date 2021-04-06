@@ -1,8 +1,8 @@
 library(raster)
 
 
-load("D:/Jan_Engler/Dropbox/PostDoc/TUD_Cord/Studenten/MA/Daniel_Vedder_extern/mapdata_tolerance_0.1.dat")
-basemap <- raster("D:/Jan_Engler/Dropbox/PostDoc/TUD_Cord/Studenten/MA/Daniel_Vedder_extern/taita_agc_resampled.tif") #Petri's AGC basemap
+load("mapdata_tolerance_0.1.dat")
+basemap <- raster("taita_agc_resampled.tif") #Petri's AGC basemap
 plot(basemap)
 
 rasres <- basemap #creates copy
@@ -15,7 +15,7 @@ for(i in 1:nrow(mapdata)){
 }
 plot(rasres)
 
-TH_patches <- shapefile("D:/Projects/PostDoc/Data/GIS/TH_shps/ALLFRAG.shp") #the Patch shape files
+TH_patches <- shapefile("silvanus_habitat_patches.shp") #the Patch shape files
 
 plot(TH_patches, add = TRUE) 
 vals <- extract(rasres, TH_patches) #extracts values from each patch in a list
@@ -27,9 +27,9 @@ names(res) <- c("patch name","patch size [ha]", "mean", "sd")
 
 
 ##### compare different time layers
-load("D:/Jan_Engler/Dropbox/PostDoc/TUD_Cord/Studenten/MA/Daniel_Vedder_extern/mapdata_tolerance0.1_t0_t90.dat")
+load("mapdata_tolerance0.1_t0_t90.dat")
 
-basemap <- raster("D:/Jan_Engler/Dropbox/PostDoc/TUD_Cord/Studenten/MA/Daniel_Vedder_extern/taita_agc_resampled.tif")
+basemap <- raster("taita_agc_resampled.tif")
 plot(basemap)
 
 rasres <- basemap
@@ -66,12 +66,9 @@ plot(rasres90-rasres0)
 pal <- colorRampPalette(c("red","red", "deepskyblue", "deepskyblue", "black"))
 plot(rasres90-rasres0, col = pal(20))
 
-
-
-
 rasdiff<- rasres90-rasres0 #write delta raster
 
-TH_patches <- shapefile("D:/Projects/PostDoc/Data/GIS/TH_shps/ALLFRAG.shp")
+TH_patches <- shapefile("silvanus_habitat_patches.shp")
 
 plot(TH_patches, add = TRUE, col = "darkgreen")
 vals <- extract(rasdiff, TH_patches) #extract differences from the patches
@@ -79,9 +76,3 @@ vals <- extract(rasdiff, TH_patches) #extract differences from the patches
 # summarizes patch-specific results (here with median over mean to reduce potential skewnesses)
 res <- data.frame(TH_patches$FRAG, unlist(lapply(vals, length)), unlist(lapply(vals, median, na.rm = T)), unlist(lapply(vals, sd, na.rm = T)))
 names(res) <- c("patch name","patch size [ha]", "median", "sd")
-
-
-
-
-
-
