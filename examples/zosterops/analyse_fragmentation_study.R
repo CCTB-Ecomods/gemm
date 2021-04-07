@@ -16,10 +16,14 @@ library(ggfortify)
 library(reshape2)
 library(Hmisc)
 
+## To detach all packages if necessary, use:
+## invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)),
+##                  detach, character.only=TRUE, unload=TRUE))
+
 autorun = FALSE ## automatically run all analyses?
 
 datadir = "results" ## "results" by default
-experiment = "tolerance" ## "tolerance", "habitat", "mutation", "linkage"
+experiment = "tolerance" ## "tolerance", "habitat", "mutation", "linkage", "tolerance_long"
 worldend = 300     ## apocalypse...
 ## On that note: is it ethical to terminate virtual organisms in a mass-extinction
 ## at the end of an experiment, or should they not rather be released back into the wild?
@@ -112,7 +116,8 @@ hetmap = function(results, scenario, species=defaultspecies, date=worldend,  plo
         geom_raster(interpolate=TRUE) +
         scale_fill_gradient(low="lightgrey", high="darkred", guide="none") +
         scale_y_reverse() + theme_void() +
-        theme(panel.border=element_rect(size=1, linetype="solid"))
+        theme(panel.border=element_rect(size=1, linetype="solid"),
+              legend.position="right")
     if (plot) {
         ggsave(paste0("heterozygosity_map_", scenario, "_", species, ".pdf"),
                hetplot, width=5, height=5)
@@ -129,7 +134,8 @@ optmap = function(results, scenario, species=defaultspecies, date=worldend,  plo
         geom_raster(interpolate=TRUE) +
         scale_fill_gradient(low="lightgrey", high="darkgreen", guide="none") +
         scale_y_reverse() + theme_void() +
-        theme(panel.border=element_rect(size=1, linetype="solid"))
+        theme(panel.border=element_rect(size=1, linetype="solid"),
+              legend.position="right")
     if (plot) {
         ggsave(paste0("agcopt_map_", scenario, "_", species, ".pdf"),
                optplot, width=5, height=5)
@@ -146,7 +152,8 @@ popmap = function(results, scenario, species=defaultspecies, date=worldend, plot
         geom_raster(interpolate=TRUE) +
         scale_fill_gradient(low="lightgrey", high="purple", guide="none") +
         scale_y_reverse() + theme_void() +
-        theme(panel.border=element_rect(size=1, linetype="solid"))
+        theme(panel.border=element_rect(size=1, linetype="solid"),
+              legend.position="right")
     if (plot) {
         ggsave(paste0("population_map_", scenario, "_", species, ".pdf"),
                popplot, width=5, height=5)
@@ -248,13 +255,13 @@ homerange = function(results, scenario, date=worldend, write=TRUE) {
     ## extract those raster cells that are inside a known habitat fragment
     popvals = raster::extract(patchpop, TH_patches)
     hetvals = raster::extract(patchhet, TH_patches)
-    res = data.frame(TH_patches$FRAG, unlist(lapply(vals, length)),
+    res = data.frame(TH_patches$FRAG, unlist(lapply(popvals, length)),
                      unlist(lapply(popvals, mean, na.rm = T)),
                      unlist(lapply(hetvals, mean, na.rm = T)))
     names(res) = c("patch name","patch size [ha]", "density [ind/ha]", "heterozygosity [%]")
 
     if (write) { ## save the the whole thing as a CSV table
-        write.csv(res, file=paste0("habitat_patches_", experiment, ".csv"))
+        write.csv(res, file=paste0("habitat_patches_", scenario, ".csv"))
     }
     else { return(res) }
 }
@@ -357,9 +364,10 @@ plotAll = function(results, species=defaultspecies) {
 ## If autorun is set, run the experiment specified via commandline argument
 if (autorun) {
     arg = commandArgs()[length(commandArgs())]
-    if (arg %in% c("tolerance", "habitat", "mutation", "linkage")) {
+    if (arg %in% c("tolerance", "habitat", "mutation", "linkage","tolerance_long")) {
         experiment = arg
+        results = loadData(experiment)
+        plotAll(results)
     }
-    results = loadData(experiment)
-    plotAll(results)
+    else { print(paste("Unknown experiment" , arg)) }
 }

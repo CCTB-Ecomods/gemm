@@ -138,10 +138,10 @@
 		- [X] population size, heterozygosity, precopt, and prectol over time
 		- [X] maps of spatial population distribution (and free patches)
 		- [X] maps of spatial heterozygosity distribution
+		- [X] maps of spatial trait distribution
 		- [X] trait shift after simulation end
 		- [X] trend divergence after simulation end
-		- [ ] home range heterozygosity
-		- [ ] percent carrying capacity and free patches over time
+		- [X] home range heterozygosity
 		- [X] comparison of *Z.silvanus* with *Z.flavilateralis*
 		- [ ] standing variation over time / between species
 		- [ ] comparison of habitat types (montane forest/plantation/savannah)
@@ -152,7 +152,7 @@
 		- [X] habitat+hybridisation
 
 - [ ] update documentation
-		- [ ] Julia functions
+		- [X] Julia functions
 		- [X] workflow
 
 ## Notes
