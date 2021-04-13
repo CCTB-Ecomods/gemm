@@ -453,8 +453,14 @@ end
 Mutate all seed individuals in a patch.
 """
 function mutate!(patch::Patch)
-    for ind in patch.seedbank
-        mutate!(ind, patch.temp)
+    if setting("mode") == "zosterops"
+        for ind in patch.seedbank
+            mutate!(ind, setting("bodytemp"))
+        end
+    else
+        for ind in patch.seedbank
+            mutate!(ind, patch.temp)
+        end
     end
 end
 
