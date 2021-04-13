@@ -11,7 +11,7 @@ probability is calculated with a metabolic formula, modified by the passed `mort
 variable and an individual's temperature adaptation.
 """
 function survive!(patch::Patch)
-    temp = patch.temp
+    temp = patch.temp    
     idx = 1
     while idx <= size(patch.community,1)
         if !patch.community[idx].marked
@@ -22,7 +22,7 @@ function survive!(patch::Patch)
                 dieprob = (1 - exp(-deathrate))
                 (rand() * patch.community[idx].tempadaptation < dieprob) && (dies = true)
             else
-                (rand() < setting("mortality")) && (dies = true)
+                (rand() < ((setting("mortality")*patch.community[idx].precadaptation)+0.01)) && (dies = true)
             end
             if dies
                 @simlog("$(idstring(patch.community[idx])) has died.", 'd')
