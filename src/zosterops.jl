@@ -76,7 +76,7 @@ let zosterops = Individual[] #holds the species archetypes
         end
         (isnothing(bird)) && @simlog("Unknown species name: "*name, 'e')
         bird.id = rand(UInt32)
-        varyalleles!(bird.genome, rand())
+        mutate!(bird, 293.15)
         if setting("linkage") == "none" # `degpleiotropy` is definitely 0 for zosterops mode
             bird.traits = gettraitdictfast(bird.genome, setting("traitnames"))
         else
