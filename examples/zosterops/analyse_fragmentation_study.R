@@ -16,10 +16,14 @@ library(ggfortify)
 library(reshape2)
 library(Hmisc)
 
+## To detach all packages if necessary, use:
+## invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)),
+##                  detach, character.only=TRUE, unload=TRUE))
+
 autorun = FALSE ## automatically run all analyses?
 
 datadir = "results" ## "results" by default
-experiment = "tolerance" ## "tolerance", "habitat", "mutation", "linkage"
+experiment = "tolerance" ## "tolerance", "habitat", "mutation", "linkage", "tolerance_long"
 worldend = 300     ## apocalypse...
 ## On that note: is it ethical to terminate virtual organisms in a mass-extinction
 ## at the end of an experiment, or should they not rather be released back into the wild?
@@ -110,9 +114,11 @@ hetmap = function(results, scenario, species=defaultspecies, date=worldend,  plo
         group_by(x, y) %>% summarise(avghet=mean(heterozygosity)) %>%
         ggplot(aes(x, y, fill=avghet)) +
         geom_raster(interpolate=TRUE) +
-        scale_fill_gradient(low="lightgrey", high="darkred", guide="none") +
+        scale_fill_gradient(low="lightgrey", high="darkred",
+                            guide="colorbar", name="Heterozygosity") +
         scale_y_reverse() + theme_void() +
-        theme(panel.border=element_rect(size=1, linetype="solid"))
+        theme(panel.border=element_rect(size=1, linetype="solid"),
+              legend.position=c(0.85, 0.2))
     if (plot) {
         ggsave(paste0("heterozygosity_map_", scenario, "_", species, ".pdf"),
                hetplot, width=5, height=5)
@@ -127,9 +133,11 @@ optmap = function(results, scenario, species=defaultspecies, date=worldend,  plo
         group_by(x, y) %>% summarise(avgopt=mean(precoptmean)) %>%
         ggplot(aes(x, y, fill=avgopt)) +
         geom_raster(interpolate=TRUE) +
-        scale_fill_gradient(low="lightgrey", high="darkgreen", guide="none") +
+        scale_fill_gradient(low="lightgrey", high="darkgreen",
+                            guide="colorbar", name="AGC optimum") +
         scale_y_reverse() + theme_void() +
-        theme(panel.border=element_rect(size=1, linetype="solid"))
+        theme(panel.border=element_rect(size=1, linetype="solid"),
+              legend.position=c(0.85, 0.2))
     if (plot) {
         ggsave(paste0("agcopt_map_", scenario, "_", species, ".pdf"),
                optplot, width=5, height=5)
@@ -144,9 +152,11 @@ popmap = function(results, scenario, species=defaultspecies, date=worldend, plot
         group_by(x, y) %>% summarise(avgpop=mean(adults)) %>%
         ggplot(aes(x, y, fill=avgpop)) +
         geom_raster(interpolate=TRUE) +
-        scale_fill_gradient(low="lightgrey", high="purple", guide="none") +
-        scale_y_reverse() + theme_void() +
-        theme(panel.border=element_rect(size=1, linetype="solid"))
+        scale_fill_gradient(low="lightgrey", high="purple",
+                            guide="colorbar", name="Population") +
+        scale_y_reverse() + theme_void() + 
+        theme(panel.border=element_rect(size=1, linetype="solid"),
+              legend.position=c(0.85, 0.2))
     if (plot) {
         ggsave(paste0("population_map_", scenario, "_", species, ".pdf"),
                popplot, width=5, height=5)
@@ -180,10 +190,10 @@ traitplot = function(results, species=defaultspecies) {
     traitresponses = endresults %>% 
         ggplot(aes(Scenario, value)) +
         geom_hline(yintercept = 0, linetype = "dashed", color = "grey", size = 1) +
-        geom_boxplot(aes(fill=Trait)) +
+        geom_boxplot(aes(fill=Scenario)) +
         facet_wrap(~Trait, scales="free", ncol=2) +
-        xlab("") + ylab(paste("Shift in population trait means after", worldend, "years")) +
-        coord_flip() + scale_fill_npg(guide="none")
+        xlab("Scenario") + ylab(paste("Shift in population trait means after", worldend, "years")) +
+        coord_flip() + scale_fill_viridis_d(guide="none")
     ggsave(paste0("trait_means_", experiment, "_", species, ".pdf"), width = 6, height = 5)
 }
 
@@ -248,13 +258,13 @@ homerange = function(results, scenario, date=worldend, write=TRUE) {
     ## extract those raster cells that are inside a known habitat fragment
     popvals = raster::extract(patchpop, TH_patches)
     hetvals = raster::extract(patchhet, TH_patches)
-    res = data.frame(TH_patches$FRAG, unlist(lapply(vals, length)),
+    res = data.frame(TH_patches$FRAG, unlist(lapply(popvals, length)),
                      unlist(lapply(popvals, mean, na.rm = T)),
                      unlist(lapply(hetvals, mean, na.rm = T)))
     names(res) = c("patch name","patch size [ha]", "density [ind/ha]", "heterozygosity [%]")
 
     if (write) { ## save the the whole thing as a CSV table
-        write.csv(res, file=paste0("habitat_patches_", experiment, ".csv"))
+        write.csv(res, file=paste0("habitat_patches_", scenario, ".csv"))
     }
     else { return(res) }
 }
@@ -299,11 +309,14 @@ plotMapGrid = function(results, scen1, scen2, scen3, scen4, metric, spec=default
     if (metric == "population") { func = popmap }
     else if (metric == "heterozygosity") { func = hetmap }
     else if (metric == "agc_opt") { func = optmap }
-    gridplot = plot_grid(func(results, scen1, spec, plot=FALSE) + theme(legend.position="none"),
-                         func(results, scen2, spec, plot=FALSE) + theme(legend.position="none"),
-                         func(results, scen3, spec, plot=FALSE) + theme(legend.position="none"),
-                         func(results, scen4, spec, plot=FALSE) + theme(legend.position="none"),
-              ncol=2, align="vh", labels="auto")
+    legend_theme = theme(legend.title=element_text(size=rel(0.5)),
+                         legend.text=element_text(size=rel(0.45)),
+                         legend.key.size=unit(0.025, "snpc"))
+    gridplot = plot_grid(func(results, scen1, spec, plot=FALSE) + legend_theme,
+                         func(results, scen2, spec, plot=FALSE) + legend_theme,
+                         func(results, scen3, spec, plot=FALSE) + legend_theme,
+                         func(results, scen4, spec, plot=FALSE) + legend_theme,
+                         ncol=2, align="vh", labels="auto")
     ggsave(paste0(metric, "_over_space_", experiment, "_", spec, ".pdf"),
            gridplot, width=5, height=5)    
 }
@@ -357,9 +370,10 @@ plotAll = function(results, species=defaultspecies) {
 ## If autorun is set, run the experiment specified via commandline argument
 if (autorun) {
     arg = commandArgs()[length(commandArgs())]
-    if (arg %in% c("tolerance", "habitat", "mutation", "linkage")) {
+    if (arg %in% c("tolerance", "habitat", "mutation", "linkage","tolerance_long")) {
         experiment = arg
+        results = loadData(experiment)
+        plotAll(results)
     }
-    results = loadData(experiment)
-    plotAll(results)
+    else { print(paste("Unknown experiment" , arg)) }
 }
