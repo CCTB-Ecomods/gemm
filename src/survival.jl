@@ -22,7 +22,9 @@ function survive!(patch::Patch)
                 dieprob = (1 - exp(-deathrate))
                 (rand() * patch.community[idx].tempadaptation < dieprob) && (dies = true)
             else
-                (rand() < ((setting("mortality")*patch.community[idx].precadaptation)+0.01)) && (dies = true)
+                #TODO do we really want to do this like this? what about backward compatibility?
+                # (in my master's thesis, I used `setting("mortality")` directly, without `precadaptation`
+                (rand() < setting("mortality")*((1-patch.community[idx].precadaptation)+0.01)) && (dies = true)
             end
             if dies
                 @simlog("$(idstring(patch.community[idx])) has died.", 'd')

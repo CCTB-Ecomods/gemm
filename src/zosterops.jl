@@ -246,8 +246,7 @@ function zreproduce!(patch::Patch)
                 @simlog("$(idstring(bird)) no longer has a partner.", 'd')
                 bird.partner = 0
             elseif bird.sex == female # only mate once per pair
-                println("reproduction! ", bird.precadaptation)
-                maxfert=ceil(Int64, (setting("fertility")*(1-bird.precadaptation))+0.01)
+                maxfert = ceil(Int64, setting("fertility")*(bird.precadaptation+0.01))
                 noffs = rand(0:maxfert)
                 iszero(noffs) && continue
                 partner = patch.community[pt]

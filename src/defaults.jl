@@ -8,7 +8,7 @@ function defaultSettings()
     # Return the default settings. All parameters must be registered here.
     Dict(
         "biggenelength" => 200, # length of the compatibility gene's sequence (if `usebiggenes`)
-        "bodytemp"=> 312.0, # bodytemperature in K for homeothermic species, e.g. in the zosterops mode, necessary because of metabolic calculations 
+        "bodytemp"=> 312.0, # body temperature in K for homeothermic species
         "borders" => "absorbing", # border behaviour: absorbing/reflecting/mainland
         #"bufferoutput" => false, # use output buffering (faster execution, more RAM usage) #TODO
         "burn-in" => 1000, # timesteps before invasion starts
