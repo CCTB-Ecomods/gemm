@@ -44,7 +44,7 @@ default_settings = {
     "minrepsize":2.3,
     "maxtemp":303,
     "mintemp":283,
-    "metabolicdeath":"false",
+    "mortalitytype":"global",
     "mortality":0.125,
     "heterozygosity":"true",
     # species parameters
