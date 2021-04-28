@@ -23,6 +23,7 @@ function defaultSettings()
         "dispshape" => 1.0, # maximum value of randomly drawn shape parameter for dispersal kernel. determines tail fatness/long distance dispersal
         "disturbance" => 0, # percentage of individuals killed per update per cell
         "fasta" => "off", # record fasta data? "off", "compat", "all" (high detail output)
+        "fastaoutfreq" => 10, #frequency with which to write fasta data
         "fertility" => exp(28.0), # global base reproduction rate 23.8 from Brown et al. 2004, alternatively 25.0, default 30.0
         "fixtol" => true, # fix mating tolerance globally to `tolerance`
         "global-species-pool" => 0, # size of the global species pool (invasion source)

@@ -86,6 +86,38 @@ function dumpinds(world::Array{Patch, 1}, timestep::Int, io::IO = stdout, sep::S
 end
 
 """
+     printheaderid(io, sep)
+helper function for indcoord(world, io, sep) to print the column headers.
+"""
+function printheaderid(io::IO = stdout, sep::String = "\t")
+    print(io, "time", sep)
+    print(io, "patch_no", sep)
+    print(io, "xloc", sep)
+    print(io, "yloc", sep)
+    print(io, "id", sep)
+    println(io)
+end
+
+"""
+    indcoord(world, io, sep)
+
+Output id and coordinates of individuals in `world` as table to `io`. Columns are separated by `sep`.
+"""
+function indcoord(world::Array{Patch, 1}, timestep::Int, io::IO = stdout, sep::String = "\t")
+    timestep == 0 && printheaderid(io, sep)
+    for patch in world
+        for ind in patch.community
+            print(io, timestep, sep)
+            print(io, patch.id, sep)
+            print(io, patch.location[1], sep)
+            print(io, patch.location[2], sep)
+            print(io, ind.id, sep)
+            println(io)
+        end
+    end
+end
+
+"""
     makefasta(world, io, onlyisland, sep)
 
 Record the genome of every individual currently alive to the given IO stream.
@@ -192,7 +224,7 @@ end
 """
     writedata(world, timestep)
 
-Writes simulation output from `world` to separate table and fasta files. (Which
+Writes simulation output from `world` to table files. (Which
 data is recorded depends on the settings.) `timestep` and `setting` information
 is used for file name creation.
 """
@@ -219,14 +251,30 @@ function writedata(world::Array{Patch,1}, timestep::Int)
             printpopstats(file, world, timestep)
         end
     end
-    if setting("fasta") != "off"
-        filename = "seqs_s" * string(setting("seed"))
-        filename = joinpath(setting("dest"), filename)
-        filename = filename * ".fa"
-        simlog("Writing fasta \""*string(filename)*"\"")
-        open(filename, "a") do file
-            makefasta(world, file, setting("static") && timestep > 1)
-        end
+end
+
+"""
+    writefasta(world, timestep)
+
+Writes simulation output from `world` to fasta files and an additional file with 
+just the id and the coordinates of each individual. (Which
+data is recorded depends on the settings.) `timestep` and `setting` information
+is used for file name creation. 
+"""
+function writefasta(world::Array{Patch,1}, timestep::Int)
+    filename = "seqs_s" * string(setting("seed"))
+    filename = joinpath(setting("dest"), filename)
+    filename = filename * ".fa"
+    simlog("Writing fasta \""*string(filename)*"\"")
+    open(filename, "a") do file
+        makefasta(world, file)
+    end
+    filename_ind="indcoord_s"* string(setting("seed"))
+    filename_ind = joinpath(setting("dest"), filename_ind)
+    filename_ind = filename_ind * ".tsv"
+    simlog("Writing individual coordinates \""*string(filename_ind)*"\"")
+    open(filename_ind, "a") do file
+        indcoord(world, timestep, file)
     end
 end
 
