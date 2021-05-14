@@ -14,9 +14,9 @@ import os, sys, shutil, time, subprocess
 # See `zosterops.config` for details
 default_settings = {
     # input/output settings
-    "maps":["Chyulu_025.map","Chyulu_050.map","Chyulu_075.map","Chyulu_100.map","Chyulu_125.map","Chyulu_150.map","Chyulu_175.map","Chyulu_200.map","Chyulu_225.map","Chyulu_250.map","Chyulu_275.map","Chyulu_300.map","Chyulu_325.map","Chyulu_350.map","Chyulu_350.map","Chyulu_375.map","Chyulu_400.map","Chyulu_425.map","Chyulu_450.map","Chyulu_475.map","Chyulu_500.map","Chyulu_525.map","Chyulu_550.map","Chyulu_575.map","Chyulu_600.map","Chyulu_625.map","Chyulu_650.map","Chyulu_675.map","Chyulu_700.map","Chyulu_725.map","Chyulu_750.map"]
+    "maps":["Chyulu_025.map","Chyulu_050.map","Chyulu_075.map","Chyulu_100.map","Chyulu_125.map","Chyulu_150.map","Chyulu_175.map","Chyulu_200.map","Chyulu_225.map","Chyulu_250.map","Chyulu_275.map","Chyulu_300.map","Chyulu_325.map","Chyulu_350.map","Chyulu_350.map","Chyulu_375.map","Chyulu_400.map","Chyulu_425.map","Chyulu_450.map","Chyulu_475.map","Chyulu_500.map","Chyulu_525.map","Chyulu_550.map","Chyulu_575.map","Chyulu_600.map","Chyulu_625.map","Chyulu_650.map","Chyulu_675.map","Chyulu_700.map","Chyulu_725.map","Chyulu_750.map"],
     "outfreq":1000,
-    "fastaoutfreq":5000
+    "fastaoutfreq":5000,
     "logging":"true",
     "debug":"false",
     "stats":"true",
