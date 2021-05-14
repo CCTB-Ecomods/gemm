@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 ##
-## A script to set up and launch the Zosterops habitat fragmentation experiments.
+## A script to set up and launch the Zosterops phylogeny experiments.
 ##
-## Daniel Vedder, 16/02/2021
-##
+## following the script from Daniel Vedder, 16/02/2021
+## Charlotte Sieger, 14/05/2021
 
 # NOTE: make sure to copy/symlink this to the model root folder before running
 
@@ -14,7 +14,7 @@ import os, sys, shutil, time, subprocess
 # See `zosterops.config` for details
 default_settings = {
     # input/output settings
-    "maps":["Chyulu_025.map","Chyulu_050.map","Chyulu_075.map","Chyulu_100.map","Chyulu_125.map","Chyulu_150.map","Chyulu_175.map","Chyulu_200.map","Chyulu_225.map","Chyulu_250.map","Chyulu_275.map","Chyulu_300.map","Chyulu_325.map","Chyulu_350.map","Chyulu_350.map","Chyulu_375.map","Chyulu_400.map","Chyulu_425.map","Chyulu_450.map","Chyulu_475.map","Chyulu_500.map","Chyulu_525.map","Chyulu_550.map","Chyulu_575.map","Chyulu_600.map","Chyulu_625.map","Chyulu_650.map","Chyulu_675.map","Chyulu_700.map","Chyulu_725.map","Chyulu_750.map"],
+    "maps":'"Chyulu_025.map","Chyulu_050.map","Chyulu_075.map","Chyulu_100.map","Chyulu_125.map","Chyulu_150.map","Chyulu_175.map","Chyulu_200.map","Chyulu_225.map","Chyulu_250.map","Chyulu_275.map","Chyulu_300.map","Chyulu_325.map","Chyulu_350.map","Chyulu_350.map","Chyulu_375.map","Chyulu_400.map","Chyulu_425.map","Chyulu_450.map","Chyulu_475.map","Chyulu_500.map","Chyulu_525.map","Chyulu_550.map","Chyulu_575.map","Chyulu_600.map","Chyulu_625.map","Chyulu_650.map","Chyulu_675.map","Chyulu_700.map","Chyulu_725.map","Chyulu_750.map"',
     "outfreq":1000,
     "fastaoutfreq":5000,
     "logging":"true",
@@ -37,8 +37,8 @@ default_settings = {
     "degpleiotropy":0,
     # Zosterops-specific parameters
     "mode":"zosterops",
-    "tolerance":0.1
-    "bodytemp":313.0
+    "tolerance":0.1,
+    "bodytemp":313.0,
     "cellsize":8,
     "fertility":2,
     "dispmean":18,
@@ -94,7 +94,7 @@ def run_default():
     print("Running a default simulation.")
     conf = "zosterops_default.config"
     dest = "results/taita_hills"
-    shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
+    shutil.copy("examples/zosterops/Chyulu_Taita_Maps/Chyulu_025.map", ".")
     if os.path.exists(dest):
         if input("Delete old test data? (y/n) ") == 'y':
             shutil.rmtree(dest)
@@ -119,10 +119,23 @@ def run_phylogeny_experiment(seed1, seedN):
     print("Running "+str(seedN-seed1+1)+" replicates of the habitat fragmentation experiment.")
     running_sims = []
     seed = seed1
+    
+    dir_src = ("/examples/zosterops/Chyulu_Taita_Maps/")
+    dir_dst = (" .")
+
+    for filename in os.listdir(dir_src):
+        if filename.endswith('.txt'):
+            shutil.copy( dir_src + filename, dir_dst)
+            print(filename)
+    #source = os.listdir("/home/charlotte/Zosterops/gemm/examples/zosterops/Chyulu_Taita_Maps/")
+    #destination = "/home/charlotte/Zosterops/gemm/"
+    #for files in source:
+     #   full_file_name = os.path.join(source, files)
+      #  if full_file_name.endswith(".map"):
+       #     shutil.copy(full_file_name, destination)
     while seed <= seedN:
         for m in alternate_speciations:
-            shutil.copy("examples/zosterops/"+m, ".")
-            conf = "habitat_tol"+str(tolerance)+"_"+m.split("_")[2][:-4]+"_"+str(seed)
+            conf = "phyl"+"_"+str(m)+"_"+str(seed)
             write_config(conf+".config", "results/"+conf, seed, speciation=m)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
