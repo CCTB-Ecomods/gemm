@@ -14,7 +14,7 @@ import os, sys, shutil, time, subprocess
 # See `zosterops.config` for details
 default_settings = {
     # input/output settings
-    "maps":'"Chyulu_025.map","Chyulu_050.map","Chyulu_075.map","Chyulu_100.map","Chyulu_125.map","Chyulu_150.map","Chyulu_175.map","Chyulu_200.map","Chyulu_225.map","Chyulu_250.map","Chyulu_275.map","Chyulu_300.map","Chyulu_325.map","Chyulu_350.map","Chyulu_350.map","Chyulu_375.map","Chyulu_400.map","Chyulu_425.map","Chyulu_450.map","Chyulu_475.map","Chyulu_500.map","Chyulu_525.map","Chyulu_550.map","Chyulu_575.map","Chyulu_600.map","Chyulu_625.map","Chyulu_650.map","Chyulu_675.map","Chyulu_700.map","Chyulu_725.map","Chyulu_750.map"',
+    "maps":"Chyulu_025.map",
     "outfreq":1000,
     "fastaoutfreq":5000,
     "logging":"true",
@@ -58,7 +58,7 @@ default_settings = {
 }
 
 alternate_speciations = ["ecological","neutral"]
-
+all_maps = "Chyulu_025.map,Chyulu_050.map,Chyulu_075.map,Chyulu_100.map,Chyulu_125.map,Chyulu_150.map,Chyulu_175.map,Chyulu_200.map,Chyulu_225.map,Chyulu_250.map,Chyulu_275.map,Chyulu_300.map,Chyulu_325.map,Chyulu_350.map,Chyulu_350.map,Chyulu_375.map,Chyulu_400.map,Chyulu_425.map,Chyulu_450.map,Chyulu_475.map,Chyulu_500.map,Chyulu_525.map,Chyulu_550.map,Chyulu_575.map,Chyulu_600.map,Chyulu_625.map,Chyulu_650.map,Chyulu_675.map,Chyulu_700.map,Chyulu_725.map,Chyulu_750.map"
 
 
 ## AUXILIARY FUNCTIONS
@@ -111,7 +111,7 @@ def run_default():
 ## def run_experiment(configs)
 
         
-def run_phylogeny_experiment(seed1, seedN):
+def run_phylogeny_experiment(seed1, seedN, maps=all_maps):
     """
     Launch a set of replicate simulations for the phylogeny experiment.
     Starts one run for each speciation scenario for each replicate seed from 1 to N.
@@ -120,23 +120,23 @@ def run_phylogeny_experiment(seed1, seedN):
     running_sims = []
     seed = seed1
     
-    dir_src = ("/examples/zosterops/Chyulu_Taita_Maps/")
-    dir_dst = (" .")
+   # dir_src = ("/examples/zosterops/Chyulu_Taita_Maps/")
+   # dir_dst = (' .')
 
-    for filename in os.listdir(dir_src):
-        if filename.endswith('.txt'):
-            shutil.copy( dir_src + filename, dir_dst)
-            print(filename)
-    #source = os.listdir("/home/charlotte/Zosterops/gemm/examples/zosterops/Chyulu_Taita_Maps/")
-    #destination = "/home/charlotte/Zosterops/gemm/"
-    #for files in source:
-     #   full_file_name = os.path.join(source, files)
-      #  if full_file_name.endswith(".map"):
-       #     shutil.copy(full_file_name, destination)
+   # for filename in os.listdir(dir_src):
+    #    if filename.endswith('.map'):
+     #       shutil.copy( dir_src + filename, dir_dst)
+      #      print(filename)
+    source = ("/home/charlotte/Zosterops/gemm/examples/zosterops/Chyulu_Taita_Maps/")
+    #destination = " . "
+    for files in os.listdir(source):
+        full_file_name = os.path.join(source, files)
+        if full_file_name.endswith(".map"):
+            shutil.copy(full_file_name, ".")
     while seed <= seedN:
         for m in alternate_speciations:
             conf = "phyl"+"_"+str(m)+"_"+str(seed)
-            write_config(conf+".config", "results/"+conf, seed, speciation=m)
+            write_config(conf+".config", "results/"+conf, seed, speciation=m, maps=all_maps)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
         seed = seed + 1
