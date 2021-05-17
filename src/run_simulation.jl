@@ -16,9 +16,13 @@ function runsim(config::String = "", seed::Integer = 0)
     for m in 1:length(setting("maps"))
         timeoffset += timesteps
         timesteps, maptable = readmapfile(setting("maps")[m])
-        m == 1 && (world = createworld(maptable))
-        m > 1 && (world = updateworld(world, maptable))
-        m == 1 && writedata(world, timeoffset)
+        if m == 1
+            world = createworld(maptable)
+            writedata(world, timeoffset)
+            setting("fasta") != "off" && writefasta(world, timeoffset)
+        else
+            world = updateworld(world, maptable)
+        end
         simulate!(world, timesteps, timeoffset)
     end
     world

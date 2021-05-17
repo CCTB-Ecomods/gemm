@@ -7,28 +7,35 @@
     survive!(patch)
 
 Density independent survival of individuals in a patch. The actual mortality
-probability is calculated with a metabolic formula, modified by the passed `mortality`
-variable and an individual's temperature adaptation.
+probability is calculated in one of three ways: (1) with a metabolic formula,
+modified by the passed `mortality` variable and an individual's temperature
+adaptation; (2) via the individual's habitat (i.e. precipitation) adaptation;
+(3) as a global constant probability defined by `mortality`.
+Which mode is selected depends on `mortalitytype`.
 """
 function survive!(patch::Patch)
-    temp = patch.temp
+    mtype = setting("mortalitytype")
+    temp = patch.temp    
     idx = 1
     while idx <= size(patch.community,1)
-        if !patch.community[idx].marked
-            dies = false
-            if setting("metabolicdeath")
-                mass = patch.community[idx].size
-                deathrate = setting("mortality") * mass^(-1/4) * exp(-act/(boltz*temp))
-                dieprob = (1 - exp(-deathrate))
-                (rand() * patch.community[idx].tempadaptation < dieprob) && (dies = true)
-            else
-                (rand() < setting("mortality")) && (dies = true)
-            end
-            if dies
-                @simlog("$(idstring(patch.community[idx])) has died.", 'd')
-                splice!(patch.community, idx)
-                continue
-            end
+        (patch.community[idx].marked) && continue
+        dies = false
+        if mtype == "metabolic"
+            mass = patch.community[idx].size
+            deathrate = setting("mortality") * mass^(-1/4) * exp(-act/(boltz*temp))
+            dieprob = (1 - exp(-deathrate))
+            (rand() * patch.community[idx].tempadaptation < dieprob) && (dies = true)
+        elseif mtype == "habitat"
+            (rand() < setting("mortality")*((1-patch.community[idx].precadaptation)+0.01)) && (dies = true)
+        elseif mtype == "global"
+            (rand() < setting("mortality")) && (dies = true)
+        else
+            simlog("Invalid mortality type $mtype", 'e')
+        end
+        if dies
+            @simlog("$(idstring(patch.community[idx])) has died.", 'd')
+            splice!(patch.community, idx)
+            continue
         end
         idx += 1
     end

@@ -42,7 +42,7 @@
 
 - [X] make sure `map_creator.R` works with Petri's data
 
-- [ ] performance issue (https://docs.julialang.org/en/v1/manual/performance-tips/):
+- [x] performance issue (https://docs.julialang.org/en/v1/manual/performance-tips/):
   - [X] profile RAM/CPU trade-off with `compressgenes`
   - [X] circumvent `push!()` calls, preallocate memory instead - doesn't work?
   - [X] use immutable structs - doesn't work either?
@@ -103,7 +103,7 @@
 		- [X] is `updateworld!()` a problem? (out of date, duplicative)
 		- [x] are the life spans sensible?
 		- [X] fix AGC-K equation - population sizes are too high
-		- [ ] fix chromosome lineage labelling bug
+		- [x] fix chromosome lineage labelling bug
 
 - [X] decrease world size for experiments? (currently ~10^5 patches)
 
@@ -118,6 +118,8 @@
 - [X] carrying capacity should be adaptable per-patch
 
 - [X] calculate carrying capacity based on patch AGC
+
+## Experiments
 
 - [X] prepare map series for habitat scenarios (cf. Githiru et al. 2011):
 		- [X] converted exotic plantations
@@ -134,7 +136,7 @@
 		- [X] adjust body sizes and dispersal distances
 		- [X] temperature opt/tol must allow sufficient survival rates
 
-- [ ] write data analysis script
+- [x] write data analysis script
 		- [X] population size, heterozygosity, precopt, and prectol over time
 		- [X] maps of spatial population distribution (and free patches)
 		- [X] maps of spatial heterozygosity distribution
@@ -147,11 +149,11 @@
 		- [ ] comparison of habitat types (montane forest/plantation/savannah)
 		- [X] letters on grid plots!
 
-- [ ] conduct exploratory simulations with:
+- [x] conduct exploratory simulations with:
 		- [X] mutations/linkage
 		- [X] habitat+hybridisation
 
-- [ ] update documentation
+- [x] update documentation
 		- [X] Julia functions
 		- [X] workflow
 

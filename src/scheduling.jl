@@ -24,6 +24,9 @@ function simulate!(world::Array{Patch,1}, timesteps::Int=1000, timeoffset::Int =
         if iszero(mod(t, setting("outfreq")))
             writedata(world, t)
         end
+        if iszero(mod(t, setting("fastaoutfreq"))) && (setting("fasta") != "off")
+            writefasta(world, t)
+        end
     end
 end
 

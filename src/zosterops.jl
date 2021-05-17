@@ -76,7 +76,7 @@ let zosterops = Individual[] #holds the species archetypes
         end
         (isnothing(bird)) && @simlog("Unknown species name: "*name, 'e')
         bird.id = rand(UInt32)
-        varyalleles!(bird.genome, rand())
+        mutate!(bird, 293.15)
         if setting("linkage") == "none" # `degpleiotropy` is definitely 0 for zosterops mode
             bird.traits = gettraitdictfast(bird.genome, setting("traitnames"))
         else
@@ -246,7 +246,8 @@ function zreproduce!(patch::Patch)
                 @simlog("$(idstring(bird)) no longer has a partner.", 'd')
                 bird.partner = 0
             elseif bird.sex == female # only mate once per pair
-                noffs = rand(0:Integer(setting("fertility")))
+                maxfert = ceil(Int64, setting("fertility")*(bird.precadaptation+0.01))
+                noffs = rand(0:maxfert)
                 iszero(noffs) && continue
                 partner = patch.community[pt]
                 @simlog("$(idstring(bird)) mated with $(idstring(partner)).", 'd')

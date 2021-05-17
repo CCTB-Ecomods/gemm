@@ -8,6 +8,7 @@ function defaultSettings()
     # Return the default settings. All parameters must be registered here.
     Dict(
         "biggenelength" => 200, # length of the compatibility gene's sequence (if `usebiggenes`)
+        "bodytemp"=> 312.0, # body temperature in K for homeothermic species
         "borders" => "absorbing", # border behaviour: absorbing/reflecting/mainland
         #"bufferoutput" => false, # use output buffering (faster execution, more RAM usage) #TODO
         "burn-in" => 1000, # timesteps before invasion starts
@@ -22,6 +23,7 @@ function defaultSettings()
         "dispshape" => 1.0, # maximum value of randomly drawn shape parameter for dispersal kernel. determines tail fatness/long distance dispersal
         "disturbance" => 0, # percentage of individuals killed per update per cell
         "fasta" => "off", # record fasta data? "off", "compat", "all" (high detail output)
+        "fastaoutfreq" => 10, #frequency with which to write fasta data
         "fertility" => exp(28.0), # global base reproduction rate 23.8 from Brown et al. 2004, alternatively 25.0, default 30.0
         "fixtol" => true, # fix mating tolerance globally to `tolerance`
         "global-species-pool" => 0, # size of the global species pool (invasion source)
@@ -40,7 +42,7 @@ function defaultSettings()
         "maxrepsize" => 14.0, # maximal repsize in grams calculated as exp(maxrepsize) -> 1.2 t
         "maxseedsize" => 10.0, # maximal seedsize in grams calculated as exp(maxseedsize) -> 22 kg
         "maxtemp" => 313.0, # max optimum temp in K
-        "metabolicdeath" => true, # if false, `mortality` gives absolute per-update mortality probability
+        "mortalitytype" => "metabolic", # metabolic/habitat/global
         "minprec" => 0.0, # min optimum precipitation
         "minrepsize" => 3.0, # minimal repsize in grams calculated as exp(minrepsize) -> 20 g
         "minseedsize" => -2.0, # minimal seedsize in grams calculated as exp(minseedsize) -> 0.14 g
