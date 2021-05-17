@@ -76,8 +76,8 @@ heterozygosity setting.
 """
 macro Chromosome(genes, maternal, lineage)
     :(setting("heterozygosity") ?
-      LineageChromosome(:($$genes), :($$maternal), :($$lineage)) :
-      DefaultChromosome(:($$genes), :($$maternal)))
+      LineageChromosome(:($$(esc(genes))), :($$(esc(maternal))), :($$(esc(lineage)))) :
+      DefaultChromosome(:($$(esc(genes))), :($$(esc(maternal)))))
 end
 
 @enum Sex hermaphrodite male female
