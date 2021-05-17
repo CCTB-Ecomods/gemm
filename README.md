@@ -9,8 +9,8 @@ documentation of the software, see `docs/index.html`.
 
 ## System requirements
 
-The model has successfully been tested on various Linux machines (64 bit), running Arch Linux and Ubuntu with kernel versions between 4.15.0 and 5.3.7.
-You need to have `git` and `julia` (>=1.5) installed (https://julialang.org/downloads/), including packages `Distributions` (v"0.16.4"), and `ArgParse` (v"0.6.1").
+The model has successfully been tested on various Linux machines (64 bit), running Ubuntu, Arch Linux, and Mint.
+You need to have `git` and `julia` (>=1.6) installed (https://julialang.org/downloads/), including packages `Distributions`, and `ArgParse`.
 Newer versions should work as well.
 
 ## Installation guide
