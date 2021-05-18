@@ -5,18 +5,21 @@
 library(ggplot2)
 library(ggfortify)
 library(reshape2)
+library(lme4)
+
+## Run the analysis as a batch script? (disable if you want to work manually)
+scripting = FALSE ## default: TRUE
 
 ## The working directory may be specified via the commandline, otherwise it
 ## defaults to results/tests
-resultdir = "results"
+resultdir = "results_final"
 outdir = paste0(resultdir, "/", commandArgs()[length(commandArgs())])
 
 ## Preferred output format
 outformat = ".eps" ## default: ".jpg", for publication: ".eps"
 
-## The minimum number of cells an alien species must be in to be considered
-## invasive (default: 2)
-invasiveThreshold = 2
+## The minimum number of cells an alien species must be in to be considered invasive
+invasiveThreshold = 2 ## default: 2
 
 ## D-Day and apocalypse
 invasionstart = 500
@@ -463,10 +466,12 @@ analyseAll = function(plotRuns=TRUE,plotAll=TRUE,maxt=worldend,var="invasives") 
 }
 
 
-### CALL THE APPROPRIATE FUNCTIONS
-    
+### LAUNCH THE ANALYSIS SCRIPT
 # If the simname is given as 'all', do a whole-experiment analysis
-if (commandArgs()[length(commandArgs())] == "all") {
+
+if (scripting == FALSE) {
+    ## do nothing?
+} else if (commandArgs()[length(commandArgs())] == "all") {
     outdir = sub("/all", "", outdir)
     analyseAll(TRUE,TRUE,worldend,"invasives")
     ##analyseAll(FALSE, TRUE,worldend,"invasives")
