@@ -26,7 +26,7 @@ function survive!(patch::Patch)
             dieprob = (1 - exp(-deathrate))
             (rand() * patch.community[idx].tempadaptation < dieprob) && (dies = true)
         elseif mtype == "habitat"
-            (rand() < setting("mortality")*((1-patch.community[idx].precadaptation)+0.01)) && (dies = true)
+            (rand() < setting("mortality")+(1-patch.community[idx].precadaptation) && (dies = true)
         elseif mtype == "global"
             (rand() < setting("mortality")) && (dies = true)
         else
