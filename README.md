@@ -1,7 +1,9 @@
 # GeMM
 
 This is the Genome-explicit Metacommunity Model, an individual-based model for
-eco-evolutionary experiments, first published in:
+eco-evolutionary experiments. Created by the University of Würzburg
+[Ecosystem Modeling Group](https://www.biozentrum.uni-wuerzburg.de/cctb/research/ecosystem-modeling/),
+first published in:
 
 *Leidinger, L., Vedder, D., & Cabral, J. S. (2021). Temporal environmental variation 
 may impose differential selection on both genomic and ecological traits. 
@@ -33,5 +35,4 @@ For the documentation, see:
 ---
 
 © 2017-2021 Ludwig Leidinger, Daniel Vedder.\
-[Ecosystem Modeling Group](https://www.biozentrum.uni-wuerzburg.de/cctb/research/ecosystem-modeling/)\
 *Licensed under the terms of the MIT license.*
