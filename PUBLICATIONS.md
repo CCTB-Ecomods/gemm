@@ -17,7 +17,8 @@ files, map files, and analysis scripts for each study may be found in the `studi
 3. Vedder, D., Ankenbrand, M., & Cabral, J. S. (*in review*). Dealing with Software Complexity 
    in Individual-Based Models. Methods in Ecology and Evolution.
    
-4. Figueiredo, L., Leidinger, L., & Cabral, J. S. (*in review*). **TODO**
+4. Figueiredo, L., Leidinger, L., Steffan-Dewenter, I., & Cabral, J. S. (*in review*). 
+   Evolutionary rescue and community re-assembly can mitigate extinction debts.
 
 5. Leidinger, L., & Cabral J. S. (*in preparation*). How genomic and ecological 
    traits affect radiations of plant species on oceanic islands: insights from a 
