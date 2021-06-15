@@ -1,19 +1,25 @@
 # GeMM
 
 This is the Genome explicit Metacommunity Model, an individual-based model for
-eco-evolutionary experiments.
+eco-evolutionary experiments, first published in:
+
+*Leidinger, L., Vedder, D., & Cabral, J. S. (2021). Temporal environmental variation 
+may impose differential selection on both genomic and ecological traits. 
+Oikos, 00, 1–16. https://doi.org/10.1111/oik.08172*
 
 This README covers installation and basic usage of the software. For a detailed 
-documentation of the biological side of the model, read `ODD.md`. For a full 
+documentation of the biological side of the model, read `docs/ODD.md`. For a full 
 documentation of the software, see `docs/index.html`.
 
-## System requirements
+## Setting up
+
+### System requirements
 
 The model has successfully been tested on various Linux machines (64 bit), running Ubuntu, Arch Linux, and Mint.
 You need to have `git` and `julia` (>=1.6) installed (https://julialang.org/downloads/), including packages `Distributions`, and `ArgParse`.
 Newer versions should work as well.
 
-## Installation guide
+### Installation guide
 
 Download and extract julia from https://julialang.org/downloads/.
 Enter the created directory and run
@@ -49,7 +55,7 @@ to test if it works.
 ## Instructions for use
 
 To design your own experiments, you need to provide a map and a configuration file. 
-(See the folders in `examples/` for our previous work.)
+(See the folders in `studies/` for our previous work.)
 
 ### Map file(s)
 
@@ -181,10 +187,10 @@ where `<NPROCS>` = number of cores, `<SEED>` = integer value to set a random see
 To run an example experiment in a landscape with two environmental gradients to test the effect of temporal environmental variation, run
 
 ```
-julia -p 40 rungemmparallel.jl -s 1 -n 20 -c examples/gradient/sg,examples/gradient/sgv
+julia -p 40 rungemmparallel.jl -s 1 -n 20 -c studies/gradient/sg,studies/gradient/sgv
 ```
 
-This executes 40 parallel simulations, 20 for each of the scenarios defined in the configuration files (`examples/gradient/sg` and `examples/gradient/sgv`).
+This executes 40 parallel simulations, 20 for each of the scenarios defined in the configuration files (`studies/gradient/sg` and `studies/gradient/sgv`).
 
 Each of the simulations creates its own output directory of the format date-configfilename-replicate.
 These folders configuration files with the exact configuration the respective simulation was run on (`*.conf`),

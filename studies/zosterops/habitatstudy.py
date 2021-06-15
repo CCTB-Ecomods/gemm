@@ -74,8 +74,8 @@ def archive_code():
     print("Archiving codebase in "+tarname)
     os.system("git log -1 > current_commit.txt")
     cmd = "tar czhf " + tarname + " README.md current_commit.txt rungemm.jl src/* " +\
-        "examples/zosterops/*.py examples/zosterops/*.R examples/zosterops/*.map " +\
-        "examples/zosterops/*.config"
+        "studies/zosterops/*.py studies/zosterops/*.R studies/zosterops/*.map " +\
+        "studies/zosterops/*.config"
     subprocess.run(cmd, shell=True)
     os.remove("current_commit.txt")
     return tarname
@@ -99,7 +99,7 @@ def run_default():
     print("Running a default simulation.")
     conf = "zosterops_default.config"
     dest = "results/taita_hills"
-    shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
+    shutil.copy("studies/zosterops/"+default_settings["maps"], ".")
     if os.path.exists(dest):
         if input("Delete old test data? (y/n) ") == 'y':
             shutil.rmtree(dest)
@@ -122,7 +122,7 @@ def run_hybridisation_experiment(seed1, seedN):
     """
     print("Running "+str(seedN-seed1+1)+" replicates of the hybridisation experiment.")
     running_sims = []
-    shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
+    shutil.copy("studies/zosterops/"+default_settings["maps"], ".")
     seed = seed1
     while seed <= seedN:
         for t in alternate_tolerances:
@@ -144,7 +144,7 @@ def run_habitat_experiment(seed1, seedN, tolerance=default_settings["tolerance"]
     seed = seed1
     while seed <= seedN:
         for m in alternate_maps:
-            shutil.copy("examples/zosterops/"+m, ".")
+            shutil.copy("studies/zosterops/"+m, ".")
             conf = "habitat_tol"+str(tolerance)+"_"+m.split("_")[2][:-4]+"_"+str(seed)
             write_config(conf+".config", "results/"+conf, seed, maps=m, tolerance=tolerance)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
@@ -161,7 +161,7 @@ def run_mutation_experiment(seed1, seedN):
     print("Running "+str(seedN-seed1+1)+" replicates of the mutation experiment.")
     running_sims = []
     if default_settings["maps"] not in os.listdir():
-        shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
+        shutil.copy("studies/zosterops/"+default_settings["maps"], ".")
     seed = seed1
     while seed <= seedN:
         for m in alternate_mutationrates:
@@ -181,7 +181,7 @@ def run_linkage_experiment(seed1, seedN):
     """
     print("Running "+str(seedN-seed1+1)+" replicates of the linkage experiment.")
     running_sims = []
-    shutil.copy("examples/zosterops/"+default_settings["maps"], ".")
+    shutil.copy("studies/zosterops/"+default_settings["maps"], ".")
     seed = seed1
     while seed <= seedN:
         for l in alternate_linkages:
@@ -201,7 +201,7 @@ def run_long_experiment(seed1, seedN):
     print("Running "+str(seedN-seed1+1)+" replicates of the long experiment.")
     running_sims = []
     mapfile = "taita_hills_long.map"
-    shutil.copy("examples/zosterops/"+default_settings["maps"], mapfile)
+    shutil.copy("studies/zosterops/"+default_settings["maps"], mapfile)
     os.system('sed -e "4s/300/1000/" -i '+mapfile)
     seed = seed1
     while seed <= seedN:

@@ -21,7 +21,7 @@
 
 3. Implement your changes.
 
-4. Run `zrun.sh` (a symlink to `examples/zosterops/run.sh`) to make sure the model executes without crashing.
+4. Run `zrun.sh` (a symlink to `studies/zosterops/run.sh`) to make sure the model executes without crashing.
 
 5. Commit your work frequently.
 
@@ -58,16 +58,16 @@ If you want to test the model performance, there are two easy ways to do so:
 This is the procedure for running the hybridisation experiments (a.k.a. Daniel's master thesis):
 
 1. **Map creation:** Place a GeoTIFF file with the environmental variable (typically above-ground
-   carbon, or forest cover) in the `examples/zosterops` folder. The modify the `map_creator.R`
+   carbon, or forest cover) in the `studies/zosterops` folder. The modify the `map_creator.R`
    script so that the variable `above_ground_carbon_file` reflects the name of your input file,
    and `map_output_file` gives the name of your desired output file. Tweak `simlength` if you
    need a different simulation run length. Start an R session, `source()` the map creator script, 
    and execute `runMap()`. This will produce a `.map` file that GeMM can read in.
    
-2. **Running the experiment:** Copy the script `habitatstudy.py` from `examples/zosterops` to
+2. **Running the experiment:** Copy the script `habitatstudy.py` from `studies/zosterops` to
    the model top-level directory. Make sure the `alternate_*` variables reflect the scenarios
    you want to run, and that the `default_settings` are as you wish them to be. All needed
-   map files must be located in `examples/zosterops`. Then launch a batch of simulations with
+   map files must be located in `studies/zosterops`. Then launch a batch of simulations with
    the bash command `./habitstudy.py <experiment> <seed1> <seedN>`. `<experiment>` can be
    one of "tolerance", "habitat", "mutation", or "linkage". The seeds specify the range of replicates
    to be run. (Simulations are assigned their replicate number as the RNG seed, so all simulations
@@ -84,11 +84,11 @@ This is the procedure for running the hybridisation experiments (a.k.a. Daniel's
    Model output includes the simulation log file, copies of the configuration and map files, and,
    most importantly, the `pops_s*.tsv` file. This includes data on all populations over the
    course of the simulation. (Warning: big file!) To analyse a complete experiment, launch
-   an R session and `source()` the script `examples/zosterops/analyse_fragmentation_study.R`.
+   an R session and `source()` the script `studies/zosterops/analyse_fragmentation_study.R`.
    Set the `experiment` variable to the name of the experiment you are analysing, then execute
    `results = loadData()` to load all output files from that experiment. This can take a *long*
    time. Once it's finished, you can run `plotAll(results)`, or whatever individual function you 
    wish to call. To analyse a species other than "silvanus", either change the `defaultspecies`
    variable, or pass the species name as the second function argument to the plotting function
    (after `results`). To run the analysis script in batch mode, set `autorun` to `TRUE`,
-   then execute `examples/zosterops/analyse_fragmentation_study.R <experiment>` in your shell.
+   then execute `studies/zosterops/analyse_fragmentation_study.R <experiment>` in your shell.

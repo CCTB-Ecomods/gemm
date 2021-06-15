@@ -2,10 +2,10 @@
 
 echo "Copying input files."
 
-cp examples/zosterops/zosterops.config .
+cp studies/zosterops/zosterops.config .
 #TODO change back to real simulation map
-cp examples/zosterops/taita_hills_test.map .
-#cp examples/zosterops/taita_hills.map .
+cp studies/zosterops/taita_hills_test.map .
+#cp studies/zosterops/taita_hills.map .
 rm -r results/taita_test #remove after testing
 
 echo "Starting simulation run."

@@ -97,7 +97,7 @@ def run_defaults():
     global simname, replicates
     print("Running default simulation with "+str(replicates)+" replicates.")
     if varying_settings["maps"][0] not in os.listdir():
-        shutil.copy("examples/invasions/"+varying_settings["maps"][0], ".")
+        shutil.copy("studies/invasions/"+varying_settings["maps"][0], ".")
     write_config(simname+".conf",
                  varying_settings["maps"][0],
                  varying_settings["propagule-pressure"][0],
@@ -115,7 +115,7 @@ def run_experiment(control=False):
         seed = random.randint(0,100000)
         for tm in varying_settings["maps"][1:]:
             if tm not in os.listdir():
-                shutil.copy("examples/invasions/"+tm, ".")
+                shutil.copy("studies/invasions/"+tm, ".")
             # figure out the range of optimum temperature
             if "hot" in tm: mt = 298
             elif "cold" in tm: mt = 278
