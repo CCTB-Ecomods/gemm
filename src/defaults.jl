@@ -69,18 +69,19 @@ function defaultSettings()
         "static" => false, # whether mainland sites undergo eco-evolutionary processes (implies "mainland" borders)
         "stats" => true, # record population statistics (medium detail output)
         "tolerance" => 0.8, # sequence similarity threshold for reproduction if `fixtol` == true
-        "traitnames" => ["compat",
-                         "dispmean",
-                         "dispshape",
-                         "numpollen",
-                         "precopt",
-                         "prectol",
-                         "repsize",
-                         "seqsimilarity",
-                         "selfing",
-                         "seedsize",
-                         "tempopt",
-                         "temptol"], # minimal required traitnames
+        # minimal required traitnames
+        "traitnames" => ["compat", # place-holder for the neutral ("compatibility") gene
+                         "dispmean", # mean dispersal distance
+                         "dispshape", # dispersal shape parameter
+                         "numpollen", # number of offspring
+                         "precopt", # precipitation/resource optimum
+                         "prectol", # precipitation/resource tolerance
+                         "repsize", # reproductive size
+                         "seqsimilarity", # required genetic sequence similarity for mating
+                         "selfing", # probability of self-fertilisation
+                         "seedsize", # seed size
+                         "tempopt", # temperature optimum
+                         "temptol"], # temperature tolerance
         "usebiggenes" => true, # use a longer sequence for the compatibility gene
     )
 end

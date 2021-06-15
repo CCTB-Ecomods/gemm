@@ -18,6 +18,8 @@ function meiosis(genome::Array{Chromosome,1}, maternal::Bool, heterozygosity::Bo
     i = 1
     while i <= gametelength
         rand(Bool) ? g = i : g = i+gametelength
+        # We do not deepcopy parental genes for performance reasons. However, that
+        # means that if these genes are to be mutated, they must be deepcopied first.
         gamete[i] = heterozygosity ? LineageChromosome(genome[g].genes, maternal, genome[g].lineage) :
             DefaultChromosome(genome[g].genes, maternal)
         i += 1
@@ -60,7 +62,7 @@ Convert a genome (an array of chromosomes) into a dict of traits and their value
 This is an optimised version that can be run if `degpleiotropy` is 0 and `linkage` is "none".
 """
 function gettraitdictfast(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1})
-    # Makes use of the fact that with `degpleiotropy == 1` and `linkage == "none"`,
+    # Makes use of the fact that with `degpleiotropy == 0` and `linkage == "none"`,
     # there is exactly one trait per chromosome (one gene per chromosome and one trait per gene),
     # and the chromosomes are arranged in trait-order.
     genomesize = length(chrms)
@@ -397,6 +399,8 @@ function mutate!(traits::Array{Trait, 1}, locivar::Float64 = 1.0)
             oldvalue = abs(rand(Normal(0,0.01)))
         end
         newvalue = rand(Normal(oldvalue, oldvalue * setting("phylconstr") * locivar))
+        #FIXME there are no traits with "prob" in their name?!
+        # Is this meant to cap compat/seqsimilarity/selfing?
         (newvalue > 1 && occursin("prob", traitname)) && (newvalue=1.0)
         while newvalue <= 0
             newvalue = rand(Normal(oldvalue, oldvalue * setting("phylconstr") * locivar))
@@ -417,6 +421,8 @@ function mutate!(ind::Individual, temp::Float64)
     nmuts == 0 && return
     chrmidcs = rand(eachindex(ind.genome), nmuts)
     for c in chrmidcs
+        # We need to deepcopy genes here, because they are not automatically deepcopied during
+        # reproduction for performance reasons
         ind.genome[c] = deepcopy(ind.genome[c])
         length(ind.genome[c].genes) == 0 && continue
         g = rand(eachindex(ind.genome[c].genes))
@@ -429,7 +435,6 @@ function mutate!(ind::Individual, temp::Float64)
         end
         charseq[i] = newbase
         mutate!(ind.genome[c].genes[g].codes)
-        ind.genome[c].genes[g].sequence = deepcopy(ind.genome[c].genes[g].sequence) #XXX why?
         if setting("compressgenes")
             if length(charseq) > 21
                 ind.genome[c].genes[g].sequence = seq2bignum(String(charseq))
