@@ -2,12 +2,12 @@
 
 This is the Genome-explicit Metacommunity Model, an individual-based model for
 eco-evolutionary experiments. Created by the University of Würzburg
-[Ecosystem Modeling Group](https://www.biozentrum.uni-wuerzburg.de/cctb/research/ecosystem-modeling/),
-first published in:
+[Ecosystem Modeling Group](https://www.biozentrum.uni-wuerzburg.de/cctb/research/ecosystem-modeling/)
+and first published in:
 
-*Leidinger, L., Vedder, D., & Cabral, J. S. (2021). Temporal environmental variation 
-may impose differential selection on both genomic and ecological traits. 
-Oikos, 00, 1–16. https://doi.org/10.1111/oik.08172*
+> Leidinger, L., Vedder, D., & Cabral, J. S. (2021). Temporal environmental variation 
+> may impose differential selection on both genomic and ecological traits. 
+> Oikos, 00, 1–16. https://doi.org/10.1111/oik.08172
 
 For the documentation, see:
 
