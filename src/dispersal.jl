@@ -65,14 +65,14 @@ function establish!(patch::Patch)
             # for the Zosterops experiments, so they are needlessly calculated.)
             opt = patch.community[idx].traits["tempopt"]
             tol = patch.community[idx].traits["temptol"]
-            fitness = gausscurve(opt, tol, temp, 0.0)
+            fitness = gausscurve(opt, tol, temp, setting("scaleadaptation"))
             fitness > 1 && (fitness = 1) # should be obsolete
             fitness < 0 && (fitness = 0) # should be obsolete
             patch.community[idx].tempadaptation = fitness
             if setting("nniches") >= 2
                 opt = patch.community[idx].traits["precopt"]
                 tol = patch.community[idx].traits["prectol"]
-                fitness = gausscurve(opt, tol, patch.prec, 0.0)
+                fitness = gausscurve(opt, tol, patch.prec, setting("scaleadaptation"))
                 fitness > 1 && (fitness = 1) # should be obsolete
                 fitness < 0 && (fitness = 0) # should be obsolete
                 patch.community[idx].precadaptation = fitness

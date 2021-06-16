@@ -60,6 +60,7 @@ function defaultSettings()
         "propagule-pressure" => 0, # number of non-native individuals introduced per invasion event
         "quiet" => false, # don't write output to screen
         "raw" => true, # record raw data
+        "scaleadaptation" => 0.0 #either 0.0 or 1.0, needed parameter for the gausscurve funciton. For phylogeny experiment set to 1.0! 
         "sdprec" => 0.0, # SD of precipitation change per time step
         "sdtemp" => 0.0, # SD of temperature change per time step
         "seed" => 0, # for the RNG, seed = 0 -> random seed

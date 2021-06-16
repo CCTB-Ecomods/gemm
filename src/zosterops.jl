@@ -82,6 +82,7 @@ let zosterops = Individual[] #holds the species archetypes
         else
             bird.traits = gettraitdict(bird.genome, setting("traitnames"))
         end
+        @simlog("prectol $(bird.traits["prectol"]) precopt $(bird.traits["precopt"]) precadapt $(bird.precadaptation))", 'd')
         bird.size = bird.traits["repsize"] # we need to fix the size after again after mutation
         bird.sex = sex
         return bird
