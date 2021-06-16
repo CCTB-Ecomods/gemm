@@ -1,1 +1,1 @@
-examples/zosterops/run.sh
+studies/zosterops/run.sh

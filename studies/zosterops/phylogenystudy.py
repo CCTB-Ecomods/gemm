@@ -69,8 +69,8 @@ def archive_code():
     print("Archiving codebase in "+tarname)
     os.system("git log -1 > current_commit.txt")
     cmd = "tar czhf " + tarname + " README.md current_commit.txt rungemm.jl src/* " +\
-        "examples/zosterops/*.py examples/zosterops/*.R examples/zosterops/*.map " +\
-        "examples/zosterops/*.config"
+        "studies/zosterops/*.py studies/zosterops/*.R studies/zosterops/*.map " +\
+        "studies/zosterops/*.config"
     subprocess.run(cmd, shell=True)
     os.remove("current_commit.txt")
     return tarname
@@ -94,7 +94,7 @@ def run_default():
     print("Running a default simulation.")
     conf = "zosterops_default.config"
     dest = "results/taita_hills"
-    shutil.copy("examples/zosterops/Chyulu_Taita_Maps/Chyulu_025.map", ".")
+    shutil.copy("studies/zosterops/Chyulu_Taita_Maps/Chyulu_025.map", ".")
     if os.path.exists(dest):
         if input("Delete old test data? (y/n) ") == 'y':
             shutil.rmtree(dest)
@@ -120,14 +120,14 @@ def run_phylogeny_experiment(seed1, seedN, maps=all_maps):
     running_sims = []
     seed = seed1
     
-   # dir_src = ("/examples/zosterops/Chyulu_Taita_Maps/")
+   # dir_src = ("/studies/zosterops/Chyulu_Taita_Maps/")
    # dir_dst = (' .')
 
    # for filename in os.listdir(dir_src):
     #    if filename.endswith('.map'):
      #       shutil.copy( dir_src + filename, dir_dst)
       #      print(filename)
-    source = ("/home/charlotte/Zosterops/gemm/examples/zosterops/Chyulu_Taita_Maps/")
+    source = ("/home/charlotte/Zosterops/gemm/studies/zosterops/Chyulu_Taita_Maps/")
     #destination = " . "
     for files in os.listdir(source):
         full_file_name = os.path.join(source, files)

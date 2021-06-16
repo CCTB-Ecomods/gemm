@@ -1,1 +1,1 @@
-examples/zosterops/habitatstudy.py
+studies/zosterops/habitatstudy.py

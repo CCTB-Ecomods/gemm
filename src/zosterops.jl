@@ -37,7 +37,7 @@ let zosterops = Individual[] #holds the species archetypes
     Create a new individual then modify its traits to create a Zosterops archetype.
     """
     function initzosteropsspecies(spectraits::Dict{String,Any})
-        archetype = createind()
+        archetype = createind(true)
         archetype.lineage = spectraits["lineage"]
         # Find the genes that code for relevant traits and change their values
         for chromosome in archetype.genome
@@ -76,7 +76,7 @@ let zosterops = Individual[] #holds the species archetypes
         end
         (isnothing(bird)) && @simlog("Unknown species name: "*name, 'e')
         bird.id = rand(UInt32)
-        mutate!(bird, 293.15)
+        mutate!(bird, 293.15) #XXX magic number?
         if setting("linkage") == "none" # `degpleiotropy` is definitely 0 for zosterops mode
             bird.traits = gettraitdictfast(bird.genome, setting("traitnames"))
         else
