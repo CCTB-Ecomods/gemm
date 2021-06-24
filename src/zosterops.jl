@@ -204,7 +204,7 @@ function zfindmate(population::AbstractArray{Individual, 1}, bird::Individual)
             break
         end
     end
-    if isnothing(partner) && setting("speciation") == "off"
+    if isnothing(partner) && (setting("speciation") == "off" || setting("hybridisation") == "on")
         for b in population
             (b.lineage == bird.lineage) && continue
             if ziscompatible(bird, b)
@@ -224,7 +224,7 @@ Check to see whether two birds are reproductively compatible.
 function ziscompatible(i1::Individual, i2::Individual)
     (i1.sex == i2.sex) && return false
     !(i1.partner == 0 && i2.partner == 0) && return false
-    if setting("speciation") == "off" #check for hybridisation
+    if (setting("speciation") == "off" || setting("hybridisation") == "on") #check for hybridisation
         (i1.lineage != i2.lineage && rand(Float64) > setting("tolerance")) && return false
     else #check for speciation
         (!iscompatible(i1, i2)) && return false
