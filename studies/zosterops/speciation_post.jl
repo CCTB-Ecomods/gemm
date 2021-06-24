@@ -43,7 +43,7 @@ function split_fa(folderpath)
             i+=1  
             filename_seqs = joinpath(folderpath, filename_seqs)
             open(filename_seqs, "w") do outseqs 
-                for line in 1:n*22 #it's 22 here because there's 22 chromosomes per individual
+                for line in 1:n*44 #it's 44 here because there's 22 chromosomes per individual and two lines per gene
                     print(outseqs, readline(seqs)*"\n") 
                 end
             end
