@@ -26,7 +26,13 @@ function survive!(patch::Patch)
             dieprob = (1 - exp(-deathrate))
             (rand() * patch.community[idx].tempadaptation < dieprob) && (dies = true)
         elseif mtype == "habitat"
-            (rand() < setting("mortality")+(1-patch.community[idx].precadaptation)) && (dies = true)
+            precadaptation = pdf(Normal(patch.community[idx].traits["precopt"], patch.community[idx].traits["prectol"]), patch.prec)
+            maxprecadapt = pdf(Normal(patch.prec, setting("perfecttol")), patch.prec)
+            fitness = precadaptation / maxprecadapt
+            fitness > 1 && (fitness = 1)
+            fitness < 0 && (fitness = 0)
+            (rand() < setting("mortality") + (1 - fitness)) && (dies = true)
+            #(rand() < setting("mortality")+(1-patch.community[idx].precadaptation)) && (dies = true)
         elseif mtype == "global"
             (rand() < setting("mortality")) && (dies = true)
         else

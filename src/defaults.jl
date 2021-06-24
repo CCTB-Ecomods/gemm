@@ -54,13 +54,14 @@ function defaultSettings()
         "nniches" => 2, # number of environmental niches (max. 2) #XXX currently, only 2 is sensible
         "outfreq" => 10, # output frequency
         "overfill" => 1.0, # how much to overfill grid cells beyond their capacity
+        "perfecttol" => 2.0, #if mortality is habitat dependent, how tolerant should a perfectly adapted individual be? scales for specialist selection pressure
         "phylconstr" => 0.1, # phylogenetic constraint during mutation and inter-loci variation. scales trait value as sd.
         "popsize" => "metabolic", # initialisation algorithm: metabolic/bodysize/minimal/single
         "precrange" => 0, # max optimum precipitation - deprecated! (use `maxprec`)
         "propagule-pressure" => 0, # number of non-native individuals introduced per invasion event
         "quiet" => false, # don't write output to screen
         "raw" => true, # record raw data
-        "scaleadaptation" => 0.0 #either 0.0 or 1.0, needed parameter for the gausscurve funciton. For phylogeny experiment set to 1.0! 
+        "scaleadaptation" => 0.0, #either 0.0 or 1.0, needed parameter for the gausscurve funciton. For phylogeny experiment set to 1.0! 
         "sdprec" => 0.0, # SD of precipitation change per time step
         "sdtemp" => 0.0, # SD of temperature change per time step
         "seed" => 0, # for the RNG, seed = 0 -> random seed
