@@ -154,7 +154,7 @@ function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
         # calculate the best habitat patch in the surroundings (i.e. the closest to AGC optimum)
         bestdest = nothing
         bestfit = nothing
-        for pid in patch.neighbours
+        for pid in shuffle(patch.neighbours)
             neighbour = world[pid]
             (neighbour.location in route) && continue
             neighbourfit = abs(neighbour.prec - bird.traits["precopt"])
