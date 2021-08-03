@@ -125,7 +125,7 @@ def run_sensitivity_analysis(seed1, seedN):
     running_sims = []
     seed = seed1
     species_no=0
-    shutil.copy("/home/charlotte/Zosterops/gemm/studies/zosterops/Phylogeny_study/Chyulu_Taita_Maps2/Chyulu_025.map", ".")
+    shutil.copy("studies/zosterops/Phylogeny_study/Chyulu_Taita_Maps2/Chyulu_025.map", ".")
     while seed <= seedN:
         for s in alternate_speciations:
             for pt in alternate_perfecttol:
@@ -135,7 +135,7 @@ def run_sensitivity_analysis(seed1, seedN):
                             for ds in alternate_dispshape:
                                 for t in alternate_tolerance:
                                     conf = str(s)+"_"+str(seed)+"_phyl"+str(pc)+"_pertol"+str(pt)+"_mutate"+str(m)+"_dispm"+str(dm)+"_dispsh"+str(ds)+"_comtol"+str(t)
-                                    write_config(conf+".config", "results/"+conf, seed, speciation=m, perfecttol=pt, phylconstr=pc, mutationrate=m, dispmean=dm, dispshape=ds, tolerance=t)
+                                    write_config(conf+".config", "results/"+conf, seed, speciation=s, perfecttol=pt, phylconstr=pc, mutationrate=m, dispmean=dm, dispshape=ds, tolerance=t)
                                     sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
                                     running_sims.append(sim)
         seed = seed + 1
@@ -153,21 +153,9 @@ if __name__ == '__main__':
         run_default()
     elif sys.argv[1] == "archive":
         pass #only archive the code
-    elif sys.argv[1] == "tolerance":
-        run_hybridisation_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif sys.argv[1] == "habitat":
-        if len(sys.argv) > 4: #if the tolerance is specified
-            run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]), sys.argv[4])
-        else: run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif sys.argv[1] == "mutation":
-        run_mutation_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif sys.argv[1] == "linkage":
-        run_linkage_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif sys.argv[1] == "long":
-        run_long_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif sys.argv[1] == "phylogeny":
+    elif sys.argv[1] == "phylogeny": #XXX not implemented
         run_phylogeny_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif sys.argv[1] == "traitspace":
+    elif sys.argv[1] == "traitspace": #XXX not implemented
         run_traitspace_experiment(int(sys.argv[2]), int(sys.argv[3]))    
     elif sys.argv[1] == "sensitivity":
         run_sensitivity_analysis(int(sys.argv[2]), int(sys.argv[3]))     
