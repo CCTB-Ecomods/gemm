@@ -127,7 +127,7 @@ def run_phylogeny_experiment(seed1, seedN, maps=all_maps):
     #    if filename.endswith('.map'):
      #       shutil.copy( dir_src + filename, dir_dst)
       #      print(filename)
-    source = ("/home/charlotte/Zosterops/gemm/studies/zosterops/Chyulu_Taita_Maps/")
+    source = ("studies/zosterops/Chyulu_Taita_Maps/")
     #destination = " . "
     for files in os.listdir(source):
         full_file_name = os.path.join(source, files)
@@ -154,17 +154,5 @@ if __name__ == '__main__':
         run_default()
     elif sys.argv[1] == "archive":
         pass #only archive the code
-    elif sys.argv[1] == "tolerance":
-        run_hybridisation_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif sys.argv[1] == "habitat":
-        if len(sys.argv) > 4: #if the tolerance is specified
-            run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]), sys.argv[4])
-        else: run_habitat_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif sys.argv[1] == "mutation":
-        run_mutation_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif sys.argv[1] == "linkage":
-        run_linkage_experiment(int(sys.argv[2]), int(sys.argv[3]))
-    elif sys.argv[1] == "long":
-        run_long_experiment(int(sys.argv[2]), int(sys.argv[3]))
     elif sys.argv[1] == "phylogeny":
         run_phylogeny_experiment(int(sys.argv[2]), int(sys.argv[3]))    
