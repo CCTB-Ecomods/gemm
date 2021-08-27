@@ -151,7 +151,7 @@ function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
     !(bird.traits["dispshape"] > 0) && @goto failure # Logistics() requires θ > zero(θ)
     if setting("dispmortality")
         dispmortality= bird.traits["dispmean"]/(setting("dispmean") *setting("dispfactor"))
-        if rand() < dispmortality && @goto failure        
+        rand() < dispmortality && @goto failure        
     end
     maxdist = rand(Logistic(bird.traits["dispmean"], bird.traits["dispshape"]))
         
