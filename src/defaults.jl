@@ -21,6 +21,8 @@ function defaultSettings()
         "dest" => string(Dates.today()), # output folder name
         "dispmean" => 1.0, # maximum value of randomly drawn mean dispersal distance in cells
         "dispshape" => 1.0, # maximum value of randomly drawn shape parameter for dispersal kernel. determines tail fatness/long distance dispersal
+        "dispmortality" => false, #boolean toggle for switching mortality dependent on dispersal distance, depends on dispfactor(see below), only in zdisperse()
+        "dispfactor"=> 2, #: when dispmean multiplied by dispfactor is larger than  evolved dispersaldistance -> individual dies with 100 % chance, when smaller, chances of survival higher
         "disturbance" => 0, # percentage of individuals killed per update per cell
         "fasta" => "off", # record fasta data? "off", "compat", "all" (high detail output)
         "fastaoutfreq" => 10, #frequency with which to write fasta data

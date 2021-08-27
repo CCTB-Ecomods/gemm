@@ -149,7 +149,12 @@ function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
     #XXX disperse!() adds `/sqrt(2)`??
     #XXX sex-biased maximum dispersal?
     !(bird.traits["dispshape"] > 0) && @goto failure # Logistics() requires θ > zero(θ)
+    if setting("dispmortality")
+        dispmortality= bird.traits["dispmean"]/(setting("dispmean") *setting("dispfactor"))
+        if rand() < dispmortality && @goto failure        
+    end
     maxdist = rand(Logistic(bird.traits["dispmean"], bird.traits["dispshape"]))
+        
     while maxdist > 0
         # calculate the best habitat patch in the surroundings (i.e. the closest to AGC optimum)
         bestdest = nothing
