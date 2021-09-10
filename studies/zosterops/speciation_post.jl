@@ -33,7 +33,7 @@ function split_fa(folderpath, n_genes)
 
     indtable = count_inds(folderpath)
 
-    open(joinpath(folderpath, "seqs_s2.fa")) do seqs
+    open(joinpath(folderpath, "seqs_s1.fa")) do seqs
         #iterating over the timesteps
         for n in 1:size(indtable, 1)
             outseqs = ""  
@@ -94,7 +94,7 @@ function count_inds(folderpath)
     first = true
     t_index = String
     t_all = []
-    for line in eachline(joinpath(folderpath, "indcoord_s2.tsv"))
+    for line in eachline(joinpath(folderpath, "indcoord_s1.tsv"))
         if first == true 
             first = false
             continue
