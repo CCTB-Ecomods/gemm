@@ -4,55 +4,22 @@ the seqs file. It automatically takes the first half of the genome and concatena
 "chromosome" for further analysis.
 These are then loaded into a further tool (eg. FasTree)
 
-Input parameters are the foldername of the replicate in results
-Robin Rölz, 11/06/2021"""
+this is meant to be parallelised via an sbatch command in slurm
+
+No warranties for anything. Use at your own risk.
+Robin Rölz, 21/09/2021"""
+
+results_path = "../../results/"
+n_genes = 22
 
 """
-    split_fa(folder)
+    searchdir(path, key)
 
-split the seqs.fa file in the folder according to the amount of individuals
-in single fasta files to allow for post processing.
+short helper function to find files in a directory matching specifications
 """
 
-using ArgParse
-
-s = ArgParseSettings()
-@add_arg_table! s begin
-    "--fn", "--folderpath"
-        help = "points to the results folder" #so far only puts it in wd
-        arg_type = String
-    "l"
-        help = "genome length in genes"
-        arg_type = Int
-        default = 22 #current value for the Zosterops study
-end
-
-function split_fa(folderpath, n_genes)
-
-    fa_length = n_genes*2 #number of lines the genome takes in the fasta file
-
-    indtable = count_inds(folderpath)
-
-    open(joinpath(folderpath, "seqs_s1.fa")) do seqs
-        #iterating over the timesteps
-        for n in 1:size(indtable, 1)
-            outseqs = ""  
-            #this is all the genes from one time step
-            for m in 1:indtable[n,2]
-                genome = []
-                for o in 1:fa_length 
-                    push!(genome, readline(seqs))
-                end
-                outseqs = outseqs*concat_chrs(genome)
-            end
-
-            filename_seqs = "chrs_"*string(indtable[n,1])*".fa" #labels files after the timestep
-            filename_seqs = joinpath(folderpath, filename_seqs)
-            open(filename_seqs, "w") do io
-                write(io, outseqs)
-            end
-        end
-    end    
+function searchdir(path, key)
+    filter(x->occursin(key,x), readdir(path))
 end
 
 """ 
@@ -79,6 +46,7 @@ function concat_chrs(genome)
     
     return chrs*"\n"
 end
+
 """
     count_inds(folderpath)
 
@@ -94,7 +62,7 @@ function count_inds(folderpath)
     first = true
     t_index = String
     t_all = []
-    for line in eachline(joinpath(folderpath, "indcoord_s1.tsv"))
+    for line in eachline(joinpath(folderpath, searchdir(folderpath, r"indcoord.*\.tsv")))
         if first == true 
             first = false
             continue
@@ -111,10 +79,58 @@ function count_inds(folderpath)
     return hcat(t_all, n_inds)
 end
 
+"""
+    get_results(results_path)
+
+grab all results folders and returns one according to the SLURM_ARRAY_TASK_ID
+"""
+
+function get_results(results_path)
+    folders = readdir(results_path)
+    task_id = Base.parse(Int, ENV["SLURM_ARRAY_TASK_ID"])
+    return folders[task_id]
+end
+
+"""
+    split_fa(folder)
+
+split the seqs.fa file in the folder according to the amount of individuals
+in single fasta files to allow for post processing.
+"""
+
+function split_fa(folderpath, n_genes)
+
+    fa_length = n_genes*2 #number of lines the genome takes in the fasta file
+
+    indtable = count_inds(folderpath)
+
+    open(joinpath(folderpath, searchdir(folderpath, r"seqs.*\.fa"))) do seqs
+        #iterating over the timesteps
+        chrsdir = joinpath(folderpath, "chrs")
+        mkpath(chrsdir)
+        for n in 1:size(indtable, 1)
+            outseqs = ""  
+            #this is all the genes from one time step
+            for m in 1:indtable[n,2]
+                genome = []
+                for o in 1:fa_length 
+                    push!(genome, readline(seqs))
+                end
+                outseqs = outseqs*concat_chrs(genome)
+            end
+
+            filename_seqs = "chrs_"*string(indtable[n,1])*".fa" #labels files after the timestep
+            filename_seqs = joinpath(chrsdir, filename_seqs)
+            open(filename_seqs, "w") do io
+                write(io, outseqs)
+            end
+        end
+    end    
+end
+
+
 println("Starting Analysis")
-arg = parse_args(s)
-folderpath = arg["fn"]
-n_genes = arg["l"]
+folderpath = get_results(results_path)
 println("Splitting .fa in "*folderpath)
-split_fa(folderpath, n_genes)
+#split_fa(folderpath, n_genes)
 println("Finished splitting .fa in "*folderpath)
