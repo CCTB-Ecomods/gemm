@@ -31,7 +31,7 @@ function createpop(cellsize::Float64)
     for i in 2:popsize
         #TODO avoid `deepcopy` here
         ind = deepcopy(archetype) # XXX this is potentially very slow!
-        ind.id = rand(UInt32)
+        ind.id = rand(UInt64)
         varyalleles!(ind.genome, locivar)
         ind.traits = gettraitdict(ind.genome, setting("traitnames"))
         if !(setting("indsize") == "adult" || setting("indsize") == "seed")

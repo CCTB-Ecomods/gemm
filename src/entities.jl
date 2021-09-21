@@ -94,8 +94,8 @@ mutable struct Individual
     tempadaptation::Float64 # adaption to temperature
     size::Float64 # body mass
     sex::Sex
-    partner::Int  # ID of the partner individual (if applicable, default 0)
-    id::Int
+    partner::UInt64  # ID of the partner individual (if applicable, default 0)
+    id::UInt64
 end
 
 """

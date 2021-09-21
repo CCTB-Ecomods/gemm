@@ -141,7 +141,7 @@ function createoffspring(noffs::Integer, ind::Individual, partner::Individual, d
         fitness = 0.0
         newpartner = 0
         newsize = ind.traits["seedsize"]
-        newid = rand(UInt32) #XXX Is this collision-safe?
+        newid = rand(UInt64) #XXX Is this collision-safe?
         sex = hermaphrodite
         if dimorphism
             rand(Bool) ? sex = male : sex = female
