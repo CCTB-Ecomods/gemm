@@ -73,7 +73,9 @@ The annual update procedure for the Zosterops experiments, this time for bird po
 """
 function zosteropsexperiment(world::Array{Patch,1})
     # The first four processes are patch-internal and can therefore be parallelised
-    # Note: multithreading requires calling Julia with the -p parameter
+    # Note: multithreading requires calling Julia with the -p parameter (and -t?)
+    #FIXME we're not entirely certain this works as advertised - better not use it
+    # until further tested
     Threads.@threads for patch in world
         establish!(patch)
         survive!(patch)

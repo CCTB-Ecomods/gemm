@@ -11,6 +11,7 @@
 #    instead of a metabolic coefficient. (`noffs = rand(0:fertility)`)
 # 4. the `tolerance` setting now determines the probability that a mate of
 #    another species is accepted, if no conspecific mate is available
+#    (Warning: this only applies when hybridisation == true or speciation == "off")
 # 5. `degpleiotropy` must be set to 0, otherwise the species initialisation will fail
 # 6. the world must be a rectangle with patch coordinates in row-major order,
 #    otherwise dispersal will show weird behaviour (see `coordinate()`)

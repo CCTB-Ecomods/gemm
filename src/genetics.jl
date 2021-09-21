@@ -89,6 +89,8 @@ Compare two strings and return similarity.
 """
 function getseqsimilarity(indgene::AbstractString, mategene::AbstractString)
     basediffs = 0
+    #FIXME this should find out whether indgene or mategene is shorter and use that,
+    # then count the length difference towards the base diff
     for i in eachindex(indgene)
         try
             indgene[i] != mategene[i] && (basediffs += 1) # alternatively use bioinformatics tools

@@ -160,6 +160,10 @@ optional arguments:
   -h, --help           show this help message and exit
 ```
 
+**WARNING: The parallelisation code seems to be suffering from data race issues.
+Do not use this for the time being! (As long as the `-p` and `-t` options are not
+passed to the Julia runtime, there shouldn't be any problems.)**
+
 There's a separate script to run several replicates of a given experiment
 in parallel. This is used as follows:
 
@@ -167,8 +171,9 @@ in parallel. This is used as follows:
 julia -p <NPROCS> rungemmparallel.jl -s <SEED> -n <NREPS> -c <CONFIG>
 ```
 
-where `<NPROCS>` = number of cores, `<SEED>` = integer value to set a random seed, `<NREPS>` = number of replicates and
-`<CONFIG>` the configuration file.
+where `<NPROCS>` = number of cores, `<SEED>` = integer value to set a random seed, 
+`<NREPS>` = number of replicates and `<CONFIG>` the configuration file.
+*(FIXME how about the `-t` option?)*
 
 
 ## Demo
