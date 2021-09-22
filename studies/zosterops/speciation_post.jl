@@ -132,5 +132,5 @@ end
 println("Starting Analysis")
 folderpath = get_results(results_path)
 println("Splitting .fa in "*folderpath)
-#split_fa(folderpath, n_genes)
+split_fa(folderpath, n_genes)
 println("Finished splitting .fa in "*folderpath)
