@@ -9,7 +9,7 @@ this is meant to be parallelised via an sbatch command in slurm
 No warranties for anything. Use at your own risk.
 Robin Rölz, 21/09/2021"""
 
-results_path = "../../results/"
+results_path = "gemm/results/"
 n_genes = 22
 
 """
