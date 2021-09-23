@@ -88,7 +88,8 @@ grab all results folders and returns one according to the SLURM_ARRAY_TASK_ID
 function get_results(results_path)
     folders = readdir(results_path)
     task_id = Base.parse(Int, ENV["SLURM_ARRAY_TASK_ID"])
-    return joinpath(results_path, folders[task_id])
+    taskfolder = folders[task_id]
+    return joinpath(results_path, taskfolder)
 end
 
 """
