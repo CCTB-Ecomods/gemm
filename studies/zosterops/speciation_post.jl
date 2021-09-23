@@ -19,7 +19,8 @@ short helper function to find files in a directory matching specifications
 """
 
 function searchdir(path, key)
-    filter(x->occursin(key,x), readdir(path))
+    item = filter(x->occursin(key,x), readdir(path))
+    return item[1]
 end
 
 """ 
@@ -87,7 +88,8 @@ grab all results folders and returns one according to the SLURM_ARRAY_TASK_ID
 
 function get_results(results_path)
     folders = readdir(results_path)
-    task_id = Base.parse(Int, ENV["SLURM_ARRAY_TASK_ID"])
+    #task_id = Base.parse(Int, ENV["SLURM_ARRAY_TASK_ID"])
+    task_id = 3
     taskfolder = folders[task_id]
     return joinpath(results_path, taskfolder)
 end
