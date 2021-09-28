@@ -269,12 +269,14 @@ function writefasta(world::Array{Patch,1}, timestep::Int)
     open(filename, "a") do file
         makefasta(world, file)
     end
-    filename_ind = "indcoord_s"* string(setting("seed"))
-    filename_ind = joinpath(setting("dest"), filename_ind)
-    filename_ind = filename_ind * ".tsv"
-    simlog("Writing individual coordinates \""*string(filename_ind)*"\"")
-    open(filename_ind, "a") do file
-        indcoord(world, timestep, file)
+    if setting("dumpindforfasta")
+        filename_ind = "inds_s"* string(setting("seed"))
+        filename_ind = joinpath(setting("dest"), filename_ind)
+        filename_ind = filename_ind * ".tsv"
+        simlog("Writing individual data \""*string(filename_ind)*"\"")
+        open(filename_ind, "a") do file
+            dumpinds(world, timestep, file)
+        end
     end
 end
 
