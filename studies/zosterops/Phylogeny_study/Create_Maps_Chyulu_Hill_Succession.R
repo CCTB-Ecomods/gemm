@@ -80,11 +80,10 @@ plot(THlarge) #check whether you like the product
 
 writeRaster(THlarge, "TaitaChyulu_1sqkm_ENLARGED.tif")
 
-
 #Map of just the Chyuluy hills. Note that the cut-off was arbitrarily chosen and does not represent any political / geological area.
 Chyulu=raster("Chyulu_cut.tif")
-plot(Chyulu)
-
+THlarge=raster("TaitaChyulu_1sqkm_ENLARGED.tif")
+plot(THlarge)
 #This map will now be flattened step by step 2.5% steps 
 #down 2.5% forest cover respectively
 low_25=seq(75, 2.5, by= -2.5)

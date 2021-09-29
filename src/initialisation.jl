@@ -49,7 +49,7 @@ end
 Create an individual organism of a new species with a random genome.
 """
 function createind(marked::Bool = false)
-    id = rand(Int32)
+    id = rand(UInt64)
     lineage = randstring(6)
     ngenes = rand(1:setting("maxloci")) * length(setting("traitnames"))
     setting("degpleiotropy") == 0 && (ngenes = length(setting("traitnames")))
