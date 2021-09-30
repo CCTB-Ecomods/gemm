@@ -136,7 +136,7 @@ function iscompatible(mate::Individual, ind::Individual)
         mategenes = join(getseqs(mate.genome, "compat"))
     elseif setting("speciation") == "ecological"
         # use all coding sequences for ecological speciation
-        for tr in setting("traitnames")
+        for tr in setting("traitsforecospec")
             (tr == "compat") && continue
             indgenes *= join(getseqs(ind.genome, tr))
             mategenes *= join(getseqs(mate.genome, tr))

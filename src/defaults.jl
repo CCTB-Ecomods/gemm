@@ -88,6 +88,17 @@ function defaultSettings()
                          "seedsize", # seed size
                          "tempopt", # temperature optimum
                          "temptol"], # temperature tolerance
+        "traitsforecospec" => ["dispmean", # mean dispersal distance
+                               "dispshape", # dispersal shape parameter
+                               "numpollen", # number of offspring
+                               "precopt", # precipitation/resource optimum
+                               "prectol", # precipitation/resource tolerance
+                               "repsize", # reproductive size
+                               "seqsimilarity", # required genetic sequence similarity for mating
+                               "selfing", # probability of self-fertilisation
+                               "seedsize", # seed size
+                               "tempopt", # temperature optimum
+                               "temptol"], # temperature tolerance
         "usebiggenes" => true, # use a longer sequence for the compatibility gene
     )
 end

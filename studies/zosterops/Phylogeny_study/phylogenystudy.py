@@ -53,12 +53,13 @@ default_settings = {
     # species parameters
     "species":'[Dict("lineage"=>"archetype","precopt"=>20,"prectol"=>20,"tempopt"=>293,"temptol"=>2)]',
     "traitnames":'["compat","dispmean","dispshape","numpollen","precopt","prectol","repsize","seqsimilarity","seedsize","tempopt","temptol"]',
+    "traitsforecospec":'["dispmean","dispshape","precopt","prectol"]',
     # variable parameters
     "speciation":"ecological"
 }
 
 alternate_speciations = ["ecological","neutral"]
-all_maps = "Chyulu_025.map,Chyulu_050.map,Chyulu_075.map,Chyulu_100.map,Chyulu_125.map,Chyulu_150.map,Chyulu_175.map,Chyulu_200.map,Chyulu_225.map,Chyulu_250.map,Chyulu_275.map,Chyulu_300.map,Chyulu_325.map,Chyulu_350.map,Chyulu_350.map,Chyulu_375.map,Chyulu_400.map,Chyulu_425.map,Chyulu_450.map,Chyulu_475.map,Chyulu_500.map,Chyulu_525.map,Chyulu_550.map,Chyulu_575.map,Chyulu_600.map,Chyulu_625.map,Chyulu_650.map,Chyulu_675.map,Chyulu_700.map,Chyulu_725.map,Chyulu_750.map"
+all_maps = "Chyulu_25.map,Chyulu_50.map,Chyulu_75.map,Chyulu_100.map,Chyulu_125.map,Chyulu_150.map,Chyulu_175.map,Chyulu_200.map,Chyulu_225.map,Chyulu_250.map,Chyulu_275.map,Chyulu_300.map,Chyulu_325.map,Chyulu_350.map,Chyulu_350.map,Chyulu_375.map,Chyulu_400.map,Chyulu_425.map,Chyulu_450.map,Chyulu_475.map,Chyulu_500.map,Chyulu_525.map,Chyulu_550.map,Chyulu_575.map,Chyulu_600.map,Chyulu_625.map,Chyulu_650.map,Chyulu_675.map,Chyulu_700.map,Chyulu_725.map,Chyulu_750.map"
 
 
 ## AUXILIARY FUNCTIONS
@@ -127,7 +128,7 @@ def run_phylogeny_experiment(seed1, seedN, maps=all_maps):
     #    if filename.endswith('.map'):
      #       shutil.copy( dir_src + filename, dir_dst)
       #      print(filename)
-    source = ("/home/charlotte/Zosterops/gemm/studies/zosterops/Chyulu_Taita_Maps/")
+    source = ("studies/zosterops/Phylogeny_study/Chyulu_Taita_Maps/")
     #destination = " . "
     for files in os.listdir(source):
         full_file_name = os.path.join(source, files)
