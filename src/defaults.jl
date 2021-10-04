@@ -24,6 +24,7 @@ function defaultSettings()
         "dispmortality" => false, #boolean toggle for switching mortality dependent on dispersal distance, depends on dispfactor(see below), only in zdisperse()
         "dispfactor"=> 2, #: when dispmean multiplied by dispfactor is larger than  evolved dispersaldistance -> individual dies with 100 % chance, when smaller, chances of survival higher
         "disturbance" => 0, # percentage of individuals killed per update per cell
+        "dumpindforfasta"=> false, #should dumpinds be called simultaneously with the fasta output? 
         "fasta" => "off", # record fasta data? "off", "compat", "all" (high detail output)
         "fastaoutfreq" => 10, #frequency with which to write fasta data
         "fertility" => exp(28.0), # global base reproduction rate 23.8 from Brown et al. 2004, alternatively 25.0, default 30.0
@@ -87,6 +88,17 @@ function defaultSettings()
                          "seedsize", # seed size
                          "tempopt", # temperature optimum
                          "temptol"], # temperature tolerance
+        "traitsforecospec" => ["dispmean", # mean dispersal distance
+                               "dispshape", # dispersal shape parameter
+                               "numpollen", # number of offspring
+                               "precopt", # precipitation/resource optimum
+                               "prectol", # precipitation/resource tolerance
+                               "repsize", # reproductive size
+                               "seqsimilarity", # required genetic sequence similarity for mating
+                               "selfing", # probability of self-fertilisation
+                               "seedsize", # seed size
+                               "tempopt", # temperature optimum
+                               "temptol"], # temperature tolerance
         "usebiggenes" => true, # use a longer sequence for the compatibility gene
     )
 end
