@@ -63,7 +63,7 @@ function count_inds(folderpath)
     first = true
     t_index = String
     t_all = []
-    for line in eachline(joinpath(folderpath, searchdir(folderpath, r"indcoord.*\.tsv")))
+    for line in eachline(joinpath(folderpath, searchdir(folderpath, r"ind.*\.tsv")))
         if first == true 
             first = false
             continue
