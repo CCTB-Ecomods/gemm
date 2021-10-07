@@ -7,6 +7,7 @@ in a Dict.
 function defaultSettings()
     # Return the default settings. All parameters must be registered here.
     Dict(
+        "allometry" => false, # whether to calculate seed size from adult size
         "biggenelength" => 200, # length of the compatibility gene's sequence (if `usebiggenes`)
         "bodytemp"=> 312.0, # body temperature in K for homeothermic species
         "borders" => "absorbing", # border behaviour: absorbing/reflecting/mainland

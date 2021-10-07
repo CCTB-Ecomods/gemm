@@ -33,7 +33,7 @@ function createpop(cellsize::Float64)
         ind = deepcopy(archetype) # XXX this is potentially very slow!
         ind.id = rand(UInt32)
         varyalleles!(ind.genome, locivar)
-        ind.traits = gettraitdict(ind.genome, setting("traitnames"))
+        ind.traits = gettraitdict(ind.genome, setting("traitnames"), setting("allometry"))
         if !(setting("indsize") == "adult" || setting("indsize") == "seed")
             #XXX sizes uniformally distributed?
             ind.size = ind.traits["seedsize"] + rand() * (ind.traits["repsize"] - ind.traits["seedsize"])
@@ -66,7 +66,7 @@ function createind(marked::Bool = false)
     end
     chromosomes = createchrms(nchrms, genes, lineage)
     varyalleles!(chromosomes, rand())
-    traitdict = gettraitdict(chromosomes, setting("traitnames"))
+    traitdict = gettraitdict(chromosomes, setting("traitnames"), setting("allometry"))
     if setting("indsize") == "adult"
         indsize = traitdict["repsize"]
     elseif setting("indsize") == "seed"
@@ -216,4 +216,16 @@ function updateworld(oldworld::Array{Patch,1}, maptable::Array{Array{String,1},1
     global newpatch = nothing # remove variable used in `createpatch()`
     (setting("mode") == "zosterops") && findneighbours!(newworld)
     return newworld
+end
+
+"""
+    setallosize!(traitdict)
+
+Calculate seed size according to the allometric
+relatioship to adult size, devised by Hendriks and Mulder (2008).
+Only called if `settings["allometry"] == true`.
+"""
+function calcallosize(repsize::Float64)
+    alloseedsize = 2.1410^(-3) * repsize^(0.5)
+    alloseedsize
 end
