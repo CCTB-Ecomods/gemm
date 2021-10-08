@@ -7,15 +7,16 @@ files, map files, and analysis scripts for each study may be found in the `studi
 ## Papers
 
 1. Leidinger, L., Vedder, D., & Cabral, J. S. (2021). Temporal environmental variation may 
-   impose differential selection on both genomic and ecological traits. Oikos, 00, 1–16. 
+   impose differential selection on both genomic and ecological traits. Oikos, 130(7), 1100–1115. 
    https://doi.org/10.1111/oik.08172
    
 2. Vedder, D., Leidinger, L., & Cabral, J. S. (*in review*). Propagule pressure and an 
    invasion syndrome determine invasion success in a plant community model. Ecology and 
    Evolution. Preprint DOI: https://doi.org/10.1101/2020.04.20.050278
    
-3. Vedder, D., Ankenbrand, M., & Cabral, J. S. (*in review*). Dealing with Software Complexity 
+3. Vedder, D., Ankenbrand, M., & Cabral, J. S. (2021). Dealing with Software Complexity 
    in Individual-Based Models. Methods in Ecology and Evolution.
+   https://doi.org/10.1111/2041-210X.13716
    
 4. Figueiredo, L., Leidinger, L., Steffan-Dewenter, I., & Cabral, J. S. (*in review*). 
    Evolutionary rescue and community re-assembly can mitigate extinction debts.
@@ -23,6 +24,9 @@ files, map files, and analysis scripts for each study may be found in the `studi
 5. Leidinger, L., & Cabral J. S. (*in preparation*). How genomic and ecological 
    traits affect radiations of plant species on oceanic islands: insights from a 
    genomically-explicit model.
+   
+6. Vedder, D., Engler, J., Lens, L., Pellikka, P., Cabral, J. S. (*in preparation*).
+   Hybridisation May Aid Evolutionary Rescue of an Endangered East African Passerine.
 
 
 ## Theses
@@ -31,7 +35,8 @@ files, map files, and analysis scripts for each study may be found in the `studi
    Bachelors thesis.
    
 2. Leidinger, L. (2020) How Genomic and Ecological Traits Shape Island Biodiversity - Insights
-   from Individual-Based Models. PhD dissertation. https://doi.org/10.25972/OPUS-20730
+   from Individual-Based Models. PhD dissertation, University of Würzburg. 
+   https://doi.org/10.25972/OPUS-20730
 
 3. Vedder, D. (2021) Evolutionary Rescue by Introgressive Hybridisation in Zosterops.
    Masters thesis.

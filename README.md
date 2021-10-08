@@ -7,7 +7,7 @@ and first published in:
 
 > Leidinger, L., Vedder, D., & Cabral, J. S. (2021). Temporal environmental variation 
 > may impose differential selection on both genomic and ecological traits. 
-> Oikos, 00, 1–16. https://doi.org/10.1111/oik.08172
+> Oikos, 130(7), 1100-1115. https://doi.org/10.1111/oik.08172
 
 For the documentation, see:
 
@@ -31,6 +31,8 @@ For the documentation, see:
 
 - [`docs/HACKING.md`](https://github.com/CCTB-Ecomods/gemm/blob/master/docs/HACKING.md) 
   instructions for development work on the model, tailored to the *Zosterops* study.
+  
+The current active development branch is [`Zosterops`](https://github.com/CCTB-Ecomods/gemm/tree/zosterops).
 
 ---
 
