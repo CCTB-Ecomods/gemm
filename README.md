@@ -1,5 +1,7 @@
 # GeMM
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5602907.svg)](https://doi.org/10.5281/zenodo.5602907)
+
 This is the Genome-explicit Metacommunity Model, an individual-based model for
 eco-evolutionary experiments. Created by the University of Würzburg
 [Ecosystem Modeling Group](https://www.biozentrum.uni-wuerzburg.de/cctb/research/ecosystem-modeling/)
