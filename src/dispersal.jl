@@ -27,7 +27,7 @@ function disperse!(world::Array{Patch,1})
             # mainland is static (i.e. mainland individuals are treated as archetypes from
             # an infinitely large source population).
             if setting("static")
-                if !world[possdest].isisland
+                if !isnothing(possdest) && !world[possdest].isisland
                     idx += 1 # disperse only to islands
                     continue
                 end
