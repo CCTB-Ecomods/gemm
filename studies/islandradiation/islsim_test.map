@@ -1,5 +1,5 @@
 # timesteps:
-30
+20
 
 # island :
 1 0 0 temp=298 prec=1 isisland 
@@ -13,5 +13,4 @@
 9 2 2 temp=298 prec=9 isisland 
 
 # continent :
-1000 108 4 temp=298 prec=5 initpop
-
+10 5 5 temp=298 prec=5 initpop
