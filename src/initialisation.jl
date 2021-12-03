@@ -219,6 +219,17 @@ function updateworld(oldworld::Array{Patch,1}, maptable::Array{Array{String,1},1
 end
 
 """
+    resetseedsizes!()
+
+Re-calculate minimal and maximal seed sizes.
+Only evaluated if the allometric relationship is to be simulated.
+"""
+function resetseedsizes!()
+    updatesetting("minseedsize", calcallosize(setting("minrepsize")))
+    updatesetting("maxseedsize", calcallosize(setting("maxrepsize")))
+end
+
+"""
     setallosize!(traitdict)
 
 Calculate seed size according to the allometric

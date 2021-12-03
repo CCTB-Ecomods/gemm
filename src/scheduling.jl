@@ -11,8 +11,6 @@ function simulate!(world::Array{Patch,1}, timesteps::Int=1000, timeoffset::Int =
     checkviability!(world)
     for t in (timeoffset + 1):(timeoffset + timesteps)
         simlog("UPDATE $t")
-        # allometry relatioship resets setting seed min-max sizes
-        setting("allometry") && resetseedsizes!()
         # ecological processes are outsourced to specialised methods below
         if setting("mode") == "default"
             defaultexperiment(world)
@@ -30,17 +28,6 @@ function simulate!(world::Array{Patch,1}, timesteps::Int=1000, timeoffset::Int =
             writefasta(world, t)
         end
     end
-end
-
-"""
-    resetseedsizes!()
-
-Re-calculate minimal and maximal seed sizes.
-Only evaluated if the allometric relationship is to be simulated.
-"""
-function resetseedsizes!()
-    setting["minseedsize"] = calcallosize(setting["minrepsize"])
-    setting["maxseedsize"] = calcallosize(setting["maxrepsize"])
 end
 
 """
