@@ -13,4 +13,4 @@
 9 2 2 temp=298 prec=9 isisland 
 
 # continent :
-10 5 5 temp=298 prec=5 initpop
+10 15 15 temp=298 prec=5 initpop
