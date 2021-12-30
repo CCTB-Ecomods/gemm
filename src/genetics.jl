@@ -28,12 +28,12 @@ function meiosis(genome::Array{Chromosome,1}, maternal::Bool, heterozygosity::Bo
 end
 
 """
-    gettraitdict(chromosomes, traitnames, allometry)
+    gettraitdict(chromosomes, traitnames)
 
 Convert a genome (an array of chromosomes) into a dict of traits and their values.
 Seed size is calculated from adult size if allometric relationship is turned on.
 """
-function gettraitdict(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1}, allometry::Bool)
+function gettraitdict(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1})
     #TODO can this be made more efficient? It's called really often...
     traitdict = Dict{String, Float64}()
     traits = Array{Trait,1}()
@@ -53,18 +53,18 @@ function gettraitdict(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1},
     end
     traitdict["ngenes"] = ngenes
     traitdict["nlnkgunits"] = nchrms
-    allometry && (traitdict["seedsize"] = calcallosize(traitdict["repsize"]))
+    ## allometry && (traitdict["seedsize"] = calcallosize(traitdict["repsize"]))
     traitdict
 end
 
 """
-    gettraitdictfast(chromosomes, traitnames, allometry)
+    gettraitdictfast(chromosomes, traitnames)
 
 Convert a genome (an array of chromosomes) into a dict of traits and their values.
 This is an optimised version that can be run if `degpleiotropy` is 0 and `linkage` is "none".
 Seed size is calculated from adult size if allometric relationship is turned on.
 """
-function gettraitdictfast(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1}, allometry::Bool)
+function gettraitdictfast(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1})
     # Makes use of the fact that with `degpleiotropy == 0` and `linkage == "none"`,
     # there is exactly one trait per chromosome (one gene per chromosome and one trait per gene),
     # and the chromosomes are arranged in trait-order.
@@ -82,7 +82,7 @@ function gettraitdictfast(chrms::Array{Chromosome, 1}, traitnames::Array{String,
     end
     traitdict["ngenes"] = genomesize
     traitdict["nlnkgunits"] = genomesize
-    allometry && (traitdict["seedsize"] = calcallosize(traitdict["repsize"]))
+    ##allometry && (traitdict["seedsize"] = calcallosize(traitdict["repsize"]))
     traitdict
 end
 
@@ -450,9 +450,9 @@ function mutate!(ind::Individual, temp::Float64)
         end
     end
     if setting("degpleiotropy") == 0 && setting("linkage") == "none"
-        ind.traits = gettraitdictfast(ind.genome, setting("traitnames"), setting("allometry"))
+        ind.traits = gettraitdictfast(ind.genome, setting("traitnames"))
     else
-        ind.traits = gettraitdict(ind.genome, setting("traitnames"), setting("allometry"))
+        ind.traits = gettraitdict(ind.genome, setting("traitnames"))
     end
 end
 

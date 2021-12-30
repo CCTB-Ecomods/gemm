@@ -132,9 +132,9 @@ function createoffspring(noffs::Integer, ind::Individual, partner::Individual, d
         (isempty(partnergenome) || isempty(mothergenome)) && continue
         genome = vcat(partnergenome,mothergenome)
         if setting("degpleiotropy") == 0 && setting("linkage") == "none"
-            traits = gettraitdictfast(genome, setting("traitnames"), setting("allometry"))
+            traits = gettraitdictfast(genome, setting("traitnames"))
         else
-            traits = gettraitdict(genome, setting("traitnames"), setting("allometry"))
+            traits = gettraitdict(genome, setting("traitnames"))
         end
         marked = true
         fitness = 0.0

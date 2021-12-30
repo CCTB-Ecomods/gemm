@@ -33,7 +33,7 @@ function createpop(cellsize::Float64)
         ind = deepcopy(archetype) # XXX this is potentially very slow!
         ind.id = rand(UInt32)
         varyalleles!(ind.genome, locivar)
-        ind.traits = gettraitdict(ind.genome, setting("traitnames"), setting("allometry"))
+        ind.traits = gettraitdict(ind.genome, setting("traitnames"))
         if !(setting("indsize") == "adult" || setting("indsize") == "seed")
             #XXX sizes uniformally distributed?
             ind.size = ind.traits["seedsize"] + rand() * (ind.traits["repsize"] - ind.traits["seedsize"])
@@ -66,7 +66,7 @@ function createind(marked::Bool = false)
     end
     chromosomes = createchrms(nchrms, genes, lineage)
     varyalleles!(chromosomes, rand())
-    traitdict = gettraitdict(chromosomes, setting("traitnames"), setting("allometry"))
+    traitdict = gettraitdict(chromosomes, setting("traitnames"))
     if setting("indsize") == "adult"
         indsize = traitdict["repsize"]
     elseif setting("indsize") == "seed"
