@@ -7,7 +7,7 @@ in a Dict.
 function defaultSettings()
     # Return the default settings. All parameters must be registered here.
     Dict(
-        "allometry" => false, # whether to calculate seed size from adult size
+        "allometry" => true, # whether to calculate seed size from adult size
         "biggenelength" => 200, # length of the compatibility gene's sequence (if `usebiggenes`)
         "bodytemp"=> 312.0, # body temperature in K for homeothermic species
         "borders" => "absorbing", # border behaviour: absorbing/reflecting/mainland
@@ -31,7 +31,7 @@ function defaultSettings()
         "globalmating" => false, # global pollen "dispersal"
         "growthrate" => exp(25.2), # global base growth/biomass production from Brown et al. 2004
         "heterozygosity" => false, # keep track of heterozygosity when studying hybridisation
-        "indsize" => "seed", # initialize organisms as seed, adult or mixed
+        "indsize" => "adult", # initialize organisms as seed, adult or mixed
         "isolationweight" => 3.0, # additional distance to be crossed when dispersing from or to isolated patches
         "lineages" => false, # record lineage and diversity data (low detail output)
         "linkage" => "random", # gene linkage type (random/full/none)
@@ -53,7 +53,7 @@ function defaultSettings()
         "mutate" => true, # mutations occur
         "mutationrate" => 3.6e10, # one mutation per generation/individual, corrected for metabolic function
         "nniches" => 2, # number of environmental niches (max. 2) #XXX currently, only 2 is sensible
-        "outfreq" => 10, # output frequency
+        "outfreq" => 5, # output frequency
         "overfill" => 1.0, # how much to overfill grid cells beyond their capacity
         "phylconstr" => 0.1, # phylogenetic constraint during mutation and inter-loci variation. scales trait value as sd.
         "popsize" => "metabolic", # initialisation algorithm: metabolic/bodysize/minimal/single
