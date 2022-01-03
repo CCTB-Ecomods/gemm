@@ -22,7 +22,8 @@ function simulate!(world::Array{Patch,1}, timesteps::Int=1000, timeoffset::Int =
             simlog("Mode setting not recognised: $(setting("mode"))", 'e')
         end
         if iszero(mod(t, setting("outfreq")))
-            writedata(world, t)
+            simlog("Write data:")
+            @time writedata(world, t)
         end
         if iszero(mod(t, setting("fastaoutfreq"))) && (setting("fasta") != "off")
             writefasta(world, t)
@@ -36,16 +37,23 @@ end
 The standard annual update procedure, designed primarily for plant communities.
 """
 function defaultexperiment(world::Array{Patch,1})
-    establish!(world)
-    survive!(world)
-    grow!(world)
-    compete!(world)
-    reproduce!(world)
+    simlog("Establish:")
+    @time establish!(world)
+    simlog("Survive:")
+    @time survive!(world)
+    simlog("Grow:")
+    @time grow!(world)
+    simlog("Compete:")
+    @time compete!(world)
+    simlog("Reproduce:")
+    @time reproduce!(world)
     if setting("mutate")
         mutate!(world)
     end
-    disperse!(world)
-    changehabitat!(world) # model output
+    simlog("Disperse:")
+    @time disperse!(world)
+    simlog("Change habitat:")
+    @time changehabitat!(world) # model output
 end
 
 """

@@ -30,10 +30,10 @@ function survive!(patch::Patch)
         elseif mtype == "global"
             (rand() < setting("mortality")) && (dies = true)
         else
-            simlog("Invalid mortality type $mtype", 'e')
+            #simlog("Invalid mortality type $mtype", 'w')
         end
         if dies
-            @simlog("$(idstring(patch.community[idx])) has died.", 'd')
+            #@simlog("$(idstring(patch.community[idx])) has died.", 'w')
             splice!(patch.community, idx)
             continue
         end
