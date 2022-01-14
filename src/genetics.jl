@@ -53,7 +53,7 @@ function gettraitdict(chrms::Array{Chromosome, 1}, traitnames::Array{String, 1})
     end
     traitdict["ngenes"] = ngenes
     traitdict["nlnkgunits"] = nchrms
-    ## allometry && (traitdict["seedsize"] = calcallosize(traitdict["repsize"]))
+    setting("allometry") && (traitdict["repsize"] = calcadltsize(traitdict["seedsize"]))
     traitdict
 end
 
@@ -82,7 +82,7 @@ function gettraitdictfast(chrms::Array{Chromosome, 1}, traitnames::Array{String,
     end
     traitdict["ngenes"] = genomesize
     traitdict["nlnkgunits"] = genomesize
-    ##allometry && (traitdict["seedsize"] = calcallosize(traitdict["repsize"]))
+    setting("allometry") && (traitdict["repsize"] = calcadltsize(traitdict["seedsize"]))
     traitdict
 end
 

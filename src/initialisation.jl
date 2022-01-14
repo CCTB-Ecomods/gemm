@@ -219,24 +219,24 @@ function updateworld(oldworld::Array{Patch,1}, maptable::Array{Array{String,1},1
 end
 
 """
-    resetseedsizes!()
+    resetadltsizes!()
 
-Re-calculate minimal and maximal seed sizes.
+Re-calculate minimal and maximal adult sizes.
 Only evaluated if the allometric relationship is to be simulated.
 """
-function resetseedsizes!()
-    updatesetting("minseedsize", calcallosize(setting("minrepsize")))
-    updatesetting("maxseedsize", calcallosize(setting("maxrepsize")))
+function resetadltsizes!()
+    updatesetting("minrepsize", calcadltsize(setting("minseedsize")))
+    updatesetting("maxrepsize", calcadltsize(setting("maxseedsize")))
 end
 
 """
-    setallosize!(traitdict)
+    calcadltsize!(traitdict)
 
-Calculate seed size according to the allometric
-relatioship to adult size, devised by Hendriks and Mulder (2008).
+Calculate adult size according to the allometric
+relatioship devised by Hendriks and Mulder (2008).
 Only called if `settings["allometry"] == true`.
 """
-function calcallosize(repsize::Float64)
-    alloseedsize = 2.1410^(-3) * repsize^(0.5)
-    alloseedsize
+function calcadltsize(seedsize::Float64)
+    adltsize = seedsize^2/(2.14^2*10^(-6))
+    adltsize
 end

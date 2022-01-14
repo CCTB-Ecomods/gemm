@@ -8,7 +8,7 @@ function runsim(config::String = "", seed::Integer = 0)
     initsettings(defaultSettings()) #needed for log calls during `getsettings()`
     initsettings(getsettings(config, seed))
     # allometry relatioship resets setting seed min-max sizes
-    setting("allometry") && resetseedsizes!()
+    setting("allometry") && resetadltsizes!()
     Random.seed!(setting("seed"))
     setupdatadir()
     world = Patch[]
