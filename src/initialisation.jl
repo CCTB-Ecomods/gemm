@@ -238,6 +238,6 @@ Only called if `settings["allometry"] == true`.
 The actual size is calculated as exp(adltsize), thus the log().
 """
 function calcadltsize(seedsize::Float64)
-    adltsize = log(seedsize^2/(2.14^2*10^(-6)))
+    adltsize = log(exp(seedsize)^2/(2.14^2*10^(-6)))
     adltsize
 end
