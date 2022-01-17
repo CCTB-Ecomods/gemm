@@ -8,9 +8,9 @@ using Pkg
 Pkg.activate(".")
 using GeMM
 
-# remove old folder with results
+# remove od folder with results
 remove_old_results = `rm -r results/islsim_test`
 run(remove_old_results)
 
 #run gemm directly from .config file
-rungemm("studies/islandradiation/islsim_highmut.config", 0)
+rungemm("studies/islandradiation/islsim_test.config", 0)
