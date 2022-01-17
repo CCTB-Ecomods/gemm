@@ -9,15 +9,7 @@ Pkg.activate(".")
 using GeMM
 
 # remove old folder with results
-<<<<<<< Updated upstream
-remove_old_results = `rm -r results/islsim_test`
-run(remove_old_results)
-
-#run gemm directly from .config file
-rungemm("studies/islandradiation/islsim_highmut.config", 0)
-=======
 rm("results/islsim_test/", recursive=true, force=true)
 
 #run gemm directly from .config file
-rungemm("studies/islandradiation/islsim_test.config")
->>>>>>> Stashed changes
+rungemm("studies/islandradiation/islsim_test.config", 0)
