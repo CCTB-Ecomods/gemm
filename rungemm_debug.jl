@@ -12,4 +12,4 @@ using GeMM
 rm("results/islsim_test/", recursive=true, force=true)
 
 #run gemm directly from .config file
-rungemm("studies/islandradiation/islsim_test.config", 0)
+rungemm("studies/islandradiation/islsim_test.config", 2)

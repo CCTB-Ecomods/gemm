@@ -14,7 +14,7 @@ Profile.clear()
 
 rm("results/islsim_test/", recursive=true, force=true)
 
-@profile rungemm("studies/islandradiation/islsim_test.config", 0)
+@profile rungemm("studies/islandradiation/islsim_test.config", 2)
 
 open("profile_flat.txt", "w") do s
     Profile.print(IOContext(s, :displaysize=>(300,145)), format=:flat, mincount=10, sortedby=:count)
