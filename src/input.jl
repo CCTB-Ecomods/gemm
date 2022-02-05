@@ -37,7 +37,11 @@ function getsettings(configfile::String = "", seed::Integer = 0)
             settings[s] = true
         end
     end
-    settings
+    ## reset adult sizes if allometric rule is turned on
+    if settings["allometry"]
+        settings["minrepsize"] = calcadltsize(settings["minseedsize"])
+        settings["maxrepsize"] = calcadltsize(settings["maxseedsize"])
+    end
 end
 
 """
@@ -48,6 +52,10 @@ Certain parameters can be set via the commandline.
 function parsecommandline()
     s = ArgParseSettings()
     @add_arg_table s begin
+        "--allometry"
+            help = "allometric relationship between seed and adult sizes?"
+            arg_type = Bool
+            required = true
         "--seed", "-s"
             help = "inital random seed"
             arg_type = Int

@@ -658,3 +658,16 @@ function markthem!(world::Array{Patch, 1})
         markthem!(habitat)
     end
 end
+
+"""
+calcadltsize!(traitdict)
+      
+Calculate adult size according to the allometric
+relatioship devised by Hendriks and Mulder (2008).
+Only called if `settings["allometry"] == true`.
+The actual size is calculated as exp(adltsize), thus the log().
+"""
+function calcadltsize(seedsize::Float64)
+    adltsize = log(exp(seedsize)^2/(2.14^2*10^(-6)))
+    adltsize
+end
