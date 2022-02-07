@@ -7,6 +7,7 @@ in a Dict.
 function defaultSettings()
     # Return the default settings. All parameters must be registered here.
     Dict(
+        "allometry" => true,
         "biggenelength" => 200,
         "burn-in" => 1000, # timesteps before invasion starts
         "cellsize" => 20e6, # maximum biomass per hectare in gramm (based on Clark et al. 2001)
