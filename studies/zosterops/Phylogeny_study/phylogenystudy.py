@@ -14,7 +14,7 @@ import os, sys, shutil, time, subprocess
 # See `zosterops.config` for details
 default_settings = {
     # input/output settings
-    "maps":"Chyulu_025.map",
+    "maps":"Chyulu_25.map",
     "outfreq":1000,
     "fastaoutfreq":5000,
     "logging":"true",
@@ -95,7 +95,7 @@ def run_default():
     print("Running a default simulation.")
     conf = "zosterops_default.config"
     dest = "results/taita_hills"
-    shutil.copy("studies/zosterops/Chyulu_Taita_Maps/Chyulu_025.map", ".")
+    shutil.copy("studies/zosterops/Phylogeny_study/Chyulu_Taita_Maps/Chyulu_25.map", ".")
     if os.path.exists(dest):
         if input("Delete old test data? (y/n) ") == 'y':
             shutil.rmtree(dest)
