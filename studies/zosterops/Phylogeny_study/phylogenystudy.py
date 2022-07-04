@@ -4,6 +4,7 @@
 ##
 ## following the script from Daniel Vedder, 16/02/2021
 ## Charlotte Sieger, 14/05/2021
+## Robin Rölz 04/07/2022
 
 # NOTE: make sure to copy/symlink this to the model root folder before running
 
@@ -16,7 +17,7 @@ default_settings = {
     # input/output settings
     "maps":"Chyulu_025.map",
     "outfreq":1000,
-    "fastaoutfreq":5000,
+    "fastaoutfreq":10000,
     "logging":"true",
     "debug":"false",
     "stats":"true",
@@ -28,8 +29,8 @@ default_settings = {
     "nniches":2,
     "static":"false",
     "mutate":"true",
-    "phylconstr":0.01,
-    "mutationrate":"2.5e8",
+    "phylconstr":0.1,
+    "mutationrate":"2.5e9",
     "usebiggenes":"true",
     "compressgenes":"false",
     "indsize":"adult",
@@ -37,11 +38,11 @@ default_settings = {
     "degpleiotropy":0,
     # Zosterops-specific parameters
     "mode":"zosterops",
-    "tolerance":0.1,
+    "tolerance":0.3,
     "bodytemp":313.0,
     "cellsize":8,
     "fertility":2,
-    "dispmean":16,
+    "dispmean":20,
     "dispshape":2,
     "maxrepsize":2.5,
     "minrepsize":2.3,
@@ -51,7 +52,7 @@ default_settings = {
     "mortality":0.125,
     "heterozygosity":"true",
     # species parameters
-    "species":'[Dict("lineage"=>"archetype","precopt"=>20,"prectol"=>20,"tempopt"=>293,"temptol"=>2)]',
+    "species":'[Dict("lineage"=>"archetype","precopt"=>10,"prectol"=>10,"tempopt"=>293,"temptol"=>2)]',
     "traitnames":'["compat","dispmean","dispshape","numpollen","precopt","prectol","repsize","seqsimilarity","seedsize","tempopt","temptol"]',
     "traitsforecospec":'["dispmean","dispshape","precopt","prectol"]',
     # variable parameters
@@ -80,7 +81,7 @@ def write_config(config, dest, seed, **params):
     "Write out a config file with the given values"
     cf = open(config, 'w')
     cf.write("# GeMM Zosterops: Taita Hills study\n")
-    cf.write("# This config file was generated automatically by `habitatstudy.py`.\n")
+    cf.write("# This config file was generated automatically by `phylogenystudy.py`.\n")
     cf.write("# "+time.asctime()+"\n")
     cf.write("\ndest "+dest+"\n")
     cf.write("seed "+str(seed)+"\n")
@@ -95,7 +96,7 @@ def run_default():
     print("Running a default simulation.")
     conf = "zosterops_default.config"
     dest = "results/taita_hills"
-    shutil.copy("studies/zosterops/Chyulu_Taita_Maps/Chyulu_025.map", ".")
+    shutil.copy("studies/zosterops/Phylogeny_study/Chyulu_Taita_Maps/Chyulu_025.map", ".")
     if os.path.exists(dest):
         if input("Delete old test data? (y/n) ") == 'y':
             shutil.rmtree(dest)
@@ -117,7 +118,7 @@ def run_phylogeny_experiment(seed1, seedN, maps=all_maps):
     Launch a set of replicate simulations for the phylogeny experiment.
     Starts one run for each speciation scenario for each replicate seed from 1 to N.
     """
-    print("Running "+str(seedN-seed1+1)+" replicates of the habitat fragmentation experiment.")
+    print("Running "+str(seedN-seed1+1)+" replicates of the phylogeny experiment.")
     running_sims = []
     seed = seed1
     
@@ -136,7 +137,7 @@ def run_phylogeny_experiment(seed1, seedN, maps=all_maps):
             shutil.copy(full_file_name, ".")
     while seed <= seedN:
         for m in alternate_speciations:
-            conf = "phyl"+"_"+str(m)+"_"+str(seed)
+            conf = "savannah"+"_"+str(m)+"_"+str(seed)
             write_config(conf+".config", "results/"+conf, seed, speciation=m, maps=all_maps)
             sim = subprocess.Popen(["julia", "rungemm.jl", "--config", conf+".config"])
             running_sims.append(sim)
