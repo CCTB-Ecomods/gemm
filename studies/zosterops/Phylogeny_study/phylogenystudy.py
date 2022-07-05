@@ -24,7 +24,7 @@ default_settings = {
     "lineages":"true",
     "fasta":"all",
     "raw":"false",
-    "dumpindforfasta":"true"
+    "dumpindforfasta":"true",
     # general model parameters
     "linkage":"none",
     "nniches":2,
