@@ -10,6 +10,7 @@ No warranties for anything. Use at your own risk.
 Robin Rölz, 21/09/2021"""
 
 results_path = "gemm/results/"
+results_pattern = r"savannah_.*_2[0-9][0-9]"
 n_genes = 22
 
 """
@@ -86,8 +87,8 @@ end
 grab all results folders and returns one according to the SLURM_ARRAY_TASK_ID
 """
 
-function get_results(results_path)
-    folders = readdir(results_path)
+function get_results(results_path, results_pattern)
+    folders = filter(x->occursin(results_pattern,x), readdir(results_path))
     task_id = Base.parse(Int, ENV["SLURM_ARRAY_TASK_ID"])
     taskfolder = folders[task_id]
     return joinpath(results_path, taskfolder)
@@ -132,7 +133,7 @@ end
 
 
 println("Starting Analysis")
-folderpath = get_results(results_path)
+folderpath = get_results(results_path, results_pattern)
 println("Splitting .fa in "*folderpath)
 split_fa(folderpath, n_genes)
 println("Finished splitting .fa in "*folderpath)
