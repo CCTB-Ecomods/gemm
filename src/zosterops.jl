@@ -183,7 +183,7 @@ function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
                 @label success
                 bird.marked = true
                 push!(bestdest.community, bird)
-                @simlog("$(idstring(bird)) moved to $(bestdest.location).", 'd')
+                @simlog("$(idstring(bird)) moved to $(bestdest.location). $(route)", 'd') #TODO:change back
                 return #if we've found a spot, we're done
             end
         end
@@ -192,7 +192,7 @@ function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
         maxdist -= 1
     end #if the max dispersal distance is reached, the individual simply dies
     @label failure #XXX this could be removed (and `@goto failure` replaced with a simple `return`)
-    @simlog("A Z.$(bird.lineage) died after failed dispersal.", 'd')
+    @simlog("A Z.$(bird.lineage) died after failed dispersal. $(route)", 'd') #TODO:change back
 end
 
 """
