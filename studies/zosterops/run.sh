@@ -1,8 +1,9 @@
 #!/bin/bash
+#original daniel Vedder, modified for testing by Robin Rölz 
 
 echo "Copying input files."
 
-cp studies/zosterops/zosterops.config .
+cp studies/zosterops/Phylogeny_study/eco_test.config .
 #TODO change back to real simulation map
 cp studies/zosterops/taita_hills_test.map .
 #cp studies/zosterops/taita_hills.map .
