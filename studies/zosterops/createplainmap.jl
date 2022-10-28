@@ -66,11 +66,12 @@ function createplainmap(size::Int, run_length::Int, temperature, agc)
             x[eachi], " ", 
             y[eachi], " ",
             "temp=", temperature, " ",
-            "prec=", agc, " ")
+            "prec=", agc, " ", 
+            "initpop")
         #TODO: fix map parsing. So far first 'initpop' is ignored. This works but shouldn't
-        if ((x[eachi]==middle) && (y[eachi]== middle)) || (i[eachi]==1)
-            line=line*"initpop"
-        end
+        #if ((x[eachi]==middle) && (y[eachi]== middle)) || (i[eachi]==1)
+        #    line=line*"initpop"
+        #send
         map_text=map_text*line
     end
     return(map_text)
