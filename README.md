@@ -38,5 +38,5 @@ The current active development branch is [`Zosterops`](https://github.com/CCTB-E
 
 ---
 
-© 2017-2021 Ludwig Leidinger, Daniel Vedder.\
+© 2017-2022 Ludwig Leidinger, Daniel Vedder, Robin Rölz.\
 *Licensed under the terms of the MIT license.*

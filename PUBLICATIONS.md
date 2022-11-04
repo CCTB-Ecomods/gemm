@@ -23,14 +23,10 @@ files, map files, and analysis scripts for each study may be found in the `studi
    rescue of an endangered East African passerine. Evolutionary Applications, 15(7), 
    1177–1188. https://doi.org/10.1111/eva.13440
 
-5. Vedder, D., Ankenbrand, M., & Cabral, J. S. (2021). Dealing with software complexity 
-   in individual-based models. Methods in Ecology and Evolution, 12(12), 2324–2333. 
-   https://doi.org/10.1111/2041-210X.13716
-
-6. Figueiredo, L., Leidinger, L., Steffan-Dewenter, I., & Cabral, J. S. (*in review*). 
+5. Figueiredo, L., Leidinger, L., Steffan-Dewenter, I., & Cabral, J. S. (*in review*). 
    Evolutionary rescue and community re-assembly can mitigate extinction debts.
 
-7. Leidinger, L., & Cabral J. S. (*in preparation*). How genomic and ecological 
+6. Leidinger, L., & Cabral J. S. (*in preparation*). How genomic and ecological 
    traits affect radiations of plant species on oceanic islands: insights from a 
    genomically-explicit model.
 
