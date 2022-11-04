@@ -101,5 +101,9 @@ end
 testsettings("test.config")
 world = testworld("map100.map", true)
 hubert = testspawn(male)
-world[4995].seedbank = [hubert] #this is coordinate 50,50 use `findcoordinate()`
-zdisperse!(world)
+world[4950].seedbank = [hubert] #this is coordinate 50,50 use `coordinates()`
+routes = Array{Array{Int64,N},1000}
+for r in routes
+    r = zdisperse!(world[4950].seedbank[1], world[4950], world)
+end
+
