@@ -6,7 +6,11 @@ using
     Dates,
     Distributions,
     Random,
-    Statistics
+    Statistics,
+
+    DataFrames,
+    DataStructures,
+    CairoMakie
 
     include("defaults.jl")
 
@@ -98,12 +102,74 @@ function testsettings(config::String = "", seed::Integer = 0)
     Random.seed!(setting("seed"))
 end
 
+## Testing on completely plane map
 testsettings("test.config")
 world = testworld("map100.map", true)
+#make bird like the ones in simulation
 hubert = testspawn(male)
+hubert.traits["dispmean"] = 40
+hubert.traits["dispshape"] = 0.04
 world[4950].seedbank = [hubert] #this is coordinate 50,50 use `coordinates()`
-routes = Array{Array{Int64,N},1000}
-for r in routes
+
+#call the movement function a large number of times
+routes = Vector{Vector{Tuple{Int64, Int64}}}()
+for i in 1:100000
     r = zdisperse!(world[4950].seedbank[1], world[4950], world)
+    push!(routes, r)
 end
 
+#plot the results
+CairoMakie.activate!()
+endpoint = [last(x) for x in routes]
+epamount = counter(endpoint)
+x_point = [first(x) for x in keys(epamount)]
+y_point = [last(x) for x in keys(epamount)]
+count = [x for x in values(epamount)]
+heatmap(x_point, y_point, count)
+
+pathpoints = Vector{Tuple{Int64, Int64}}()
+for x in routes
+    append!(pathpoints, x)
+end
+epamount = counter(endpoint)
+x_point = [first(x) for x in keys(epamount)]
+y_point = [last(x) for x in keys(epamount)]
+count = [x for x in values(epamount)]
+heatmap(x_point, y_point, count)
+
+## Testing on sloped map no noise
+testsettings("test.config")
+world = testworld("studies/zosterops/Phylogeny_study/maptest.map", true)
+
+#test and plot world
+#make bird like the ones in simulation
+hubert = testspawn(male)
+hubert.traits["dispmean"] = 40
+hubert.traits["dispshape"] = 0.04
+world[9937].seedbank = [hubert] #this is coordinate 37, 100 use `coordinate()`
+
+#call the movement function a large number of times
+routes = Vector{Vector{Tuple{Int64, Int64}}}()
+for i in 1:100000
+    local r = zdisperse!(world[9937].seedbank[1], world[9937], world)
+    push!(routes, r)
+end
+
+#plot the results
+CairoMakie.activate!()
+endpoint = [last(x) for x in routes]
+epamount = counter(endpoint)
+x_point = [first(x) for x in keys(epamount)]
+y_point = [last(x) for x in keys(epamount)]
+count = [x for x in values(epamount)]
+heatmap(x_point, y_point, count)
+
+pathpoints = Vector{Tuple{Int64, Int64}}()
+for x in routes
+    append!(pathpoints, x)
+end
+epamount = counter(endpoint)
+x_point = [first(x) for x in keys(epamount)]
+y_point = [last(x) for x in keys(epamount)]
+count = [x for x in values(epamount)]
+heatmap(x_point, y_point, count)
