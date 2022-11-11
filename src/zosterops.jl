@@ -265,24 +265,25 @@ function zreproduce!(patch::Patch)
     end
 end
 
-let width = 0, height = 0
+#let width = 0, height = 0
     """
         coordinate(x, y, world)
 
     A utility function to perform a fast look-up for the patch at coordinate x/y.
     Important: this assumes a rectangular world with coordinates in row-major order!
+    Highest x,y needs to be at the last index point
     Returns the index of the desired patch.
     """
-    global function coordinate(x::Int, y::Int, world::Array{Patch,1})
-        if iszero(width)
-            width = maximum(p -> p.location[1], world)
-            height = maximum(p -> p.location[2], world)
-        end
+    function coordinate(x::Int, y::Int, world::Array{Patch,1})
+        #width = maximum(p -> p.location[1], world)
+        #height = maximum(p -> p.location[2], world)
+        width = world[end].location[1]
+        height = world[end].location[2]
         (x <= 0 || y <= 0 || x > width || y > height) && return
         i = ((y-1) * width) + x
         return i
     end
-end
+#end
 
 """
     findneighbours(world)
