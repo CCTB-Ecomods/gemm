@@ -2,6 +2,7 @@
 
 using Test
 include("../src/entities.jl")
+include("../src/output.jl")
 include("../src/zosterops.jl")
 
 function mktestworld(xdim, ydim, prec)
@@ -16,15 +17,46 @@ function mktestworld(xdim, ydim, prec)
     return testworld
 end
 
-@testset "findneighbours" begin
-    w = mktestworld(100,200,10)
-    @testset "corners" begin
-        @test length(w[1].neighbours) == 3
-        @test length(w[end].neighbours) == 3
+@testset "zosterops" begin
+    xlim, ylim = 75, 200
+    w = mktestworld(xlim,ylim,10)
+
+    @testset "coordinate()" begin 
+        for x in 1:xlim, y in 1:ylim
+            idx = coordinate(x, y, w)
+            @test w[idx].location == (x, y)
+        end
     end
-    @testset "assert neighbours" begin
-        for p in w 
-            @test !isempty(p.neighbours)
+    @testset "findneighbours" begin
+        @testset "assert number neighbours" begin
+            for p in w
+                neighbour_length = 0
+                x_edge = p.location[1] in [1, xlim]
+                y_edge = p.location[2] in [1, ylim]
+                if x_edge & y_edge
+                    neighbour_length = 3
+                elseif x_edge | y_edge
+                    neighbour_length = 5
+                else
+                    neighbour_length = 8
+                end
+                @test length(p.neighbours) == neighbour_length
+            end
+        end
+        @testset "has neighbours" begin
+            for p in w
+                @test !isempty(p.neighbours)
+        
+            end
+        end
+        @testset "mutual neighbours" begin
+            for p in w
+                all_mutual = true
+                    for neighbour in p.neighbours
+                        all_mutual = all_mutual && p.id in w[neighbour].neighbours
+                    end
+                @test all_mutual
+            end
         end
     end
 end
