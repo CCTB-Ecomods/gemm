@@ -116,7 +116,8 @@ function isviable(ind::Individual)
     !traitsexist(ind.traits) && ((reason = "missingtrait"); @goto die)
     return true
     @label die
-    simlog("Individual not viable: $reason. Being killed.", 'w')
+    simlog("Individual not viable: $reason. Being killed.", 'd') 
+    #XXX: moved from warning to debug scince seed/rep happened too often and simlog printing is expensive on runtime
     return false
 end
 
