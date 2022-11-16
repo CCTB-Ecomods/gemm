@@ -1,6 +1,7 @@
 # Unit tests for some functions in zosterops
 
 using Test
+
 include("../src/entities.jl")
 include("../src/output.jl")
 include("../src/zosterops.jl")
@@ -60,5 +61,3 @@ end
         end
     end
 end
-
-

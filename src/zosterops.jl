@@ -193,7 +193,7 @@ function zdisperse!(bird::Individual, patch::Patch, world::Array{Patch,1})
     end #if the max dispersal distance is reached, the individual simply dies
     @label failure #XXX this could be removed (and `@goto failure` replaced with a simple `return`)
     @simlog("A Z.$(bird.lineage) died after failed dispersal. $(route)", 'd') #TODO:change back
-    return route
+    return route #this return stays in for purposes of testing. If I benchmarked correctly it shouldn't change the execution time
 end
 
 """

@@ -1,6 +1,23 @@
 #Utility functions specifically for testing the model. These
 #are not needed in the main source code but sometimes do call on those
 #functions
+
+"""
+    mktestworld(xdim, ydim, prec)
+
+Creates a fully uniform world for testing functions
+"""
+function mktestworld(xdim, ydim, prec)
+    testworld = Array{Patch, 1}()
+    i = 1
+    for y in 1:ydim, x in 1:xdim
+            p = Patch(i, (x, y), prec)
+            push!(testworld, p)
+            i+=1
+    end
+    findneighbours!(testworld)
+    return testworld
+end
 """
     testworld(mapfilename)
 
