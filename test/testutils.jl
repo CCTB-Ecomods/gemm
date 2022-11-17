@@ -15,7 +15,7 @@ function mktestworld(xdim, ydim, prec)
             push!(testworld, p)
             i+=1
     end
-    findneighbours!(testworld)
+    #findneighbours!(testworld)
     return testworld
 end
 """
