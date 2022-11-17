@@ -1,4 +1,6 @@
 #Testing and example for julia workflow
+module Ngb
+export findneighbours!, mktestworld
 using 
     ArgParse,
     Dates,
@@ -6,8 +8,6 @@ using
     Random,
     Statistics,
     DataFrames,
-
-    BenchmarkTools
 
     include("../src/defaults.jl")
 
@@ -41,4 +41,4 @@ using
 
     include("testutils.jl")
 
-export mktestworld, findneighbours
+end

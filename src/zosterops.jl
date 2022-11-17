@@ -301,6 +301,7 @@ function findneighbours!(world::Array{Patch,1})
                 push!(patch.neighbours, neighbour)
             end
         end
+        #patch.neighbours = [69, 420]
     end
 end
 
