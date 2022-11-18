@@ -128,7 +128,10 @@ end
 Disperse all juvenile individuals within the world. 
 """
 function zdisperse!(world::Array{Patch,1})
-    for patch in world
+    patch_ids = [p.id for p in world]
+    shuffle!(patch_ids)
+    for id in patch_ids
+        patch = world[id]
         for ind in patch.seedbank
             #growth is one-step, so we integrate it here
             ind.size = ind.traits["repsize"]
