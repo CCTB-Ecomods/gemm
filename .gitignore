@@ -12,3 +12,4 @@ data/
 analyse.R
 experiment.py
 plainmap*
+.vscode/
