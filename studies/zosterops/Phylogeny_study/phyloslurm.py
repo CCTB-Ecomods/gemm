@@ -114,15 +114,35 @@ def run_default():
 ## TODO write a generic experiment function
 ## def setup_experiment(configs)
 
-def setup_experiment(seed1, seedN, maps):
+def setup_experiment(seed1, seedN, expname, maps, mapsource):
     """
     Create a set of configuration files for the phylogenetic experiment
     Creates one folder for all the configurations and to be then run with a batch script
     """
-    print("Creating configs for "+str(seedN-seed1+1)+" replicates of the phylogeny experiment.")
+    exp = "exp_"+expname
+    print("Creating configs for "+str(seedN-seed1+1)+" replicates of the phylogeny experiment in "+exp+"/.")
+    os.mkdir(exp)
+    
     seed = seed1
 
-def setup_chyulu_experiment(seed1, seedN, maps=all_maps):
+    #copy maps into gemm working directory (makes easier to load in)
+    for m in maps:
+        full_file_name = os.path.join(mapsource, m)
+        if os.path.isfile(full_file_name):
+            shutil.copy(full_file_name, ".")
+        else:
+            print(full_file_name+" not found")
+
+    #Create Configuration files
+    while seed <= seedN:
+        for m in alternate_speciations:
+            conf = expname+"_"+str(m)+"_"+str(seed)
+            write_config(exp+"/"+conf+".config", "results/"+exp+"/"+conf, seed, speciation=m, maps=maps)
+        seed = seed + 1
+
+
+
+def setup_chyulu_experiment(seed1, seedN, maps=chyulu_maps):
     """
     Launch a set of replicate simulations for the phylogeny experiment.
     Starts one run for each speciation scenario for each replicate seed from 1 to N.
