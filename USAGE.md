@@ -5,37 +5,44 @@
 ### System requirements
 
 The model has successfully been tested on various Linux machines (64 bit), running Ubuntu, Arch Linux, and Mint.
-You need to have `git` and `julia` (>=1.6) installed (https://julialang.org/downloads/), including packages 
+You need to have `git` and `julia` (>=1.6) installed (https://julialang.org/downloads/), including packages
 `Distributions`, and `ArgParse`. Newer versions should work as well.
 
 ### Installation guide
 
-Download and extract julia from https://julialang.org/downloads/.
-Enter the created directory and run
+Install Julia for example by downloading and extracting from https://julialang.org/downloads/.  
+Make sure you can call it from the command line for example by trying  
 
+```bash
+which julia
 ```
-bin/julia
+
+Download GeMM by running
+
+```bash
+git clone https://github.com/CCTB-Ecomods/gemm.git
 ```
+
+Enter the directory and run  
+
+```bash
+julia
+```  
 
 to launch the REPL.
 Press `]` to enter the Pkg REPL and run
 
-```
-add Distributions
-add ArgParse
-```
+```julia
+activate .
+instantiate
+```  
 
-Press backspace or ^C to get back to the Julia REPL (https://docs.julialang.org/en/v1/stdlib/Pkg/index.html).
+to install the necessary packages.
 
-Download GeMM by running
+To get back to the julia REPL press backspace or ^C (https://docs.julialang.org/en/v1/stdlib/Pkg/index.html).  
+Exit the REPL using exit() or ^D and run
 
-```
-git clone https://github.com/lleiding/gemm.git
-```
-
-Enter the directory and run
-
-```
+```bash
 julia rungemm.jl
 ```
 
@@ -43,7 +50,7 @@ to test if it works.
 
 ## Instructions for use
 
-To design your own experiments, you need to provide a map and a configuration file. 
+To design your own experiments, you need to provide a map and a configuration file.
 (See the folders in `studies/` for our previous work.)
 
 ### Map file(s)
@@ -55,7 +62,7 @@ The first three integer values represent ID, x-location and y-location respectiv
 Additional fields can be used to further characterize grid cell.
 Options and their value types are
 
-```
+```julia
 temp::Float64
 prec::Float64
 isisland::Bool
@@ -97,7 +104,7 @@ See `src/defaults.jl` for a list of all available parameters and a brief descrip
 All parameters not set by the user will revert to the values defined in this list of defaults.
 At the least, any configuration file should contain a line to define the map file(s):
 
-```
+```bash
 maps <mapfile[,mapfile2,...]>
 ```
 
@@ -139,7 +146,7 @@ capgrowth     true
 
 To run a single experiment, execute:
 
-```
+```bash
 ./rungemm.jl -c <CONFIG>
 ```
 
@@ -167,20 +174,19 @@ passed to the Julia runtime, there shouldn't be any problems.)**
 There's a separate script to run several replicates of a given experiment
 in parallel. This is used as follows:
 
-```
+```bash
 julia -p <NPROCS> rungemmparallel.jl -s <SEED> -n <NREPS> -c <CONFIG>
 ```
 
-where `<NPROCS>` = number of cores, `<SEED>` = integer value to set a random seed, 
+where `<NPROCS>` = number of cores, `<SEED>` = integer value to set a random seed,
 `<NREPS>` = number of replicates and `<CONFIG>` the configuration file.
 *(FIXME how about the `-t` option?)*
-
 
 ## Demo
 
 To run an example experiment in a landscape with two environmental gradients to test the effect of temporal environmental variation, run
 
-```
+```bash
 julia -p 40 rungemmparallel.jl -s 1 -n 20 -c studies/gradient/sg,studies/gradient/sgv
 ```
 
