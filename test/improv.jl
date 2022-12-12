@@ -43,7 +43,7 @@ using
     
     include("../src/run_simulation.jl")
 
-    include("testutils.jl") #somehow including is fucky here
+    include("testutils.jl") #somehow including is weird here
 
 function plotfromspot(x, y, world::Array{Patch, 1}, ind::Individual)
     id = coordinate(x,y,world)
@@ -70,50 +70,43 @@ function plotfromspot(x, y, world::Array{Patch, 1}, ind::Individual)
     yloc = [w.location[2] for w in world]
     prec = [w.prec for w in world]
 
-    # fig = Figure(resolution = (5000, 5000))
-    fig, ax1, world_map = heatmap(-xloc, -yloc, prec,
+    fig = Figure(resolution = (600, 800)) 
+    ax1 = Axis(fig[1,2], 
+        title = "Map of precipitation \n \n")
+    world_map = heatmap!(ax1, -xloc, -yloc, prec,
         colormap = :speed)
-    ax1.aspect = DataAspect()
-    ax2, mov_map = heatmap(fig[1, end+1], -x_point, -y_point, count)
+    ax1.aspect = 0.25
+    Colorbar(fig[1,1], world_map)
+
+    ax2 = Axis(fig[1,3], 
+        xticksvisible = false, 
+        yticksvisible = false, 
+        backgroundcolor = :grey, 
+        title = "Visited tiles of 1000 repeated \n movements from ($x, $y),\n "*
+        "of a bird with optimum \n precipitation of "
+        *string(ind.traits["precopt"]))
+    mov_map = heatmap!(ax2, -x_point, -y_point, count, 
+        colormap = :imola)
     limits!(ax2, -xloc[end], -xloc[1], -yloc[end] , -yloc[1])
     ax2.aspect = 0.25
+    Colorbar(fig[1,4], mov_map)
+
+    set_theme!(backgroundcolor = :lightgrey)
+        
     return fig
 end
+
+CairoMakie.activate!()
 
 ## Testing on completely plane map
 testsettings("test.config")
 world = testworld("map100.map", true)
 #make bird like the ones in simulation
-hubert = testspawn(male)
-hubert.traits["dispmean"] = 40
-hubert.traits["dispshape"] = 0.04
-world[4950].seedbank = [hubert] #this is coordinate 50,50 use `coordinates()`
+testind = testspawn(male)
+testind.traits["dispmean"] = 40
+testind.traits["dispshape"] = 0.04
 
-#call the movement function a large number of times
-routes = Vector{Vector{Tuple{Int64, Int64}}}()
-for i in 1:10000
-    r = zdisperse!(world[4950].seedbank[1], world[4950], world)
-    push!(routes, r)
-end
-
-#plot the results
-CairoMakie.activate!()
-endpoint = [last(x) for x in routes]
-epamount = counter(endpoint)
-x_point = [first(x) for x in keys(epamount)]
-y_point = [last(x) for x in keys(epamount)]
-count = [x for x in values(epamount)]
-heatmap(x_point, y_point, count)
-
-pathpoints = Vector{Tuple{Int64, Int64}}()
-for x in routes
-    append!(pathpoints, x)
-end
-epamount = counter(endpoint)
-x_point = [first(x) for x in keys(epamount)]
-y_point = [last(x) for x in keys(epamount)]
-count = [x for x in values(epamount)]
-heatmap(x_point, y_point, count)
+plotfromspot(50, 50, world, testind)
 
 ## Testing on sloped map no noise
 testsettings("test.config")
@@ -121,18 +114,19 @@ world = testworld("studies/zosterops/Phylogeny_study/maptest.map", true)
 
 #test and plot world
 #make bird like the ones in simulation
-hubert = testspawn(male)
-hubert.traits["dispmean"] = 40
-hubert.traits["dispshape"] = 0.04
-spotidx = coordinate(37, 100, world)
-world[spotidx].seedbank = [hubert] #this is coordinate 37, 100 use `coordinate()`
+testind = testspawn(male)
+testind.traits["dispmean"] = 40
+testind.traits["dispshape"] = 0.04
 
-CairoMakie.activate!()
-plotfromspot(37,100, world, hubert)
+plotfromspot(37,100, world, testind)
 
-hubert.traits["dispmean"] = 40
-hubert.traits["precopt"] = 40.0
-plotfromspot(50,180, world, hubert)
+#this is coordinate 37, 100 use `coordinate()`
+
+plotfromspot(37,100, world, testind)
+
+testind.traits["dispmean"] = 40
+testind.traits["precopt"] = 40.0
+plotfromspot(50,180, world, testind)
 
 ## Testing on Taita Map
 testsettings("test.config")
@@ -142,48 +136,8 @@ for p in world
 end
 #test and plot world
 #make bird like the ones in simulation
-hubert = testspawn(male)
-hubert.traits["dispmean"] = 100
-hubert.traits["dispshape"] = 0.04
+testind = testspawn(male)
+testind.traits["dispmean"] = 100
+testind.traits["dispshape"] = 0.04
 
-world[4492].seedbank = [hubert] #this is coordinate 37, 100 use `coordinate()`
-
-#call the movement function a large number of times
-routes = Vector{Vector{Tuple{Int64, Int64}}}()
-for i in 1:100
-    local r = zdisperse!(world[4492].seedbank[1], world[4492], world)
-    push!(routes, r)
-end
-
-#plot the results
-CairoMakie.activate!()
-endpoint = [last(x) for x in routes]
-epamount = counter(endpoint)
-x_point = [first(x) for x in keys(epamount)]
-y_point = [last(x) for x in keys(epamount)]
-count = [x for x in values(epamount)]
-heatmap(x_point, y_point, count)
-
-pathpoints = Vector{Tuple{Int64, Int64}}()
-for x in routes
-    append!(pathpoints, x)
-end
-epamount = counter(pathpoints)
-x_point = [first(x) for x in keys(epamount)]
-y_point = [last(x) for x in keys(epamount)]
-count = [x for x in values(epamount)]
-heatmap(x_point, y_point, count)
-hist(length.(routes), bins = 50)
-
-df = DataFrame(Idx = [w.id for w in world],
-    XLoc = [w.location[1] for w in world], 
-    YLoc = [w.location[2] for w in world],
-    Prec = [w.prec for w in world])
-
-fig, ax1, taita_map = heatmap(-df.XLoc, -df.YLoc, df.Prec,
-    colormap = :speed)
-ax1.aspect = DataAspect()
-ax2, mov_map = heatmap(fig[1, end+1], -x_point, -y_point, count)
-limits!(ax2, -1, -45, -1 , -171)
-ax2.aspect = 0.25
-fig
+plotfromspot(37, 100, world, testind)
