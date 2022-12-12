@@ -62,12 +62,49 @@ default_settings = {
 
 alternate_speciations = ["ecological","neutral"]
 slope_map = "maptest.map"
-chyulu_maps = "Chyulu_25.map,Chyulu_50.map,Chyulu_75.map,Chyulu_100.map,Chyulu_125.map,Chyulu_150.map,Chyulu_175.map,Chyulu_200.map,Chyulu_225.map,Chyulu_250.map,Chyulu_275.map,Chyulu_300.map,Chyulu_325.map,Chyulu_350.map,Chyulu_350.map,Chyulu_375.map,Chyulu_400.map,Chyulu_425.map,Chyulu_450.map,Chyulu_475.map,Chyulu_500.map,Chyulu_525.map,Chyulu_550.map,Chyulu_575.map,Chyulu_600.map,Chyulu_625.map,Chyulu_650.map,Chyulu_675.map,Chyulu_700.map,Chyulu_725.map,Chyulu_750.map"
+chyulu_src = "studies/zosterops/Phylogeny_study/Chyulu_Taita_Maps"
+chyulu_maps = [
+    "Chyulu_25.map",
+    "Chyulu_50.map",
+    "Chyulu_75.map",
+    "Chyulu_100.map",
+    "Chyulu_125.map",
+    "Chyulu_150.map",
+    "Chyulu_175.map",
+    "Chyulu_200.map",
+    "Chyulu_225.map",
+    "Chyulu_250.map",
+    "Chyulu_275.map",
+    "Chyulu_300.map",
+    "Chyulu_325.map",
+    "Chyulu_350.map",
+    "Chyulu_350.map",
+    "Chyulu_375.map",
+    "Chyulu_400.map",
+    "Chyulu_425.map",
+    "Chyulu_450.map",
+    "Chyulu_475.map",
+    "Chyulu_500.map",
+    "Chyulu_525.map",
+    "Chyulu_550.map",
+    "Chyulu_575.map",
+    "Chyulu_600.map",
+    "Chyulu_625.map",
+    "Chyulu_650.map",
+    "Chyulu_675.map",
+    "Chyulu_700.map",
+    "Chyulu_725.map",
+    "Chyulu_750.map"
+]
 
 
 ## AUXILIARY FUNCTIONS
 
-def archive_code(experiment_folder):
+def archive_code(experiment_folder = "."):
+    
+    if experiment_folder == "":
+        raise ValueError("Please enter an appropriate name for a folder")
+
     "Save the current codebase in a tar archive."
     tarname = time.strftime(experiment_folder+"/GeMM_source_%d%b%y.tar.gz")
     print("Archiving codebase in "+tarname)
@@ -114,7 +151,7 @@ def run_default():
 ## TODO write a generic experiment function
 ## def setup_experiment(configs)
 
-def setup_experiment(seed1, seedN, expname, maps, mapsource):
+def setup_experiment(expname, seed1, seedN, maps, mapsource):
     """
     Create a set of configuration files for the phylogenetic experiment
     Creates one folder for all the configurations and to be then run with a batch script
@@ -122,6 +159,8 @@ def setup_experiment(seed1, seedN, expname, maps, mapsource):
     exp = "exp_"+expname
     print("Creating configs for "+str(seedN-seed1+1)+" replicates of the phylogeny experiment in "+exp+"/.")
     os.mkdir(exp)
+
+    archive_code(experiment_folder=exp)
     
     seed = seed1
 
@@ -131,20 +170,22 @@ def setup_experiment(seed1, seedN, expname, maps, mapsource):
         if os.path.isfile(full_file_name):
             shutil.copy(full_file_name, ".")
         else:
-            print(full_file_name+" not found")
+            raise FileNotFoundError(full_file_name+" not found")
+
+    mapstring = "\""+",".join(maps)+"\""
 
     #Create Configuration files
     while seed <= seedN:
         for m in alternate_speciations:
             conf = expname+"_"+str(m)+"_"+str(seed)
-            write_config(exp+"/"+conf+".config", "results/"+exp+"/"+conf, seed, speciation=m, maps=maps)
+            write_config(exp+"/"+conf+".config", "results/"+exp+"/"+conf, seed, speciation=m, maps=mapstring)
         seed = seed + 1
 
 
 
 def setup_chyulu_experiment(seed1, seedN, maps=chyulu_maps):
     """
-    Launch a set of replicate simulations for the phylogeny experiment.
+    Launch a set of replicate simulations for the Chyulu-Taita phylogeny experiment.
     Starts one run for each speciation scenario for each replicate seed from 1 to N.
     """
     print("Running "+str(seedN-seed1+1)+" replicates of the phylogeny experiment.")
@@ -180,8 +221,13 @@ def setup_chyulu_experiment(seed1, seedN, maps=chyulu_maps):
 ## ./habitatstudy.py [archive/default]
 ## ./habitatstudy.py [chyulu] <seed1> <seedN>
 if __name__ == '__main__':
-    archive_code()
     if len(sys.argv) < 2 or sys.argv[1] == "default":
+        archive_code()
         run_default()
-    elif sys.argv[1] == "chyulu":
-        setup_chyulu_experiment(int(sys.argv[2]), int(sys.argv[3]))
+    else:
+        setup_experiment(expname=sys.argv[1], 
+        seed1=int(sys.argv[2]), 
+        seedN=int(sys.argv[3]),
+        maps=chyulu_maps,
+        mapsource=chyulu_src
+        )
