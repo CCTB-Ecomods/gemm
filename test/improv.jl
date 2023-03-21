@@ -47,11 +47,12 @@ using
 
 function plotfromspot(x, y, world::Array{Patch, 1}, ind::Individual)
     id = coordinate(x,y,world)
+    reps = 1000
     
     world[id].seedbank = [ind]
 
     routes = Vector{Vector{Tuple{Int64, Int64}}}()
-    for i in 1:1000
+    for i in 1:reps
         local r = zdisperse!(world[id].seedbank[1], world[id], world)
         push!(routes, r)
     end
@@ -64,7 +65,6 @@ function plotfromspot(x, y, world::Array{Patch, 1}, ind::Individual)
     x_point = [first(x) for x in keys(epamount)]
     y_point = [last(x) for x in keys(epamount)]
     count = [x for x in values(epamount)]
-    heatmap(x_point, y_point, count)
 
     xloc = [w.location[1] for w in world] 
     yloc = [w.location[2] for w in world]
@@ -76,17 +76,19 @@ function plotfromspot(x, y, world::Array{Patch, 1}, ind::Individual)
     world_map = heatmap!(ax1, -xloc, -yloc, prec,
         colormap = :speed)
     ax1.aspect = 0.25
-    Colorbar(fig[1,1], world_map)
+    Colorbar(fig[1,1], world_map, 
+        flipaxis = false)
 
     ax2 = Axis(fig[1,3], 
         xticksvisible = false, 
         yticksvisible = false, 
         backgroundcolor = :grey, 
-        title = "Visited tiles of 1000 repeated \n movements from ($x, $y),\n "*
+        title = "Visited tiles of $reps repeated \n movements from ($x, $y),\n "*
         "of a bird with optimum \n precipitation of "
         *string(ind.traits["precopt"]))
     mov_map = heatmap!(ax2, -x_point, -y_point, count, 
-        colormap = :imola)
+        colormap = :imola, 
+        colorrange = (0, reps))
     limits!(ax2, -xloc[end], -xloc[1], -yloc[end] , -yloc[1])
     ax2.aspect = 0.25
     Colorbar(fig[1,4], mov_map)
@@ -141,3 +143,5 @@ testind.traits["dispmean"] = 100
 testind.traits["dispshape"] = 0.04
 
 plotfromspot(37, 100, world, testind)
+testind.traits["precopt"] = 10.0
+plotfromspot(25, 105, world, testind)
