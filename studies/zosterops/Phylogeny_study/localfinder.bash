@@ -18,6 +18,7 @@ tail -n +2 "$CHRS/locales/localinds.tsv" |
 	cut -f 12 \
 	> "$CHRS/locales/indids.txt" 
 
-grep -A 1 -f "$CHRS/locales/indids.txt" \
+grep -A 1 --no-group-separator \
+	-f "$CHRS/locales/indids.txt" \
 	"${CHRS}/seqs_s"*.fa \
 	> "${CHRS}/locales/indseqs.fa"
