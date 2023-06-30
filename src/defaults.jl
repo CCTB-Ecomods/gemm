@@ -47,6 +47,8 @@ function defaultSettings()
         "maxseedsize" => 10.0, # maximal seedsize in grams calculated as exp(maxseedsize) -> 22 kg
         "maxtemp" => 313.0, # max optimum temp in K
         "mortalitytype" => "metabolic", # metabolic/habitat/global
+        "mindispmean" => 0.0, # minimum value of randomly drawn mean dispersal distance in cells
+        "mindispshape" => 0.0, # minimum value of randomly drawn shape parameter for dispersal kernel. determines tail fatness/long distance dispersal
         "minprec" => 0.0, # min optimum precipitation
         "minrepsize" => 3.0, # minimal repsize in grams calculated as exp(minrepsize) -> 20 g
         "minseedsize" => -2.0, # minimal seedsize in grams calculated as exp(minseedsize) -> 0.14 g
