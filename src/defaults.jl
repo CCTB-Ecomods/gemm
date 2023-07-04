@@ -62,6 +62,7 @@ function defaultSettings()
         "overfill" => 1.0, # how much to overfill grid cells beyond their capacity
         "perfecttol" => 2.0, #if mortality is habitat dependent, how tolerant should a perfectly adapted individual be? scales for specialist selection pressure
         "phylconstr" => 0.1, # phylogenetic constraint during mutation and inter-loci variation. scales trait value as sd.
+        "ploidy" => 2, #sets ploidy of all created individuals, only possible for diploid and up
         "popsize" => "metabolic", # initialisation algorithm: metabolic/bodysize/minimal/single
         "precrange" => 0, # max optimum precipitation - deprecated! (use `maxprec`)
         "propagule-pressure" => 0, # number of non-native individuals introduced per invasion event

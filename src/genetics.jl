@@ -269,6 +269,7 @@ end
 Randomly create a given number of gene objects, with their base sequence and
 associated traits. Returns the result as an array of AbstractGenes.
 """
+#XXX:when using a larger compatibility gene the resulting genome has ngenes+1 genes when degpleiotropy != 0 
 function creategenes(ngenes::Int, traits::Array{Trait,1})
     genes = Array{AbstractGene,1}(undef, ngenes)
     bases = ['a','c','g','t']
@@ -329,12 +330,13 @@ function createcompatgene(bases::Array{Char,1}, compatidx::Int)::AbstractGene
 end
 
 """
-    createchrms(nchrms, genes)
+    createchrms(nchrms, ploidy, genes, lineage)
 
 Randomly distribute the passed genes into the given number of haploid chromosomes.
-Returns a diploid genome (array of chromosome objects).
+Returns a diploid genome (array of chromosome objects), which then is multiplied according 
+to ploidy setting.
 """
-function createchrms(nchrms::Int,genes::Array{AbstractGene,1},lineage::String)::Array{Chromosome,1}
+function createchrms(nchrms::Int,ploidy::Int,genes::Array{AbstractGene,1},lineage::String)::Array{Chromosome,1}
     chromosomes = Array{Chromosome,1}(undef,nchrms*2)
     if nchrms == 1 # linkage == "full"
         chromosomes[1] = @Chromosome(genes, true, lineage)
@@ -357,6 +359,10 @@ function createchrms(nchrms::Int,genes::Array{AbstractGene,1},lineage::String)::
             chromosomes[chr] = @Chromosome(cgenes, true, lineage)
             chromosomes[nchrms+chr] = @Chromosome(deepcopy(cgenes), false, lineage)
         end
+    end
+    diplchrs = deepcopy(chromosomes)
+    for n in 1:fld(ploidy,2)-1 # duplicate genome once for every level of ploidity        
+        append!(chromosomes, diplchrs)
     end
     chromosomes
 end

@@ -64,8 +64,12 @@ function createind(marked::Bool = false)
         linkage = rand(1:length(genes))
         nchrms = Integer(round(ngenes/linkage))
     end
-    chromosomes = createchrms(nchrms, genes, lineage)
+
+    ploidy = setting("ploidy")
+    (ploidy % 2 != 0 || ploidy < 2) && @simlog("$ploidy is not a valid setting for ploidy", 'e')
+    chromosomes = createchrms(nchrms, ploidy, genes, lineage)
     varyalleles!(chromosomes, rand())
+    
     traitdict = gettraitdict(chromosomes, setting("traitnames"))
     if setting("indsize") == "adult"
         indsize = traitdict["repsize"]
