@@ -66,7 +66,7 @@ function createind(marked::Bool = false)
     end
 
     ploidy = setting("ploidy")
-    ploidy % 2 != 0 && @simlog("$ploidy is not a valid setting for ploidy", 'e')
+    (ploidy % 2 != 0 || ploidy < 2) && @simlog("$ploidy is not a valid setting for ploidy", 'e')
     chromosomes = createchrms(nchrms, ploidy, genes, lineage)
     varyalleles!(chromosomes, rand())
     
