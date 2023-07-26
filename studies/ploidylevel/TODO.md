@@ -2,7 +2,8 @@
 
 ## Code
 
-- check whether supplying species works
+-[x] check whether supplying species works  
+    -> It doesn't 🥲
 
 ## Experiment
 
