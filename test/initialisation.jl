@@ -11,6 +11,7 @@ include("../src/run_simulation.jl")
 include("../src/defaults.jl")
 include("../src/entities.jl")
 include("../src/genetics.jl")
+include("../src/input.jl")
 include("../src/output.jl")
 include("../src/initialisation.jl")
 
